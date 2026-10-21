@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "harness": "node scripts/harness/check.mjs",
+    "harness:test": "node --test scripts/harness/tests/check.test.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",
