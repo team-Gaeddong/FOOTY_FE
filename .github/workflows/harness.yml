@@ -1,0 +1,66 @@
+name: FOOTY Harness
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harness-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    defaults:
+      run:
+        # Windows 러너의 기본 셸(pwsh)은 "$VAR"를 환경변수로 읽지 않는다.
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Validate and build the same PR head; not the synthetic merge commit.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          # FD-15 결정 전 임시값. 작성 환경(v24.14.1)과 같은 LTS 계열.
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Harness regression tests
+        run: npm run harness:test
+      - name: Verify PR changes
+        if: github.event_name == 'pull_request'
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PR_BRANCH: ${{ github.head_ref }}
+        run: npm run harness -- --base "$PR_BASE" --head "$PR_HEAD" --branch "$PR_BRANCH"
+      - name: Verify baseline build
+        if: github.event_name != 'pull_request'
+        run: npm run harness -- --mode baseline
+
+  harness:
+    name: harness
+    if: always()
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require every platform to pass
+        env:
+          VERIFY_RESULT: ${{ needs.verify.result }}
+        run: test "$VERIFY_RESULT" = success
