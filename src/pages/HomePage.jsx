@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { useAuth } from '../auth/useAuth.js'
 import { Button } from '../components/Button.jsx'
 import { PageLayout } from '../components/PageLayout.jsx'
@@ -27,6 +28,16 @@ export function HomePage() {
           {signingOut ? '로그아웃 중…' : '로그아웃'}
         </Button>
       </header>
+      <section className={styles.welcome}>
+        <p className={styles.eyebrow}>새로운 경기를 시작해요</p>
+        <h2>함께 뛸 경기를 만들어 보세요</h2>
+        <p className={styles.description}>
+          날짜와 장소, 참가 인원을 정하면 경기를 등록할 수 있어요.
+        </p>
+        <Link className={styles.createLink} to="/games/new">
+          경기 만들기
+        </Link>
+      </section>
     </PageLayout>
   )
 }

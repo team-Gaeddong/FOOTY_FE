@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
 import { AuthProvider } from './auth/AuthProvider.jsx'
 import { RequireAuth } from './auth/RequireAuth.jsx'
+import { CreateGamePage } from './pages/CreateGamePage.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { LoginCallbackPage } from './pages/LoginCallbackPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
@@ -16,6 +17,7 @@ function App() {
           <Route path="/login/callback" element={<LoginCallbackPage />} />
           <Route element={<RequireAuth />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/games/new" element={<CreateGamePage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
