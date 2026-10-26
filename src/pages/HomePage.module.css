@@ -1,0 +1,19 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.signOut {
+  width: auto;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  font-size: 14px;
+}
