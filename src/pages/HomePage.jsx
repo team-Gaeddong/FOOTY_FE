@@ -34,9 +34,10 @@ export function HomePage() {
         <p className={styles.description}>
           날짜와 장소, 참가 인원을 정하면 경기를 등록할 수 있어요.
         </p>
-        <Link className={styles.createLink} to="/games/new">
-          경기 만들기
-        </Link>
+        <div className={styles.actions}>
+          <Link className={styles.createLink} to="/games/new">경기 만들기</Link>
+          <Link className={styles.listLink} to="/games">경기 목록 보기</Link>
+        </div>
       </section>
     </PageLayout>
   )
