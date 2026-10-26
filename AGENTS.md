@@ -35,13 +35,13 @@ FOOTY는 축구 경기를 만들고, 참가 선수의 포지션·실력을 바�
 - React(`^19.2.8`) + Vite(`^8.3.0`, Rolldown 기반). `@vitejs/plugin-react` 6과 React Compiler(`babel-plugin-react-compiler`를 `@rolldown/plugin-babel`의 `reactCompilerPreset()`으로 적용)
 - JavaScript(JSX). TypeScript는 없다(FD-01)
 - ESLint 10 flat config(`eslint.config.js`): `@eslint/js` recommended, `eslint-plugin-react-hooks` recommended(React Compiler 진단 포함), `eslint-plugin-react-refresh` vite. `scripts/**/*.mjs`는 Node 전역으로 검사한다
-- 진입점: `index.html` → `src/main.jsx` → `src/App.jsx`. 화면은 아직 Vite 템플릿 그대로다
-- 선언된 런타임 의존성은 `react`, `react-dom`뿐이다. 라우터·상태 관리·HTTP 클라이언트·스타일 라이브러리·테스트 도구·포매터는 없다
+- 진입점: `index.html` → `src/main.jsx` → `src/App.jsx`(라우트). 폴더는 역할별 `src/{api,auth,components,pages}`(FD-02), 스타일은 CSS Modules(FD-08)
+- 선언된 런타임 의존성은 `react`, `react-dom`, `react-router`(FD-03)다. 서버 통신은 fetch 래퍼(FD-04), 전역 상태는 Context(FD-07)이고 상태 관리·HTTP 클라이언트·스타일 라이브러리·테스트 도구·포매터는 없다
 - 스크립트: `dev`, `build`, `lint`, `preview`, `harness`, `harness:test`. `test` 스크립트는 없다(FD-11)
 - Node: `engines`·`.nvmrc`가 없다(FD-15). 의존성 요구 범위는 Node 22.13 이상 또는 24 이상이고, 작성 환경은 v24.14.1, CI는 Node 24다
 - 원격 저장소: `team-Gaeddong/FOOTY_FE` (2026-10-21 조회: private, 기본 브랜치 `main`, 브랜치 보호 적용 불가 — FC-02)
 
-의존성 추가, 언어 전환, 폴더 구조, 라우팅·상태 관리·서버 통신·스타일링 방식은 팀 결정 사항이다(`decisions.md` FD-01~FD-10). 결정 전에는 추가하지 않는다.
+의존성 추가, 언어 전환, 폴더 구조, 라우팅·상태 관리·서버 통신·스타일링 방식은 팀 결정 사항이다(`decisions.md` FD-01~FD-10). 확정된 항목(FD-02~FD-08)은 그 결정을 따르고, 그 밖의 결정 전에는 추가하지 않는다.
 
 ## 3. 도메인과 백엔드 연동 규칙
 
@@ -54,7 +54,7 @@ FOOTY는 축구 경기를 만들고, 참가 선수의 포지션·실력을 바�
   - 인증 헤더는 `Authorization: Bearer {accessToken}`다. access 30분, refresh 14일이며 refresh는 재발급할 때마다 회전한다(BE D-05a·D-05d)
   - 로그인: 브라우저를 BE의 `/oauth2/authorization/google`로 이동 → BE가 `OAUTH_REDIRECT_URI`로 `?code={1회용 코드}`(1분) 또는 `?error=login_failed`를 붙여 돌려보냄 → `POST /auth/token`으로 토큰 교환 → 응답의 `onboarded`가 `false`면 온보딩 화면(BE D-05d·D-05e)
   - 온보딩을 마치지 않은 회원은 온보딩·로그아웃·탈퇴·토큰 재발급 외의 API에서 `403 MEMBER_403_1`을 받는다. 닉네임은 앞뒤 공백을 제거한 뒤 2~10자이고 중복을 허용한다(BE D-05e)
-- 토큰 저장 위치(FD-05), API 주소·CORS(FD-06), 날짜·시간대(FD-12)는 미결정이다. 이 결정에 의존하는 코드는 쓰지 않는다.
+- 토큰 저장(FD-05: access 메모리·refresh localStorage)과 개발 중 API 주소(FD-06: Vite proxy `/api`)는 확정이다. 날짜·시간대(FD-12)와 배포 주소(FD-16)는 미결정이므로 이 결정에 의존하는 코드는 쓰지 않는다.
 - 파티장 전용 동작(공지 작성, 팀 확정, 경기 삭제 등)은 FE에서 버튼 노출만 조절하고, 권한 판단은 BE 응답(403 등)을 따른다. 노출 조건이 기능 문서에 없으면 질문한다.
 
 ## 4. 항상 지킬 규칙

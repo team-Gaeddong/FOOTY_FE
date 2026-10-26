@@ -78,13 +78,13 @@
 | ID | 항목 | 상태 | 막히는 작업 | 현황·선택지 |
 |---|---|---|---|---|
 | FD-01 | 언어(JavaScript·TypeScript) | 미결정 | 첫 화면 구현 | 현재 JavaScript(JSX). Vite 템플릿 README는 TypeScript와 타입 기반 lint를 권장. 화면이 늘수록 전환 비용이 커짐 |
-| FD-02 | 폴더 구조 | 미결정 | 모든 화면 | 현재 `src/App.jsx` 하나. 예: 역할별(`pages`, `components`, `hooks`, `api`) / 도메인별(BE처럼 `auth`, `member`, `game` …) |
-| FD-03 | 라우팅 | 미결정 | 모든 화면, 로그인 콜백 | 라우터 없음. 라이브러리와 URL 규칙. 로그인 콜백 경로는 BE 환경변수 `OAUTH_REDIRECT_URI`와 맞아야 함(FD-06) |
-| FD-04 | 서버 통신·에러 처리 | 미결정 | 모든 API 연동 | HTTP 클라이언트(fetch·axios 등), 서버 상태 도구(TanStack Query 등) 사용 여부, `{code, message}` 공통 처리, access 만료 시 `POST /auth/reissue` 후 재시도 규칙 |
-| FD-05 | 토큰 저장 위치 | 미결정 | 로그인, 이후 모든 API | BE는 토큰을 JSON 본문으로 줌(쿠키 아님). 메모리·localStorage·sessionStorage 등. XSS 노출과 새로고침 유지의 맞교환. HttpOnly 쿠키 방식은 BE 변경이 필요(BE D-05 범위) |
-| FD-06 | API 주소·CORS·프록시 | 미결정 (BE 이슈 #13) | 모든 API 연동, 로그인 | BE `SecurityConfig`에 CORS 설정 없음. 개발 중 Vite `server.proxy`로 같은 origin을 만들지 BE에 CORS를 열지, 배포 구조, 환경변수 이름(예: `VITE_API_BASE_URL`), `OAUTH_REDIRECT_URI` 값 |
-| FD-07 | 전역 상태 관리 | 미결정 | 로그인 사용자 공유 등 | React state·Context만 / 상태 관리 라이브러리 |
-| FD-08 | 스타일링·디자인 토큰 | 미결정 | 모든 화면 | 현재 템플릿의 일반 CSS(`index.css`, `App.css`, `prefers-color-scheme`로 라이트·다크 자동 전환). CSS Modules·Tailwind·CSS-in-JS 등, 색·간격 토큰, 다크 모드 지원 여부 |
+| FD-02 | 폴더 구조 | 확정(2026-10-26, 김태균) | — | **역할별**: `src/api`(BE 호출), `src/auth`(토큰·로그인 상태), `src/components`(공통 UI), `src/pages`(화면). 필요할 때 `src/hooks` 추가 |
+| FD-03 | 라우팅 | 확정(2026-10-26, 김태균) | — | **react-router 7**(`BrowserRouter`). 로그인 콜백 경로는 `/login/callback`이고 BE `OAUTH_REDIRECT_URI`는 개발 중 `http://localhost:5173/login/callback` |
+| FD-04 | 서버 통신·에러 처리 | 확정(2026-10-26, 김태균) | — | **네이티브 fetch 래퍼**(`src/api/client.js`), 서버 상태 도구 없음. 실패는 `ApiError(status, code, message)`로 던지고 `code`로 분기. 인증 API가 401이면 `POST /auth/reissue`(동시 요청 1회로 합침) 후 한 번 재시도, 재발급 실패면 로그아웃 상태로 전환. 화면 문구는 FE가 `code`별로 정하고 BE `message`를 그대로 보여주지 않는다 |
+| FD-05 | 토큰 저장 위치 | 확정(2026-10-26, 김태균) | — | **access는 메모리, refresh는 localStorage**(`footy.refreshToken`). 새로고침하면 refresh로 재발급. XSS 시 refresh 노출 위험은 감수 |
+| FD-06 | API 주소·CORS·프록시 | 확정(2026-10-26, 김태균) — 개발 환경만. 배포는 FD-16 | — | **Vite proxy**: `/api/*`를 접두사를 떼고 BE(기본 `http://localhost:8080`, `.env.local`의 `FOOTY_BE_ORIGIN`으로 변경)로 전달. 같은 origin이라 BE CORS 불필요. `VITE_API_BASE_URL`(기본 `/api`)로 호출 주소를 바꿀 수 있음 |
+| FD-07 | 전역 상태 관리 | 확정(2026-10-26, 김태균) | — | **React state·Context만**. 로그인 상태는 `AuthProvider` |
+| FD-08 | 스타일링·디자인 토큰 | 확정(2026-10-26, 김태균) | — | **CSS Modules** + `src/index.css`의 `:root` CSS 변수(색·간격·모서리). 다크 모드는 지원하지 않음. 모바일(375px) 우선, 콘텐츠 최대 폭 420px |
 | FD-09 | 디자인 원본 | 미확인 | 화면 레이아웃·문구 | Figma 등 디자인 파일의 존재 여부와 URL(`sources.md`) |
 | FD-10 | 코드 포매터 | 미결정 (BE D-08 포매터도 미결정) | 모든 코드 | Prettier 사용 여부·설정, 커밋 훅 |
 | FD-11 | 테스트 도구·필수 여부 | 미결정 (BE D-09와 함께) | 테스트 작성 | `test` 스크립트 없음. 검사기는 `test` 스크립트가 생기면 자동 실행한다(대화형 watch 모드가 아니어야 함). 단위(Vitest·Testing Library 등)·E2E(Playwright 등) 선택 |
