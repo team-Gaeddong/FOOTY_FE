@@ -1,0 +1,18 @@
+.page {
+  display: flex;
+  justify-content: center;
+  min-height: 100svh;
+  padding: var(--space-5) var(--space-4);
+}
+
+.centered {
+  align-items: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 420px;
+}
