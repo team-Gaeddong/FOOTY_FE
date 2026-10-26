@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { useAuth } from '../auth/useAuth.js'
 import { Button } from '../components/Button.jsx'
 import { PageLayout } from '../components/PageLayout.jsx'
@@ -27,6 +28,11 @@ export function HomePage() {
           {signingOut ? '로그아웃 중…' : '로그아웃'}
         </Button>
       </header>
+      <footer className={styles.footer}>
+        <Link to="/withdraw" className={styles.withdraw}>
+          회원 탈퇴
+        </Link>
+      </footer>
     </PageLayout>
   )
 }

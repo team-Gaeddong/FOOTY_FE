@@ -13,7 +13,13 @@ const ERROR_MESSAGES = {
   login_failed: 'Google 로그인에 실패했습니다. 다시 시도해 주세요.',
   code_expired: '로그인 시간이 지났습니다. 다시 로그인해 주세요.',
   network: '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+  member_not_found: '회원 정보를 찾을 수 없습니다. 다시 로그인해 주세요.',
   unknown: '로그인 중 문제가 발생했습니다. 다시 시도해 주세요.',
+}
+
+// 다른 화면이 넘겨준 안내(location.state.notice)
+const NOTICE_MESSAGES = {
+  withdrawn: '탈퇴가 완료되었습니다. 같은 Google 계정으로 다시 로그인하면 계정이 복구됩니다.',
 }
 
 export function LoginPage() {
@@ -26,6 +32,8 @@ export function LoginPage() {
 
   const errorKey = location.state?.error
   const errorMessage = errorKey && ERROR_MESSAGES[errorKey]
+  const noticeKey = location.state?.notice
+  const noticeMessage = noticeKey && NOTICE_MESSAGES[noticeKey]
 
   function handleLogin() {
     setRedirecting(true)
@@ -38,6 +46,11 @@ export function LoginPage() {
         <h1 className={styles.logo}>FOOTY</h1>
         <p className={styles.tagline}>경기를 만들고, 팀을 나누고, 함께 평가해요</p>
       </header>
+      {noticeMessage && (
+        <p className={styles.notice} role="status">
+          {noticeMessage}
+        </p>
+      )}
       <ErrorMessage>{errorMessage}</ErrorMessage>
       <Button variant="secondary" onClick={handleLogin} disabled={redirecting}>
         <GoogleIcon />

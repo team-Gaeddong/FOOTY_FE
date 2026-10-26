@@ -50,6 +50,16 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const value = { ...session, signIn, signOut }
+  function markOnboarded() {
+    setSession({ status: 'authenticated', onboarded: true })
+  }
+
+  // 탈퇴처럼 BE가 이미 토큰을 무효화한 경우 이 기기의 토큰만 지운다.
+  function clearSession() {
+    clearTokens()
+    setSession(GUEST)
+  }
+
+  const value = { ...session, signIn, signOut, markOnboarded, clearSession }
   return <AuthContext value={value}>{children}</AuthContext>
 }
