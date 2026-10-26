@@ -1,0 +1,40 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.description {
+  color: var(--color-text-muted);
+}
+
+.confirm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.confirm input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-danger);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cancel {
+  align-self: center;
+  padding: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 14px;
+}

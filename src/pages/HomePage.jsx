@@ -39,6 +39,11 @@ export function HomePage() {
           <Link className={styles.listLink} to="/games">경기 목록 보기</Link>
         </div>
       </section>
+      <footer className={styles.footer}>
+        <Link to="/withdraw" className={styles.withdraw}>
+          회원 탈퇴
+        </Link>
+      </footer>
     </PageLayout>
   )
 }
