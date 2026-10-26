@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23)의 컨트롤러·DTO·서비스·API 테스트를 2026-10-26에 추가 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -37,6 +37,7 @@
 | `DELETE /members/me` | Bearer | — | 204 | `MEMBER_404_1` | #3 |
 | `GET /members/me` | Bearer + 온보딩 | — | 200 `MyProfileResponse` | `MEMBER_403_1`, `MEMBER_404_1` | #1 |
 | `POST /games` | Bearer + 온보딩 | `CreateGameRequest` | 201 `CreateGameResponse` | `GLOBAL_400_1`(검증), `MEMBER_403_1`, `GLOBAL_401_1`(회원 없음, BE 이슈 #12에서 바뀔 수 있음) | #2 |
+| `GET /games` | Bearer + 온보딩 | `page`(0부터, 기본 0), `size`(1~100, 기본 20) 쿼리 | 200 `ListGamesResponse` | `GLOBAL_400_1`(잘못된 페이지·크기), 인증·온보딩 에러 | #14 |
 
 닉네임 검증(BE `MemberService`): 앞뒤 공백을 `strip()`으로 지운 뒤 **코드 포인트 수**로 2~10자, 중복 허용. FE에서 같은 규칙으로 미리 검사하려면 `[...nickname.trim()].length`처럼 코드 포인트로 센다.
 
@@ -81,6 +82,18 @@
 | `status` | string | `RECRUITING`·`CONFIRMED`·`FINISHED` 중 하나 |
 | `isDeleted` | boolean | 실제 JSON 이름은 응답으로 확인. 응답 포함 여부를 BE 이슈 #13에서 검토 중 |
 | `createdAt` | string(`LocalDateTime`) | |
+
+`ListGamesResponse` (`GET /games`)
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `games` | `GameSummaryResponse[]` | 삭제되지 않은 모든 경기. 지난 경기 포함, `playDate`·`id` 오름차순 |
+| `page` | number | 현재 페이지(0부터) |
+| `size` | number | 페이지 크기 |
+| `totalElements` | number | 전체 경기 수 |
+| `totalPages` | number | 전체 페이지 수. 경기가 없으면 0 |
+
+`GameSummaryResponse`: `id`, `hostId`, `title`, `playDate`, `location`, `maxPlayers`, `teamCount`, `status`. `status`는 `RECRUITING`·`CONFIRMED`·`FINISHED` 중 하나다.
 
 ## 에러 코드
 
