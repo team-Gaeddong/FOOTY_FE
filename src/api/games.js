@@ -6,3 +6,8 @@ export function createGame({ title, playDate, location, maxPlayers, teamCount })
     body: { title, playDate, location, maxPlayers, teamCount },
   })
 }
+
+export function listGames({ page = 0, size = 20 } = {}) {
+  const params = new URLSearchParams({ page: String(page), size: String(size) })
+  return request(`/games?${params}`)
+}
