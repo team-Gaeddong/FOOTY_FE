@@ -202,6 +202,15 @@ describe('harness gate', () => {
     fx.gate(0)
   })
 
+  test('기본 형식의 merge commit은 기능 커밋 검사에서 제외', () => {
+    fx.commit()
+    fx.git('switch', '-c', 'feature/13_merge-source')
+    fx.commit()
+    fx.git('switch', 'feature/12_harness')
+    fx.git('merge', '--no-ff', 'feature/13_merge-source', '-m', "Merge branch 'feature/13_merge-source' into feature/12_harness")
+    fx.gate(0)
+  })
+
   test('새 커밋이 없으면 일부 검사', () => {
     fx.gate(2)
   })
