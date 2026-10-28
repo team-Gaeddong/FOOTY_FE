@@ -8,6 +8,7 @@ import { LoginCallbackPage } from './pages/LoginCallbackPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { OnboardingPage } from './pages/OnboardingPage.jsx'
+import { ProfilePage } from './pages/ProfilePage.jsx'
 import { WithdrawPage } from './pages/WithdrawPage.jsx'
 
 // FD-03: react-router. /login/callback은 BE OAUTH_REDIRECT_URI와 맞춘다.
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/games/new" element={<CreateGamePage />} />
             <Route path="/games" element={<GameListPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/withdraw" element={<WithdrawPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />

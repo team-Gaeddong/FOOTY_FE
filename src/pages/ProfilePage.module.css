@@ -1,0 +1,249 @@
+/* Figma 디자인시스템 토큰(--ds-*, src/index.css)만 쓴다. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-gap-6);
+  font-family: var(--ds-font);
+  color: var(--ds-text-basic);
+}
+
+/* button_text 컴포넌트 */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-gap-2);
+  min-height: var(--ds-height-6);
+  margin-left: calc(-1 * var(--ds-padding-3));
+  padding: 0 var(--ds-padding-3);
+  border-radius: var(--ds-radius-medium1);
+  color: var(--ds-text-basic);
+  font-size: var(--ds-label-medium);
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  background: var(--ds-button-text-fill-hover);
+}
+
+.backLink:active {
+  background: var(--ds-button-text-fill-pressed);
+}
+
+.title {
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-heading-medium);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.card,
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-gap-6);
+  padding: var(--ds-padding-8);
+  border: 1px solid var(--ds-border-gray-light);
+  border-radius: var(--ds-radius-xlarge2);
+  background: var(--ds-surface-white);
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-gap-4);
+  min-width: 0;
+}
+
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--ds-height-8);
+  height: var(--ds-height-8);
+  border-radius: 50%;
+  background: var(--ds-button-secondary-fill);
+  color: var(--ds-text-primary);
+  font-size: var(--ds-heading-small);
+  font-weight: 700;
+}
+
+.names {
+  min-width: 0;
+}
+
+.nickname {
+  overflow-wrap: anywhere;
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-heading-small);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.email {
+  overflow-wrap: anywhere;
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-small);
+  line-height: 1.5;
+}
+
+.stats {
+  margin: 0;
+  padding-top: var(--ds-padding-6);
+  border-top: 1px solid var(--ds-border-gray-light);
+}
+
+.stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ds-gap-4);
+}
+
+.stat dt {
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-small);
+}
+
+.stat dd {
+  margin: 0;
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-body-medium);
+  font-weight: 700;
+}
+
+.sectionTitle {
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-heading-xsmall);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.empty {
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-small);
+}
+
+/* tag 컴포넌트(삭제 아이콘 없는 표시용) */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-gap-4) var(--ds-gap-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-gap-2);
+  height: var(--ds-height-6);
+  padding: var(--ds-padding-3) var(--ds-padding-5);
+  border: 1px solid var(--ds-border-gray-light);
+  border-radius: var(--ds-radius-max);
+  background: var(--ds-surface-white);
+  color: var(--ds-text-basic);
+  font-size: var(--ds-label-medium);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.tagFirst {
+  border-color: var(--ds-border-primary);
+  background: var(--ds-button-secondary-fill);
+  color: var(--ds-text-primary);
+}
+
+.priority {
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-xsmall);
+  font-weight: 700;
+}
+
+.tagFirst .priority {
+  color: var(--ds-text-primary);
+}
+
+/* spinner 컴포넌트(48px) */
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ds-gap-4);
+  padding: var(--ds-padding-8) 0;
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-small);
+}
+
+.spinner {
+  width: var(--ds-height-7);
+  height: var(--ds-height-7);
+  border: 4px solid var(--ds-border-gray-light);
+  border-left-color: var(--ds-button-primary-fill);
+  border-bottom-color: var(--ds-button-primary-fill);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorText {
+  color: var(--ds-danger);
+  font-size: var(--ds-body-small);
+}
+
+/* button 컴포넌트(medium, 48px) */
+.primaryButton,
+.tertiaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--ds-height-7);
+  padding: 0 var(--ds-padding-6);
+  border: 1px solid transparent;
+  border-radius: var(--ds-radius-medium1);
+  font-family: inherit;
+  font-size: var(--ds-label-medium);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: var(--ds-button-primary-fill);
+  color: var(--ds-text-inverse);
+}
+
+.primaryButton:hover {
+  background: var(--ds-button-primary-fill-hover);
+}
+
+.primaryButton:active {
+  background: var(--ds-button-primary-fill-pressed);
+}
+
+.tertiaryButton {
+  border-color: var(--ds-button-tertiary-border);
+  background: transparent;
+  color: var(--ds-text-basic);
+}
+
+.tertiaryButton:hover {
+  background: var(--ds-button-tertiary-fill-hover);
+}
+
+.tertiaryButton:active {
+  background: var(--ds-button-tertiary-fill-pressed);
+}
+
+.backLink:focus-visible,
+.primaryButton:focus-visible,
+.tertiaryButton:focus-visible {
+  outline: 2px solid var(--ds-border-primary);
+  outline-offset: 2px;
+}
