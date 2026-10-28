@@ -56,3 +56,68 @@ button,
 input {
   font: inherit;
 }
+
+/*
+ * Figma 디자인시스템 토큰 (FD-09, https://www.figma.com/design/lsFTFCIDZ41v462bQ5HOkA/FOOTY).
+ * Figma 변수 이름을 --ds-{그룹}-{이름}으로 옮겼다. 우선 내 프로필 화면에서만 쓰고,
+ * 기존 화면을 이 토큰으로 옮기는 일은 별도 이슈로 한다.
+ */
+:root {
+  --ds-font: 'Pretendard GOV', 'Pretendard', var(--font-sans);
+
+  --ds-text-bolder: #131416;
+  --ds-text-basic: #1e2124;
+  --ds-text-subtle: #464c53;
+  --ds-text-disabled: #8a949e;
+  --ds-text-primary: #0b50d0;
+  --ds-text-inverse: #fff;
+
+  --ds-surface-white: #fff;
+  --ds-surface-gray-subtler: #f4f5f6;
+  --ds-border-gray: #b1b8be;
+  --ds-border-gray-light: #cdd1d5;
+  --ds-border-primary: #256ef4;
+  --ds-danger: #c62828;
+
+  --ds-button-primary-fill: #256ef4;
+  --ds-button-primary-fill-hover: #0b50d0;
+  --ds-button-primary-fill-pressed: #083891;
+  --ds-button-secondary-fill: #ecf2fe;
+  --ds-button-secondary-fill-hover: #d8e5fd;
+  --ds-button-secondary-fill-pressed: #b1cefb;
+  --ds-button-tertiary-border: #58616a;
+  --ds-button-tertiary-fill-hover: #f4f5f6;
+  --ds-button-tertiary-fill-pressed: #e6e8ea;
+  --ds-button-text-fill-hover: #eef2f7;
+  --ds-button-text-fill-pressed: #d6e0eb;
+
+  /* 타이포 크기 (line-height는 모두 1.5) */
+  --ds-heading-large: 32px;
+  --ds-heading-medium: 24px;
+  --ds-heading-small: 19px;
+  --ds-heading-xsmall: 17px;
+  --ds-body-medium: 17px;
+  --ds-body-small: 15px;
+  --ds-body-xsmall: 13px;
+  --ds-label-medium: 17px;
+  --ds-label-small: 15px;
+
+  --ds-gap-2: 4px;
+  --ds-gap-3: 8px;
+  --ds-gap-4: 12px;
+  --ds-gap-6: 20px;
+  --ds-gap-7: 24px;
+  --ds-padding-3: 8px;
+  --ds-padding-5: 12px;
+  --ds-padding-6: 16px;
+  --ds-padding-8: 24px;
+
+  --ds-height-6: 40px;
+  --ds-height-7: 48px;
+  --ds-height-8: 56px;
+
+  --ds-radius-medium1: 6px;
+  --ds-radius-medium3: 8px;
+  --ds-radius-xlarge2: 12px;
+  --ds-radius-max: 1000px;
+}
