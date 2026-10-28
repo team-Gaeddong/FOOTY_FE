@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { ApiError } from '../api/client.js'
 import { listGames } from '../api/games.js'
+import { getMyProfile } from '../api/members.js'
 import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
 import { PageLayout } from '../components/PageLayout.jsx'
@@ -41,6 +42,8 @@ export function GameListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [retryCount, setRetryCount] = useState(0)
   const [result, setResult] = useState(null)
+  const [profileResult, setProfileResult] = useState(null)
+  const [profileRetry, setProfileRetry] = useState(0)
   const page = parsePage(searchParams.get('page'))
   const requestKey = `${page}:${retryCount}`
   const currentResult = result?.key === requestKey ? result : null
@@ -62,6 +65,22 @@ export function GameListPage() {
     }
   }, [page, requestKey])
 
+  useEffect(() => {
+    let active = true
+
+    getMyProfile()
+      .then((data) => {
+        if (active) setProfileResult({ data })
+      })
+      .catch((error) => {
+        if (active) setProfileResult({ error })
+      })
+
+    return () => {
+      active = false
+    }
+  }, [profileRetry])
+
   function goToPage(nextPage) {
     setSearchParams(nextPage === 0 ? {} : { page: String(nextPage) })
   }
@@ -78,6 +97,13 @@ export function GameListPage() {
         <Link className={styles.createLink} to="/games/new">경기 만들기</Link>
       </header>
 
+      {profileResult?.error && currentResult?.data && (
+        <p className={styles.profileNotice} role="status">
+          재경기 버튼을 확인하지 못했어요.
+          <button type="button" onClick={() => setProfileRetry((count) => count + 1)}>다시 시도</button>
+        </p>
+      )}
+
       {page === null ? (
         <section className={styles.messagePanel}>
           <ErrorMessage>페이지 번호가 올바르지 않습니다.</ErrorMessage>
@@ -93,13 +119,18 @@ export function GameListPage() {
           </Button>
         </section>
       ) : (
-        <GameListContent data={currentResult.data} page={page} goToPage={goToPage} />
+        <GameListContent
+          data={currentResult.data}
+          page={page}
+          goToPage={goToPage}
+          memberId={profileResult?.data?.memberId}
+        />
       )}
     </PageLayout>
   )
 }
 
-function GameListContent({ data, page, goToPage }) {
+function GameListContent({ data, page, goToPage, memberId }) {
   if (data.games.length === 0) {
     const hasGamesElsewhere = data.totalElements > 0
     return (
@@ -130,6 +161,15 @@ function GameListContent({ data, page, goToPage }) {
                 <div><dt>참가 정원</dt><dd>{game.maxPlayers}명</dd></div>
                 <div><dt>팀 수</dt><dd>{game.teamCount}팀</dd></div>
               </dl>
+              {game.status === 'FINISHED' && game.hostId === memberId && (
+                <Link
+                  className={styles.rematchLink}
+                  to={`/games/${game.id}/rematch`}
+                  state={{ sourceGame: game }}
+                >
+                  이 경기로 재경기 만들기
+                </Link>
+              )}
             </article>
           </li>
         ))}
