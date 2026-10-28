@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react'
-import { Link } from 'react-router'
+import { startTransition, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router'
 import { createGame } from '../api/games.js'
 import { ApiError } from '../api/client.js'
+import { useAuth } from '../auth/useAuth.js'
 import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
 import { PageLayout } from '../components/PageLayout.jsx'
@@ -13,6 +14,11 @@ const INITIAL_FORM = {
   location: '',
   maxPlayers: '',
 }
+
+// BE GameService 검증(D-14): 정원 2~30명, 팀 수 2 이상·정원 이하, 일시는 현재 이후
+const MIN_PLAYERS = 2
+const MAX_PLAYERS = 30
+const INVALID_MAX_PLAYERS = `참가 정원은 ${MIN_PLAYERS}~${MAX_PLAYERS}명 사이의 정수로 입력해 주세요.`
 
 function validate(form) {
   const errors = {}
@@ -28,22 +34,29 @@ function validate(form) {
   if (!location) errors.location = '장소를 입력해 주세요.'
   else if (location.length > 200) errors.location = '장소는 200자 이하로 입력해 주세요.'
 
-  if (!form.maxPlayers || !Number.isInteger(maxPlayers) || maxPlayers < 1) {
-    errors.maxPlayers = '참가 정원을 1명 이상의 정수로 입력해 주세요.'
-  } else if (maxPlayers > 2147483647) {
-    errors.maxPlayers = '참가 정원이 너무 큽니다.'
+  if (
+    !form.maxPlayers ||
+    !Number.isInteger(maxPlayers) ||
+    maxPlayers < MIN_PLAYERS ||
+    maxPlayers > MAX_PLAYERS
+  ) {
+    errors.maxPlayers = INVALID_MAX_PLAYERS
   }
 
   return errors
 }
 
-function errorMessage(error) {
-  if (!(error instanceof ApiError)) return '경기를 만들지 못했습니다. 다시 시도해 주세요.'
-  if (error.status === 0) return '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
-  if (error.code === 'GLOBAL_400_1') return '입력값을 확인한 뒤 다시 시도해 주세요.'
-  if (error.code === 'MEMBER_403_1') return '온보딩을 마친 뒤 경기를 만들 수 있어요.'
-  if (error.status === 401) return '로그인이 필요합니다. 다시 로그인해 주세요.'
-  return '경기를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.'
+// 입력 칸에 붙일 수 있는 BE 에러는 그 칸에, 나머지는 폼 아래에 보여준다.
+function submitErrorOf(error) {
+  if (!(error instanceof ApiError)) return { message: '경기를 만들지 못했습니다. 다시 시도해 주세요.' }
+  if (error.status === 0) return { message: '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.' }
+  if (error.code === 'GAME_400_2') return { field: 'maxPlayers', message: INVALID_MAX_PLAYERS }
+  if (error.code === 'GAME_400_3') return { field: 'playDate', message: '경기 일시는 지금 이후로 선택해 주세요.' }
+  if (error.code === 'GAME_400_4') return { message: '팀 수는 2팀 이상, 참가 정원 이하여야 합니다.' }
+  if (error.code === 'GLOBAL_400_1') return { message: '입력값을 확인한 뒤 다시 시도해 주세요.' }
+  if (error.code === 'MEMBER_403_1') return { message: '온보딩을 마친 뒤 경기를 만들 수 있어요.' }
+  if (error.status === 401) return { message: '로그인이 필요합니다. 다시 로그인해 주세요.' }
+  return { message: '경기를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.' }
 }
 
 function displayDateTime(value) {
@@ -53,6 +66,8 @@ function displayDateTime(value) {
 }
 
 export function CreateGamePage() {
+  const { clearSession } = useAuth()
+  const navigate = useNavigate()
   const [form, setForm] = useState(INITIAL_FORM)
   const [fieldErrors, setFieldErrors] = useState({})
   const [submitError, setSubmitError] = useState('')
@@ -87,7 +102,15 @@ export function CreateGamePage() {
       })
       setCreatedGame(game)
     } catch (error) {
-      setSubmitError(errorMessage(error))
+      if (error.code === 'MEMBER_404_1') {
+        // 탈퇴했거나 없는 회원이다(BE D-16). 이동과 같은 transition에서 지워야 안내(state)가 남는다.
+        navigate('/login', { replace: true, state: { error: 'member_not_found' } })
+        startTransition(() => clearSession())
+        return
+      }
+      const { field, message } = submitErrorOf(error)
+      if (field) setFieldErrors((current) => ({ ...current, [field]: message }))
+      else setSubmitError(message)
     } finally {
       pending.current = false
       setSubmitting(false)
@@ -102,7 +125,9 @@ export function CreateGamePage() {
           <div className={styles.successIcon} aria-hidden="true">✓</div>
           <p className={styles.eyebrow}>경기 생성 완료</p>
           <h1 id="success-title">경기를 만들었어요!</h1>
-          <p className={styles.intro}>친구들과 함께 뛸 준비가 됐어요.</p>
+          <p className={styles.intro}>
+            친구들과 함께 뛸 준비가 됐어요. 파티장은 참가 선수로 자동 등록됐어요.
+          </p>
           <div className={styles.summary}>
             <span className={styles.badge}>모집 중</span>
             <h2>{createdGame.title}</h2>
@@ -188,17 +213,19 @@ export function CreateGamePage() {
               name="maxPlayers"
               type="number"
               inputMode="numeric"
-              min="1"
+              min={MIN_PLAYERS}
+              max={MAX_PLAYERS}
               step="1"
               value={form.maxPlayers}
               onChange={updateField}
               placeholder="예: 10"
               aria-invalid={Boolean(fieldErrors.maxPlayers)}
-              aria-describedby={fieldErrors.maxPlayers ? 'game-max-players-error' : undefined}
+              aria-describedby={fieldErrors.maxPlayers ? 'game-max-players-error' : 'game-max-players-hint'}
             />
             <span aria-hidden="true">명</span>
           </div>
           {fieldErrors.maxPlayers && <p id="game-max-players-error" className={styles.fieldError}>{fieldErrors.maxPlayers}</p>}
+          <p id="game-max-players-hint" className={styles.hint}>{MIN_PLAYERS}~{MAX_PLAYERS}명</p>
         </div>
 
         <div className={styles.teamCount}>

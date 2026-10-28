@@ -17,6 +17,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/login/callback" element={<LoginCallbackPage />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
           <Route element={<RequireAuth />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/games/new" element={<CreateGamePage />} />
