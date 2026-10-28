@@ -25,7 +25,7 @@ test는 package.json에 test 스크립트가 있을 때만 실행한다.
 종료 코드: 0=모드별 통과, 1=실패, 2=일부 검사(빌드 생략/변경 커밋 없음).`
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
-const BRANCH_PATTERN = /^(feature|hotfix)\/[0-9]+_\S+$/u
+const BRANCH_PATTERN = /^(feature|hotfix)\/[0-9]+[-_]\S+$/u
 const BUILD_STEPS = ['lint', 'build', 'test']
 // npm은 `--` 앞의 옵션을 자기 설정으로 가져가 스크립트에 넘기지 않는다.
 const NPM_SWALLOWED = ['mode', 'base', 'head', 'branch', 'skip_build', 'skip-build']
@@ -150,7 +150,7 @@ function checkChange(options) {
     if (BRANCH_PATTERN.test(branch) && git(['check-ref-format', '--branch', branch], { quiet: true }).ok) {
       report.pass(branch)
     } else {
-      report.fail(`'${branch}'는 feature/{이슈번호}_{할일} 또는 hotfix/{이슈번호}_{할일} 형식이 아님 (main/develop 변경 검사 금지)`)
+      report.fail(`'${branch}'는 feature|hotfix/{이슈번호}_{할일} 또는 feature|hotfix/{이슈번호}-{할일} 형식이 아님 (main/develop 변경 검사 금지)`)
     }
   }
 
