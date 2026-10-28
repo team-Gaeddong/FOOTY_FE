@@ -165,7 +165,7 @@ function checkChange(options) {
     return
   }
   const range = `${mergeBase.out}..${head.out}`
-  const count = git(['rev-list', '--count', range])
+  const count = git(['rev-list', '--count', '--no-merges', range])
   if (!count.ok) {
     report.fail('커밋 범위를 읽을 수 없음')
   } else if (!/^[0-9]+$/.test(count.out)) {
@@ -174,7 +174,7 @@ function checkChange(options) {
     report.warn('검사할 새 커밋이 없음. 변경 완료 검증으로 사용할 수 없음')
   } else {
     console.log(`  범위: ${range} (${count.out}개)`)
-    const log = git(['log', '--format=%h%x09%s', range])
+    const log = git(['log', '--no-merges', '--format=%h%x09%s', range])
     // 조회가 실패해도 받은 출력은 검사한다(BE의 파이프라인과 같은 결과).
     if (checkCommits(log.out) || !log.ok) report.fail('커밋 조회 또는 메시지 검증 실패')
   }
