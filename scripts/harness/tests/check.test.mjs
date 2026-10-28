@@ -163,6 +163,12 @@ describe('harness gate', () => {
     fx.gate(1)
   })
 
+  test('이슈 번호 뒤 하이픈을 쓰는 브랜치는 통과', () => {
+    fx.git('branch', '-m', 'feature/13-feature-재경기-생성-화면-구현')
+    fx.commit()
+    fx.gate(0)
+  })
+
   test('형식이 틀린 커밋은 실패', () => {
     fx.commit('feat :: 검증 추가')
     fx.gate(1)
