@@ -6,6 +6,10 @@ export const POSITIONS = [
   { value: 'FW', label: '공격수' },
 ]
 
+export const POSITION_LABELS = Object.fromEntries(
+  POSITIONS.map(({ value, label }) => [value, label]),
+)
+
 export const POSITIONS_MIN = 1
 
 // 이미 고른 포지션이면 빼고, 아니면 맨 뒤(가장 낮은 순위)에 붙인다.
