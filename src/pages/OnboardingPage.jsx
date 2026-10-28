@@ -6,6 +6,8 @@ import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
 import { LoadingScreen } from '../components/LoadingScreen.jsx'
 import { PageLayout } from '../components/PageLayout.jsx'
+import { PositionPicker } from '../components/PositionPicker.jsx'
+import { isValidPositions } from '../components/positions.js'
 import {
   NICKNAME_MAX,
   NICKNAME_MIN,
@@ -13,15 +15,10 @@ import {
   nicknameLength,
 } from './nickname.js'
 import styles from './OnboardingPage.module.css'
-import { POSITIONS, isValidPositions, togglePosition } from './positions.js'
 
 const INVALID_NICKNAME = `닉네임은 앞뒤 공백을 제외하고 ${NICKNAME_MIN}~${NICKNAME_MAX}자여야 합니다.`
 const INVALID_POSITIONS = '선호 포지션을 1~4개 골라 주세요.'
 const NETWORK_ERROR = '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
-
-const POSITION_LABELS = Object.fromEntries(
-  POSITIONS.map(({ value, label }) => [value, label]),
-)
 
 function nicknameErrorMessage(error) {
   if (error.code === 'MEMBER_400_1') return INVALID_NICKNAME
@@ -140,48 +137,15 @@ export function OnboardingPage() {
           </p>
         </div>
 
-        <fieldset
-          className={styles.field}
-          aria-describedby="positions-help"
-          data-invalid={error?.field === 'positions'}
-        >
-          <legend className={styles.label}>선호 포지션</legend>
-          <p id="positions-help" className={styles.help}>
-            누른 순서대로 우선순위가 정해져요. 1~4개
-          </p>
-          <div className={styles.positions}>
-            {POSITIONS.map(({ value, label }) => {
-              const rank = positions.indexOf(value) + 1
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  className={styles.position}
-                  aria-pressed={rank > 0}
-                  onClick={() => {
-                    setPositions((prev) => togglePosition(prev, value))
-                    if (error?.field === 'positions') setError(null)
-                  }}
-                >
-                  <span className={styles.positionCode}>{value}</span>
-                  <span className={styles.positionLabel}>{label}</span>
-                  {rank > 0 && (
-                    <span className={styles.rank} aria-label={`${rank}순위`}>
-                      {rank}
-                    </span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-          <p className={styles.summary} aria-live="polite">
-            {positions.length === 0
-              ? '아직 고르지 않았어요'
-              : positions
-                  .map((value, index) => `${index + 1}순위 ${POSITION_LABELS[value]}`)
-                  .join(' · ')}
-          </p>
-        </fieldset>
+        <PositionPicker
+          legend="선호 포지션"
+          value={positions}
+          onChange={(next) => {
+            setPositions(next)
+            if (error?.field === 'positions') setError(null)
+          }}
+          invalid={error?.field === 'positions'}
+        />
 
         <ErrorMessage>{error?.message}</ErrorMessage>
         <Button type="submit" disabled={submitting}>
