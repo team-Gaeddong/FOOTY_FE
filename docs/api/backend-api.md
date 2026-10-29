@@ -40,6 +40,7 @@
 | `POST /games` | Bearer + 온보딩 | `CreateGameRequest` | 201 `CreateGameResponse` | `GLOBAL_400_1`(형식·필수·길이), `GAME_400_2`(정원), `GAME_400_4`(팀 수), `GAME_400_3`(일시), `MEMBER_404_1`(없는·탈퇴 회원), `MEMBER_403_1` | #2, #22 |
 | `GET /games` | Bearer + 온보딩 | `page`(0부터, 기본 0), `size`(1~100, 기본 20) 쿼리 | 200 `ListGamesResponse` | `GLOBAL_400_1`(잘못된 페이지·크기), 인증·온보딩 에러 | #14 |
 | `POST /games/{gameId}/rematch` | Bearer + 온보딩, 원본 파티장 | `{ playDate }` | 201 `CreateGameResponse` | `GLOBAL_400_1`, `GAME_400_3`, `GAME_403_1`, `GAME_404_1`, `GAME_409_2`, 인증·온보딩 에러 | #30 |
+| `POST /games/{gameId}/lineups` | Bearer + 온보딩, 파티장 | — | 201 `LineupResponse` | `GAME_403_1`, `GAME_404_1`, `LINEUP_409_1`(이미 있음), `LINEUP_409_2`(실력 미입력 선수), `LINEUP_409_3`(선수 2명 미만), 인증·온보딩 에러 | #40, #42 |
 
 닉네임 검증(BE `MemberService`): 앞뒤 공백을 `strip()`으로 지운 뒤 **코드 포인트 수**로 2~10자, 중복 허용. FE에서 같은 규칙으로 미리 검사하려면 `[...nickname.trim()].length`처럼 코드 포인트로 센다.
 
@@ -110,6 +111,19 @@
 
 `GameSummaryResponse`: `id`, `hostId`, `title`, `playDate`, `location`, `maxPlayers`, `teamCount`, `status`. `status`는 `RECRUITING`·`CONFIRMED`·`FINISHED` 중 하나다.
 
+`LineupResponse` (`POST /games/{gameId}/lineups`, BE `37d2efc` 대조, BE D-21·D-22)
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `lineupId` | number | |
+| `version` | number | 처음 짜면 1. 다시 짜기 때 증가 |
+| `method` | string | `AI`·`ALGORITHM`·`MANUAL`. 현재 팀 짜기는 `ALGORITHM` |
+| `isConfirmed` | boolean | 팀 확정 여부. 만들 때 `false` |
+| `teams` | `{ teamId, name, totalSkill, members }[]` | 항상 2팀(`A팀`·`B팀`). `game.teamCount`는 아직 무시(BE D-21 미결정). `totalSkill`은 후보를 뺀 실력 합계 |
+| `teams[].members` | `{ gamePlayerId, name, skillLevel, position, isSubstitute }[]` | `position`은 1순위 희망 포지션, 없으면 `FW`. 실력 순으로 앞의 `maxPlayers`명이 선발이고 나머지는 `isSubstitute: true` |
+
+라인업 조회 API는 없다. 이미 짠 경기(`LINEUP_409_1`)의 팀 구성은 FE에서 다시 볼 수 없다.
+
 ## 에러 코드
 
 | code | HTTP | message |
@@ -134,6 +148,9 @@
 | `GAME_403_1` | 403 | 파티장만 할 수 있습니다. |
 | `GAME_404_1` | 404 | 경기를 찾을 수 없습니다. |
 | `GAME_409_2` | 409 | 종료된 경기만 재경기를 만들 수 있습니다. |
+| `LINEUP_409_1` | 409 | 이미 팀을 짠 경기입니다. |
+| `LINEUP_409_2` | 409 | 실력 점수가 없는 선수가 있습니다. |
+| `LINEUP_409_3` | 409 | 팀을 짜려면 선수가 2명 이상이어야 합니다. |
 
 - 경기 생성 검증용으로 먼저 공유된 번호가 있었다면 바뀌었다: 최대 인원 `GAME_400_1` → `GAME_400_2`, 팀 수 `GAME_400_2` → `GAME_400_4`. `GAME_400_1`은 실력 매기기의 선수 중복에만 쓴다(BE PR #35 안내)
 - 화면에는 BE `message`를 그대로 보여주지 않고 FE가 `code`별 문구를 정한다(FD-04). 분기는 `code`로 한다
