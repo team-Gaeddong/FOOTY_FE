@@ -11,3 +11,10 @@ export function listGames({ page = 0, size = 20 } = {}) {
   const params = new URLSearchParams({ page: String(page), size: String(size) })
   return request(`/games?${params}`)
 }
+
+export function rematchGame(gameId, playDate) {
+  return request(`/games/${gameId}/rematch`, {
+    method: 'POST',
+    body: { playDate },
+  })
+}

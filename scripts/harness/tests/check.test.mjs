@@ -163,6 +163,12 @@ describe('harness gate', () => {
     fx.gate(1)
   })
 
+  test('이슈 번호 뒤 하이픈을 쓰는 브랜치는 통과', () => {
+    fx.git('branch', '-m', 'feature/13-feature-재경기-생성-화면-구현')
+    fx.commit()
+    fx.gate(0)
+  })
+
   test('형식이 틀린 커밋은 실패', () => {
     fx.commit('feat :: 검증 추가')
     fx.gate(1)
@@ -193,6 +199,15 @@ describe('harness gate', () => {
       '📝 :: [문서] 설명 추가', '🔀 :: (#12) 변경 병합', '⚙️ :: 프로젝트 세팅']) {
       fx.commit(message)
     }
+    fx.gate(0)
+  })
+
+  test('기본 형식의 merge commit은 기능 커밋 검사에서 제외', () => {
+    fx.commit()
+    fx.git('switch', '-c', 'feature/13_merge-source')
+    fx.commit()
+    fx.git('switch', 'feature/12_harness')
+    fx.git('merge', '--no-ff', 'feature/13_merge-source', '-m', "Merge branch 'feature/13_merge-source' into feature/12_harness")
     fx.gate(0)
   })
 

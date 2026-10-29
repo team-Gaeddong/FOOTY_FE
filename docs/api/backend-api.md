@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: `team-Gaeddong/FOOTY_BE` `develop` 커밋 `0a6c46f`(2026-10-28, BE PR #35 병합 후)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -8,11 +8,9 @@
 - 인증: `Authorization: Bearer {accessToken}`. 토큰이 없으면 `401 GLOBAL_401_1`, 잘못된·만료된·로그아웃한 토큰이면 `401 AUTH_401_2`·`AUTH_401_3`·`AUTH_401_5`
 - 성공 응답: 래퍼 없이 DTO 그대로(BE D-03). 본문이 없는 성공은 `204`
 - 에러 응답: `{"code": string, "message": string}` + HTTP 상태(BE D-04). `code`는 `{도메인}_{HTTP 상태}_{순번}`
-- 요청 본문을 읽을 수 없거나(JSON 오류, 없는 enum 값 등) `@Valid` 검증에 실패하면 `400 GLOBAL_400_1`
-- 날짜·시간: BE `LocalDateTime`(시간대 오프셋 없음). BE의 현재 시각은 `Asia/Seoul` 기준이다(`ClockConfig`). FE 입력·표시 시간대는 FD-12
-- 회원이 없거나 탈퇴한 경우 도메인에 상관없이 `404 MEMBER_404_1`(BE D-16)
-- 온보딩 미완료 회원은 `PATCH /members/me/onboarding`, `POST /auth/logout`, `DELETE /members/me` 외의 인증 API에서 `403 MEMBER_403_1`을 받는다(`OnboardingFilter`). `PUT /members/me/positions`도 막혀 있으므로 온보딩 PATCH가 성공한 뒤에 부른다. BE는 토큰이 아니라 DB의 온보딩 여부를 보므로 온보딩 직후 바로 풀리고 토큰을 다시 받을 필요가 없다. `POST /auth/token`·`POST /auth/reissue`는 인증 없이 열려 있다
-- 포지션 목록(BE D-13, `PositionPriorities`): `GK`·`DF`·`MF`·`FW` 중 **1~4개, 중복 없이**. **배열 순서가 우선순위**(첫 번째가 1순위). 보낼 때마다 전체 교체. 개수·중복·`null` 위반은 `400 MEMBER_400_2`. 회원 선호 포지션과 경기별 선수 포지션이 같은 규칙을 쓴다
+- 요청 본문을 읽을 수 없거나(JSON 오류) `@Valid` 검증에 실패하면 `400 GLOBAL_400_1`
+- 날짜·시간: BE `LocalDateTime`(시간대 오프셋 없음), 서비스 시각은 `Asia/Seoul` 기준이다. FE는 입력한 한국시간을 `YYYY-MM-DDTHH:mm:ss`로 보낸다
+- 온보딩 미완료 회원은 `PATCH /members/me/onboarding`, `POST /auth/logout`, `DELETE /members/me` 외의 인증 API에서 `403 MEMBER_403_1`을 받는다. BE는 토큰이 아니라 DB의 온보딩 여부를 보므로 온보딩 직후 바로 풀린다. `POST /auth/token`·`POST /auth/reissue`는 인증 없이 열려 있다
 
 ## 로그인 흐름 (BE D-05a~e)
 
@@ -41,16 +39,7 @@
 | `GET /members/me` | Bearer + 온보딩 | — | 200 `MyProfileResponse` | `MEMBER_403_1`, `MEMBER_404_1` | #1 |
 | `POST /games` | Bearer + 온보딩 | `CreateGameRequest` | 201 `CreateGameResponse` | `GLOBAL_400_1`(형식·필수·길이), `GAME_400_2`(정원), `GAME_400_4`(팀 수), `GAME_400_3`(일시), `MEMBER_404_1`(없는·탈퇴 회원), `MEMBER_403_1` | #2, #22 |
 | `GET /games` | Bearer + 온보딩 | `page`(0부터, 기본 0), `size`(1~100, 기본 20) 쿼리 | 200 `ListGamesResponse` | `GLOBAL_400_1`(잘못된 페이지·크기), 인증·온보딩 에러 | #14 |
-| `POST /games/{gameId}/players` | Bearer + 온보딩 | `RegisterPlayerRequest` | 201 `RegisterPlayerResponse` | `GLOBAL_400_1`(이름·실력 검증), `MEMBER_400_2`(포지션), `GAME_404_1`, `GAME_403_1`(파티장 아님), `GAME_409_1`(`RECRUITING` 아님) | #32 |
-| `PATCH /games/{gameId}/players/skill-levels` | Bearer + 온보딩 | `UpdateSkillLevelsRequest` | 204 | `GLOBAL_400_1`(빈 목록·값 없음·실력 1~10 밖), `GAME_400_1`(같은 선수 중복), `GAME_404_1`, `GAME_403_1`(파티장 아님), `GAME_404_2`(그 경기의 참가자가 아닌 선수 포함) | #19 |
-| `PUT /games/{gameId}/players/{gamePlayerId}/positions` | Bearer + 온보딩 | `{ positions }` | 204 | `MEMBER_400_2`, `GAME_404_1`(경기 없음·삭제), `GAME_403_1`(파티장 아님), `GAME_409_1`(`RECRUITING` 아님), `GAME_404_2`(그 경기의 참가자 아님) | #17 |
-| `POST /games/{gameId}/rematch` | Bearer + 온보딩 | `{ playDate }` | 201 `CreateGameResponse` | `GLOBAL_400_1`(`playDate` 없음), `GAME_404_1`, `GAME_403_1`(원본 파티장 아님), `GAME_409_2`(원본이 `FINISHED` 아님), `GAME_400_3`(현재 이후가 아님) | #30 |
-
-- 경기 생성은 정원 → 팀 수 → 일시 → 회원 순서로 검사한다. 성공하면 **파티장이 참가 선수로 자동 등록**되고(이름은 닉네임) 선호 포지션이 경기별 포지션으로 복사된다(BE D-14)
-- 선수 등록은 **비회원 선수**를 파티장이 추가한다. 포지션 규칙 → 경기 → 파티장 → 상태 순서로 검사한다. 정원 초과 검사는 없다(`0a6c46f`)
-- 실력 매기기는 여러 선수를 한 번에 보내며, 같은 선수 중복은 BE가 먼저(`GameFacade`) 거른다. 경기 상태 검사는 없다(`0a6c46f`)
-- 경기별 선수 포지션 API는 위 순서대로 검사한다(포지션 규칙 → 경기 → 파티장 → 상태 → 참가자). 매치 참여 때 회원 선호 포지션을 경기별 포지션으로 복사하는 동작은 매치 참여 API에서 호출한다(BE D-13, 매치 참여 API는 아직 없음)
-- 재경기(BE D-18): 원본 파티장만, 삭제되지 않은 `FINISHED` 경기에서 새 `playDate`로 만든다. 제목·장소·최대 인원·팀 수를 복사한 새 `RECRUITING` 경기이며, 원본은 그대로 두고 참가자는 복사하지 않는다
+| `POST /games/{gameId}/rematch` | Bearer + 온보딩, 원본 파티장 | `{ playDate }` | 201 `CreateGameResponse` | `GLOBAL_400_1`, `GAME_400_3`, `GAME_403_1`, `GAME_404_1`, `GAME_409_2`, 인증·온보딩 에러 | #30 |
 
 닉네임 검증(BE `MemberService`): 앞뒤 공백을 `strip()`으로 지운 뒤 **코드 포인트 수**로 2~10자, 중복 허용. FE에서 같은 규칙으로 미리 검사하려면 `[...nickname.trim()].length`처럼 코드 포인트로 센다.
 
@@ -107,31 +96,7 @@
 | `status` | string | `RECRUITING`·`CONFIRMED`·`FINISHED` 중 하나 |
 | `createdAt` | string(`LocalDateTime`) | |
 
-`RegisterPlayerRequest` (`POST /games/{gameId}/players`)
-
-| 필드 | 타입 | 규칙 |
-|---|---|---|
-| `name` | string | 필수, 앞뒤 공백 제거 후 공백만은 불가, 30자 이하 |
-| `positions` | string[] | 필수. 포지션 규칙(1~4개, 중복 없음, 순서가 우선순위) |
-| `skillLevel` | number | 선택, 1~10 |
-
-`RegisterPlayerResponse`
-
-| 필드 | 타입 | 설명 |
-|---|---|---|
-| `id` | number | 경기 참가자(`gamePlayerId`) |
-| `gameId` | number | |
-| `name` | string | |
-| `skillLevel` | number \| null | |
-| `isSubstitute` | boolean | 후보 여부 |
-| `positions` | string[] | 우선순위 순 |
-| `joinedAt` | string(`LocalDateTime`) | |
-
-`UpdateSkillLevelsRequest` (`PATCH /games/{gameId}/players/skill-levels`)
-
-| 필드 | 타입 | 규칙 |
-|---|---|---|
-| `players` | `{ gamePlayerId, skillLevel }[]` | 1개 이상. `gamePlayerId` 필수, `skillLevel` 필수 1~10. 같은 `gamePlayerId` 중복 불가 |
+`RematchGameRequest`: `{ "playDate": "2026-11-01T10:00:00" }`. `playDate`는 필수이며 한국시간 기준 현재 이후여야 한다. 삭제되지 않은 `FINISHED` 경기의 원본 파티장만 호출할 수 있다. 제목·장소·최대 인원·팀 수를 복사한 새 `RECRUITING` 경기를 만들고, 원본 경기와 참가 선수 목록은 그대로 둔다. 원본 경기 ID를 저장하는 컬럼은 없다.
 
 `ListGamesResponse` (`GET /games`)
 
@@ -165,14 +130,9 @@
 | `MEMBER_403_1` | 403 | 온보딩을 마친 뒤 이용할 수 있습니다. |
 | `MEMBER_404_1` | 404 | 회원을 찾을 수 없습니다. (회원이 없거나 탈퇴한 경우, BE D-16) |
 | `MEMBER_409_1` | 409 | 이미 온보딩을 마친 회원입니다. |
-| `GAME_400_1` | 400 | 같은 선수를 중복해서 보낼 수 없습니다. |
-| `GAME_400_2` | 400 | 최대 인원은 2~30명이어야 합니다. |
 | `GAME_400_3` | 400 | 경기 일시는 현재 이후여야 합니다. |
-| `GAME_400_4` | 400 | 팀 수는 2 이상이고 최대 인원 이하여야 합니다. |
 | `GAME_403_1` | 403 | 파티장만 할 수 있습니다. |
 | `GAME_404_1` | 404 | 경기를 찾을 수 없습니다. |
-| `GAME_404_2` | 404 | 경기 참가자를 찾을 수 없습니다. |
-| `GAME_409_1` | 409 | 모집 중인 경기에서만 할 수 있습니다. |
 | `GAME_409_2` | 409 | 종료된 경기만 재경기를 만들 수 있습니다. |
 
 - 경기 생성 검증용으로 먼저 공유된 번호가 있었다면 바뀌었다: 최대 인원 `GAME_400_1` → `GAME_400_2`, 팀 수 `GAME_400_2` → `GAME_400_4`. `GAME_400_1`은 실력 매기기의 선수 중복에만 쓴다(BE PR #35 안내)

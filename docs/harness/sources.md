@@ -8,7 +8,7 @@
 | Notion FOOTY > Github Commit 명세 | 미확인 | `.claude/skills/footy-git-workflow/SKILL.md` | FOOTY_BE의 사본을 옮김. 원본 미대조, 원본 문구 충돌 FC-04 |
 | Notion FOOTY > 1차 스크럼 회고록 | 미확인 | AGENTS.md 4장의 요구사항 정리 규칙 | FOOTY_BE `AGENTS.md` 기준, 원본 미대조 |
 | ERD Cloud footy | https://www.erdcloud.com/d/e7RdzNfbJHXhjyKiu | FOOTY_BE `docs/erd/footy_erd.sql`, `docs/erd/constraints.md` | FE에는 사본 없음. BE `sources.md`에 2026-10-19 대조 기록 |
-| FOOTY_BE 코드(API 계약) | https://github.com/team-Gaeddong/FOOTY_BE `develop` | `docs/api/backend-api.md` | 2026-10-21 `ea0ce52`의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정에서 작성 |
+| FOOTY_BE 코드(API 계약) | https://github.com/team-Gaeddong/FOOTY_BE `develop` | `docs/api/backend-api.md` | 공통 API는 2026-10-21 `ea0ce52`에서 작성. 재경기 API·생성 응답은 2026-10-28 `5262aa9`의 컨트롤러·DTO·서비스·에러 코드와 대조 |
 | FOOTY_BE 하네스 문서 | 같은 저장소의 `AGENTS.md`, `docs/harness/decisions.md` | AGENTS.md 3장 요약 | 2026-10-21 `ea0ce52` 기준. BE 문서의 일부 현황(기본 브랜치 `main`, README의 "API·DB 계층 없음")은 실제와 다름 → API는 BE 코드, 브랜치는 GitHub 조회를 우선 |
 | GitHub FOOTY_FE | https://github.com/team-Gaeddong/FOOTY_FE | 로컬 Git 저장소 | 2026-10-21 API 조회: private, 기본 `main`, 브랜치 보호 불가(FC-02), workflow 0개, 기본 라벨만(FC-03) |
 | 화면 디자인(디자인시스템) | https://www.figma.com/design/lsFTFCIDZ41v462bQ5HOkA/FOOTY (FD-09) | `src/index.css`의 `--ds-*` 토큰 | 2026-10-28 Figma MCP로 변수·컴포넌트(Button, Tag, Spinner, Select, Input, 로고) 확인. 화면별 시안은 없음 |
