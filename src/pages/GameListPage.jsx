@@ -99,7 +99,7 @@ export function GameListPage() {
 
       {profileResult?.error && currentResult?.data && (
         <p className={styles.profileNotice} role="status">
-          재경기 버튼을 확인하지 못했어요.
+          팀 짜기·재경기 버튼을 확인하지 못했어요.
           <button type="button" onClick={() => setProfileRetry((count) => count + 1)}>다시 시도</button>
         </p>
       )}
@@ -161,6 +161,15 @@ function GameListContent({ data, page, goToPage, memberId }) {
                 <div><dt>참가 정원</dt><dd>{game.maxPlayers}명</dd></div>
                 <div><dt>팀 수</dt><dd>{game.teamCount}팀</dd></div>
               </dl>
+              {game.status === 'RECRUITING' && game.hostId === memberId && (
+                <Link
+                  className={styles.rematchLink}
+                  to={`/games/${game.id}/lineup`}
+                  state={{ game }}
+                >
+                  팀 짜기
+                </Link>
+              )}
               {game.status === 'FINISHED' && game.hostId === memberId && (
                 <Link
                   className={styles.rematchLink}
