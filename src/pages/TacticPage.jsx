@@ -1,0 +1,264 @@
+import { startTransition, useEffect, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
+import { ApiError } from '../api/client.js'
+import { getTactic, updateTactic } from '../api/tactics.js'
+import { useAuth } from '../auth/useAuth.js'
+import { Button } from '../components/Button.jsx'
+import { ErrorMessage } from '../components/ErrorMessage.jsx'
+import { LoadingScreen } from '../components/LoadingScreen.jsx'
+import { PageLayout } from '../components/PageLayout.jsx'
+import { TacticBoard } from '../components/TacticBoard.jsx'
+import { DEFAULT_FORMATION, FORMATION_NAMES } from '../components/formations.js'
+import {
+  changeFormation,
+  placementsFromMembers,
+  toPlacementRequest,
+} from '../components/tacticPlacements.js'
+import styles from './TacticPage.module.css'
+
+const NETWORK_ERROR = '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+
+function parseId(value) {
+  if (!/^\d+$/.test(value ?? '')) return null
+  const id = Number(value)
+  return Number.isSafeInteger(id) && id > 0 ? id : null
+}
+
+function loadErrorMessage(error) {
+  if (!(error instanceof ApiError)) return '전술 배치도를 불러오지 못했습니다.'
+  if (error.status === 0) return NETWORK_ERROR
+  if (error.code === 'GAME_404_1') return '경기가 없거나 삭제됐어요.'
+  if (error.code === 'LINEUP_404_1') return '이 경기에 없는 팀이에요.'
+  if (error.code === 'MEMBER_403_1') return '온보딩을 마친 뒤 볼 수 있어요.'
+  if (error.status === 401) return '로그인이 필요합니다. 다시 로그인해 주세요.'
+  return '전술 배치도를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
+}
+
+// lock: 다시 저장해도 안 되는 경우라 편집을 막는다
+function saveErrorOf(error) {
+  if (!(error instanceof ApiError)) return { message: '저장하지 못했습니다. 다시 시도해 주세요.' }
+  if (error.status === 0) return { message: NETWORK_ERROR }
+  if (error.code === 'GAME_403_1') return { message: '파티장만 전술을 저장할 수 있어요.', lock: true }
+  if (error.code === 'LINEUP_409_4') return { message: '확정된 팀이라 전술을 바꿀 수 없어요.', lock: true }
+  if (error.code === 'LINEUP_400_1') return { message: '같은 선수가 두 번 배치됐어요. 새로고침한 뒤 다시 배치해 주세요.' }
+  if (error.code === 'LINEUP_400_2') return { message: '팀 구성이 바뀌었어요. 새로고침한 뒤 다시 배치해 주세요.' }
+  if (error.code === 'GLOBAL_400_1') return { message: '배치 값이 올바르지 않아요. 11명 이하인지 확인해 주세요.' }
+  if (error.code === 'GAME_404_1' || error.code === 'LINEUP_404_1') {
+    return { message: '경기나 팀이 없어져 저장할 수 없어요.', lock: true }
+  }
+  if (error.status === 401) return { message: '로그인이 필요합니다. 다시 로그인해 주세요.' }
+  return { message: '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' }
+}
+
+function draftFrom(tactic) {
+  const formation = tactic.formation ?? DEFAULT_FORMATION
+  return { formation, placements: placementsFromMembers(tactic.members, formation) }
+}
+
+// 저장할 값이 같은지 비교한다(슬롯 번호는 화면용이라 빼고 본다).
+function sameDraft(a, b) {
+  return (
+    a.formation === b.formation &&
+    JSON.stringify(toPlacementRequest(a.placements)) === JSON.stringify(toPlacementRequest(b.placements))
+  )
+}
+
+// 팀 하나의 포메이션과 선수 배치를 보고 고친다(BE D-23). 저장은 파티장만 되고, 권한은 BE 응답으로 판단한다.
+// 팀 ID는 팀 짜기 결과에서만 얻을 수 있어 그 화면에서 들어온다. 같은 경기의 다른 팀 목록은 이동 state로 받는다.
+export function TacticPage() {
+  const params = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { clearSession } = useAuth()
+  const gameId = parseId(params.gameId)
+  const teamId = parseId(params.teamId)
+  const teams = location.state?.gameId === gameId ? location.state.teams : null
+  const gameTitle = location.state?.gameId === gameId ? location.state.gameTitle : null
+
+  const [retryCount, setRetryCount] = useState(0)
+  const requestKey = `${gameId}:${teamId}:${retryCount}`
+  const [result, setResult] = useState(null) // { key, data } | { key, error }
+  const [draft, setDraft] = useState(null) // { key, formation, placements }
+  const [saving, setSaving] = useState(false)
+  // 팀을 바꾸면(requestKey가 바뀌면) 이전 팀의 저장 결과는 보이지 않도록 key를 붙인다
+  const [saveResult, setSaveResult] = useState(null) // { key, saved } | { key, error: { message, lock } }
+  const pending = useRef(false)
+
+  const current = result?.key === requestKey ? result : null
+  const saved = current?.data ? draftFrom(current.data) : null
+  const editing = draft?.key === requestKey ? draft : saved
+  const dirty = Boolean(saved && editing && !sameDraft(saved, editing))
+  const currentSave = saveResult?.key === requestKey ? saveResult : null
+  const saveError = currentSave?.error ?? null
+  const locked = Boolean(saveError?.lock)
+
+  useEffect(() => {
+    if (gameId === null || teamId === null) return
+    let active = true
+
+    getTactic(gameId, teamId)
+      .then((data) => {
+        if (active) setResult({ key: requestKey, data })
+      })
+      .catch((error) => {
+        if (!active) return
+        if (error.code === 'MEMBER_404_1') {
+          navigate('/login', { replace: true, state: { error: 'member_not_found' } })
+          startTransition(() => clearSession())
+          return
+        }
+        setResult({ key: requestKey, error })
+      })
+
+    return () => {
+      active = false
+    }
+  }, [gameId, teamId, requestKey, navigate, clearSession])
+
+  function updateDraft(next) {
+    setDraft({ key: requestKey, ...editing, ...next })
+    if (!locked) setSaveResult(null)
+  }
+
+  async function handleSave() {
+    if (pending.current || !editing || locked) return
+    pending.current = true
+    setSaving(true)
+    setSaveResult(null)
+    try {
+      const data = await updateTactic(gameId, teamId, {
+        formation: editing.formation,
+        placements: toPlacementRequest(editing.placements),
+      })
+      setResult({ key: requestKey, data })
+      setDraft(null)
+      setSaveResult({ key: requestKey, saved: true })
+    } catch (error) {
+      if (error.code === 'MEMBER_404_1') {
+        navigate('/login', { replace: true, state: { error: 'member_not_found' } })
+        startTransition(() => clearSession())
+        return
+      }
+      setSaveResult({ key: requestKey, error: saveErrorOf(error) })
+    } finally {
+      pending.current = false
+      setSaving(false)
+    }
+  }
+
+  const backLink = <Link className={styles.backLink} to="/games">← 경기 목록</Link>
+
+  if (gameId === null || teamId === null) {
+    return (
+      <PageLayout>
+        {backLink}
+        <section className={styles.panel}>
+          <h1>주소가 올바르지 않아요</h1>
+          <p>경기 목록에서 다시 선택해 주세요.</p>
+        </section>
+      </PageLayout>
+    )
+  }
+
+  if (!current) return <LoadingScreen />
+
+  if (current.error) {
+    return (
+      <PageLayout>
+        {backLink}
+        <section className={styles.panel}>
+          <h1>전술 배치도</h1>
+          <ErrorMessage>{loadErrorMessage(current.error)}</ErrorMessage>
+          <Button variant="secondary" onClick={() => setRetryCount((count) => count + 1)}>
+            다시 불러오기
+          </Button>
+        </section>
+      </PageLayout>
+    )
+  }
+
+  const tactic = current.data
+  const formationOptions = FORMATION_NAMES.includes(editing.formation)
+    ? FORMATION_NAMES
+    : [...FORMATION_NAMES, editing.formation]
+
+  return (
+    <PageLayout>
+      {backLink}
+      <header className={styles.header}>
+        <p className={styles.eyebrow}>{gameTitle ?? `경기 #${gameId}`}</p>
+        <h1>{tactic.name} 전술 배치도</h1>
+      </header>
+
+      {teams?.length > 1 && (
+        <nav className={styles.teamTabs} aria-label="팀 선택">
+          {teams.map((team) => (
+            <Link
+              key={team.teamId}
+              className={styles.teamTab}
+              to={`/games/${gameId}/teams/${team.teamId}/tactic`}
+              state={location.state}
+              aria-current={team.teamId === teamId ? 'page' : undefined}
+            >
+              {team.name}
+            </Link>
+          ))}
+        </nav>
+      )}
+
+      {tactic.members.length === 0 ? (
+        <section className={styles.panel}>
+          <p>이 팀에 배정된 선수가 없어요.</p>
+        </section>
+      ) : (
+        <>
+          <fieldset className={styles.formations} disabled={locked}>
+            <legend>포메이션</legend>
+            <div className={styles.formationOptions}>
+              {formationOptions.map((name) => (
+                <button
+                  key={name}
+                  type="button"
+                  className={styles.formation}
+                  aria-pressed={editing.formation === name}
+                  onClick={() =>
+                    updateDraft({
+                      formation: name,
+                      placements: changeFormation(editing.placements, name),
+                    })
+                  }
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <TacticBoard
+            members={tactic.members}
+            formation={editing.formation}
+            placements={editing.placements}
+            onChange={(placements) => updateDraft({ placements })}
+            editable={!locked}
+          />
+
+          <ErrorMessage>{saveError?.message}</ErrorMessage>
+          {currentSave?.saved && !dirty && (
+            <p className={styles.saved} role="status">저장했어요.</p>
+          )}
+          {!locked && (
+            <div className={styles.actions}>
+              <Button variant="secondary" onClick={() => updateDraft(saved)} disabled={!dirty || saving}>
+                되돌리기
+              </Button>
+              <Button onClick={handleSave} disabled={saving || (!dirty && tactic.formation !== null)}>
+                {saving ? '저장 중…' : '저장하기'}
+              </Button>
+            </div>
+          )}
+          <p className={styles.note}>저장은 파티장만 할 수 있어요. 자리를 옮겨도 선수의 배정 포지션은 바뀌지 않아요.</p>
+        </>
+      )}
+    </PageLayout>
+  )
+}
