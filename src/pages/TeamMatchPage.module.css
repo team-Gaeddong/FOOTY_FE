@@ -243,3 +243,20 @@
     padding: var(--space-4);
   }
 }
+
+.tacticLink {
+  align-self: flex-start;
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.tacticLink:hover {
+  text-decoration: underline;
+}
+
+.tacticLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}

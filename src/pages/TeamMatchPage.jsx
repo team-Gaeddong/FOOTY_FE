@@ -62,6 +62,12 @@ export function TeamMatchPage() {
   }
 
   if (lineup) {
+    // 라인업 조회 API가 없어 팀 목록은 전술 배치도 화면에 이동 state로 넘긴다
+    const tacticState = {
+      gameId: numericId,
+      gameTitle: game?.title ?? null,
+      teams: lineup.teams.map(({ teamId, name }) => ({ teamId, name })),
+    }
     return (
       <PageLayout>
         <Link className={styles.backLink} to="/games">← 경기 목록</Link>
@@ -73,7 +79,7 @@ export function TeamMatchPage() {
         <ul className={styles.teams}>
           {lineup.teams.map((team) => (
             <li key={team.teamId}>
-              <TeamCard team={team} />
+              <TeamCard team={team} tacticState={tacticState} gameId={numericId} />
             </li>
           ))}
         </ul>
@@ -115,7 +121,7 @@ export function TeamMatchPage() {
   )
 }
 
-function TeamCard({ team }) {
+function TeamCard({ team, gameId, tacticState }) {
   return (
     <article className={styles.teamCard} aria-labelledby={`team-${team.teamId}`}>
       <div className={styles.teamHeader}>
@@ -139,6 +145,13 @@ function TeamCard({ team }) {
           ))}
         </ul>
       )}
+      <Link
+        className={styles.tacticLink}
+        to={`/games/${gameId}/teams/${team.teamId}/tactic`}
+        state={tacticState}
+      >
+        전술 배치도 짜기 →
+      </Link>
     </article>
   )
 }
