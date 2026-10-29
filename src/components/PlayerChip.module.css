@@ -1,0 +1,108 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.chip:disabled {
+  cursor: default;
+}
+
+.chip[data-selected='true'] {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.chip[data-dragging='true'] {
+  opacity: 0.4;
+}
+
+.position {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.substitute {
+  flex: none;
+  padding: 0 var(--space-1);
+  border-radius: 4px;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+/* 경기장 위: 원 아래에 이름을 놓는 세로형 */
+.onPitch {
+  position: absolute;
+  flex-direction: column;
+  gap: 2px;
+  width: 64px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  transform: translate(-50%, -50%);
+}
+
+.onPitch .position {
+  width: 36px;
+  height: 36px;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+}
+
+.onPitch .name {
+  max-width: 100%;
+  padding: 0 var(--space-1);
+  border-radius: 4px;
+  background: rgb(0 0 0 / 0.55);
+  color: #fff;
+  font-size: 11px;
+}
+
+.onPitch .substitute {
+  display: none;
+}
+
+.onPitch[data-selected='true'] {
+  box-shadow: none;
+}
+
+.onPitch[data-selected='true'] .position {
+  border-color: #ffd54f;
+  box-shadow: 0 0 0 3px #ffd54f;
+}
