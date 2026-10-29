@@ -11,7 +11,7 @@
 | FOOTY_BE 코드(API 계약) | https://github.com/team-Gaeddong/FOOTY_BE `develop` | `docs/api/backend-api.md` | 공통 API는 2026-10-21 `ea0ce52`에서 작성. 재경기 API·생성 응답은 2026-10-28 `5262aa9`의 컨트롤러·DTO·서비스·에러 코드와 대조 |
 | FOOTY_BE 하네스 문서 | 같은 저장소의 `AGENTS.md`, `docs/harness/decisions.md` | AGENTS.md 3장 요약 | 2026-10-21 `ea0ce52` 기준. BE 문서의 일부 현황(기본 브랜치 `main`, README의 "API·DB 계층 없음")은 실제와 다름 → API는 BE 코드, 브랜치는 GitHub 조회를 우선 |
 | GitHub FOOTY_FE | https://github.com/team-Gaeddong/FOOTY_FE | 로컬 Git 저장소 | 2026-10-21 API 조회: private, 기본 `main`, 브랜치 보호 불가(FC-02), workflow 0개, 기본 라벨만(FC-03) |
-| 화면 디자인 | 미확인 (FD-09) | — | — |
+| 화면 디자인(디자인시스템) | https://www.figma.com/design/lsFTFCIDZ41v462bQ5HOkA/FOOTY (FD-09) | `src/index.css`의 `--ds-*` 토큰 | 2026-10-28 Figma MCP로 변수·컴포넌트(Button, Tag, Spinner, Select, Input, 로고) 확인. 화면별 시안은 없음 |
 | 참고: epl 프로토타입 | https://github.com/xo-rxs/epl | — | 기준 문서 아님(FC-06). 2026-10-21 `5477142` 확인 |
 
 ## 원본을 확인할 때
