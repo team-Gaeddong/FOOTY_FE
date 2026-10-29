@@ -139,7 +139,10 @@ export function TacticPage() {
         startTransition(() => clearSession())
         return
       }
-      setSaveResult({ key: requestKey, error: saveErrorOf(error) })
+      const saveError = saveErrorOf(error)
+      // 저장할 수 없게 됐으면 저장되지 않은 배치 대신 저장된 배치를 보여준다
+      if (saveError.lock) setDraft(null)
+      setSaveResult({ key: requestKey, error: saveError })
     } finally {
       pending.current = false
       setSaving(false)
