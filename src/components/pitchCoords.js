@@ -16,3 +16,8 @@ export function clientToPercent(clientX, clientY, rect) {
 export function percentDistance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y)
 }
+
+// 경기장 위 요소를 퍼센트 좌표의 중심에 놓는 스타일.
+export function pitchPosition({ x, y }) {
+  return { left: `${x}%`, top: `${y}%` }
+}
