@@ -19,14 +19,19 @@ export function HomePage() {
     <PageLayout>
       <header className={styles.header}>
         <h1 className={styles.logo}>FOOTY</h1>
-        <Button
-          variant="secondary"
-          className={styles.signOut}
-          onClick={handleSignOut}
-          disabled={signingOut}
-        >
-          {signingOut ? '로그아웃 중…' : '로그아웃'}
-        </Button>
+        <div className={styles.headerActions}>
+          <Link className={styles.profileLink} to="/profile">
+            내 프로필
+          </Link>
+          <Button
+            variant="secondary"
+            className={styles.signOut}
+            onClick={handleSignOut}
+            disabled={signingOut}
+          >
+            {signingOut ? '로그아웃 중…' : '로그아웃'}
+          </Button>
+        </div>
       </header>
       <section className={styles.welcome}>
         <p className={styles.eyebrow}>새로운 경기를 시작해요</p>

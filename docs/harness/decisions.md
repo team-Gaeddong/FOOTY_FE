@@ -92,7 +92,7 @@
 | FD-06 | API 주소·CORS·프록시 | 확정(2026-10-26, 김태균) — 개발 환경만. 배포는 FD-16 | — | **Vite proxy**: `/api/*`를 접두사를 떼고 BE(기본 `http://localhost:8080`, `.env.local`의 `FOOTY_BE_ORIGIN`으로 변경)로 전달. 같은 origin이라 BE CORS 불필요. `VITE_API_BASE_URL`(기본 `/api`)로 호출 주소를 바꿀 수 있음 |
 | FD-07 | 전역 상태 관리 | 확정(2026-10-26, 김태균) | — | **React state·Context만**. 로그인 상태는 `AuthProvider` |
 | FD-08 | 스타일링·디자인 토큰 | 확정(2026-10-26, 김태균) | — | **CSS Modules** + `src/index.css`의 `:root` CSS 변수(색·간격·모서리). 다크 모드는 지원하지 않음. 모바일(375px) 우선, 콘텐츠 최대 폭 420px |
-| FD-09 | 디자인 원본 | 미확인 | 화면 레이아웃·문구 | Figma 등 디자인 파일의 존재 여부와 URL(`sources.md`) |
+| FD-09 | 디자인 원본 | 확정(2026-10-28, 곽효오) — 디자인시스템만. 화면별 시안은 없음 | 화면 문구 | **Figma 디자인시스템** https://www.figma.com/design/lsFTFCIDZ41v462bQ5HOkA/FOOTY (`sources.md`). 컴포넌트(버튼·태그·인풋·스피너)와 토큰(색·타이포·간격·모서리)을 참고한다. 주요 색은 컴포넌트의 파랑(`#256EF4`)을 따른다. 토큰은 `src/index.css`의 `--ds-*` 변수로 옮겼고, 기존 화면(초록 `--color-*` 토큰)의 전환은 별도 이슈. 폰트 Pretendard GOV는 웹폰트로 불러오지 않아 설치되지 않은 환경에서는 시스템 폰트로 보인다 |
 | FD-10 | 코드 포매터 | 미결정 (BE D-08 포매터도 미결정) | 모든 코드 | Prettier 사용 여부·설정, 커밋 훅 |
 | FD-11 | 테스트 도구·필수 여부 | 미결정 (BE D-09와 함께) | 테스트 작성 | `test` 스크립트 없음. 검사기는 `test` 스크립트가 생기면 자동 실행한다(대화형 watch 모드가 아니어야 함). 단위(Vitest·Testing Library 등)·E2E(Playwright 등) 선택 |
 | FD-12 | 날짜·시간 형식과 시간대 | 미결정 | 경기 생성, 일정 조회 | BE는 `LocalDateTime`(시간대 오프셋 없음)으로 주고받고, 현재 시각 비교는 `Asia/Seoul`(`ClockConfig`, `5262aa9`). FE 입력·표시 시간대 |

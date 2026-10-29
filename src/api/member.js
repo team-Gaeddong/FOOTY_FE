@@ -15,3 +15,9 @@ export function withdraw() {
 export function updatePositions(positions) {
   return request('/members/me/positions', { method: 'PUT', body: { positions } })
 }
+
+// 로그인한 회원의 프로필. positions는 priority 오름차순이고 없으면 빈 배열이다.
+// 온보딩 전에는 403 MEMBER_403_1, 탈퇴·없는 회원은 404 MEMBER_404_1.
+export function getMyProfile() {
+  return request('/members/me')
+}

@@ -19,7 +19,7 @@ FOOTY는 축구 경기를 만들고, 참가 선수의 포지션·실력을 바�
 | 인증·응답·에러 형식 결정 | `FOOTY_BE` `docs/harness/decisions.md` | 이 문서 3장 요약 |
 | DB 스키마 | ERD Cloud `footy` 다이어그램 | `FOOTY_BE`의 `docs/erd/` (FE에는 사본 없음) |
 | 이슈·브랜치·커밋·PR·버전 | Notion `FOOTY > Github Commit 명세` | `.claude/skills/footy-git-workflow/SKILL.md` |
-| 화면 디자인 | 미확인 (FD-09) | — |
+| 화면 디자인 | Figma 디자인시스템 https://www.figma.com/design/lsFTFCIDZ41v462bQ5HOkA/FOOTY (FD-09) | `src/index.css`의 `--ds-*` 토큰 |
 | 빌드·런타임 | 이 저장소의 `package.json`, `vite.config.js`, `eslint.config.js`, `src/` | — |
 | 미결정 사항·문서 충돌 | 팀 결정 대기 | `docs/harness/decisions.md` |
 
