@@ -66,6 +66,7 @@ export function TeamMatchPage() {
     const tacticState = {
       gameId: numericId,
       gameTitle: game?.title ?? null,
+      hostId: game?.hostId ?? null,
       teams: lineup.teams.map(({ teamId, name }) => ({ teamId, name })),
     }
     return (

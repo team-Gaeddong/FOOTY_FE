@@ -1,6 +1,8 @@
 import { startTransition, useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { ApiError } from '../api/client.js'
+import { listGames } from '../api/games.js'
+import { getMyProfile } from '../api/members.js'
 import { getTactic, updateTactic } from '../api/tactics.js'
 import { useAuth } from '../auth/useAuth.js'
 import { Button } from '../components/Button.jsx'
@@ -50,6 +52,25 @@ function saveErrorOf(error) {
   return { message: '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' }
 }
 
+// 경기 단건 조회 API가 없어 경기 목록에서 파티장 ID를 찾는다. 못 찾으면 null.
+async function findHostId(gameId) {
+  for (let page = 0; ; page += 1) {
+    const { games, totalPages } = await listGames({ page, size: 100 })
+    const game = games.find((candidate) => candidate.id === gameId)
+    if (game) return game.hostId
+    if (page + 1 >= totalPages) return null
+  }
+}
+
+// 파티장이면 true, 아니면 false, 확인하지 못하면 null(편집은 열어 두고 BE 응답으로 판단)
+async function checkHost(gameId, knownHostId) {
+  const [{ memberId }, hostId] = await Promise.all([
+    getMyProfile(),
+    knownHostId ?? findHostId(gameId),
+  ])
+  return hostId === null ? null : hostId === memberId
+}
+
 function draftFrom(tactic) {
   const formation = tactic.formation ?? DEFAULT_FORMATION
   return { formation, placements: placementsFromMembers(tactic.members, formation) }
@@ -63,7 +84,8 @@ function sameDraft(a, b) {
   )
 }
 
-// 팀 하나의 포메이션과 선수 배치를 보고 고친다(BE D-23). 저장은 파티장만 되고, 권한은 BE 응답으로 판단한다.
+// 팀 하나의 포메이션과 선수 배치를 보고 고친다(BE D-23). 저장은 파티장만 된다.
+// 파티장이 아니면 처음부터 읽기 전용으로 보여주고, 최종 권한은 BE 응답(403·409)으로 판단한다.
 // 팀 ID는 팀 짜기 결과에서만 얻을 수 있어 그 화면에서 들어온다. 같은 경기의 다른 팀 목록은 이동 state로 받는다.
 export function TacticPage() {
   const params = useParams()
@@ -74,6 +96,7 @@ export function TacticPage() {
   const teamId = parseId(params.teamId)
   const teams = location.state?.gameId === gameId ? location.state.teams : null
   const gameTitle = location.state?.gameId === gameId ? location.state.gameTitle : null
+  const knownHostId = location.state?.gameId === gameId ? (location.state.hostId ?? null) : null
 
   const [retryCount, setRetryCount] = useState(0)
   const requestKey = `${gameId}:${teamId}:${retryCount}`
@@ -82,6 +105,7 @@ export function TacticPage() {
   const [saving, setSaving] = useState(false)
   // 팀을 바꾸면(requestKey가 바뀌면) 이전 팀의 저장 결과는 보이지 않도록 key를 붙인다
   const [saveResult, setSaveResult] = useState(null) // { key, saved } | { key, error: { message, lock } }
+  const [hostResult, setHostResult] = useState(null) // { key: gameId, isHost: true | false | null }
   const pending = useRef(false)
 
   const current = result?.key === requestKey ? result : null
@@ -90,7 +114,9 @@ export function TacticPage() {
   const dirty = Boolean(saved && editing && !sameDraft(saved, editing))
   const currentSave = saveResult?.key === requestKey ? saveResult : null
   const saveError = currentSave?.error ?? null
+  const isHost = hostResult?.key === gameId ? hostResult.isHost : undefined
   const locked = Boolean(saveError?.lock)
+  const readOnly = locked || isHost === false
 
   useEffect(() => {
     if (gameId === null || teamId === null) return
@@ -115,13 +141,30 @@ export function TacticPage() {
     }
   }, [gameId, teamId, requestKey, navigate, clearSession])
 
+  useEffect(() => {
+    if (gameId === null) return
+    let active = true
+
+    checkHost(gameId, knownHostId)
+      .then((value) => {
+        if (active) setHostResult({ key: gameId, isHost: value })
+      })
+      .catch(() => {
+        if (active) setHostResult({ key: gameId, isHost: null })
+      })
+
+    return () => {
+      active = false
+    }
+  }, [gameId, knownHostId])
+
   function updateDraft(next) {
     setDraft({ key: requestKey, ...editing, ...next })
     if (!locked) setSaveResult(null)
   }
 
   async function handleSave() {
-    if (pending.current || !editing || locked) return
+    if (pending.current || !editing || readOnly) return
     pending.current = true
     setSaving(true)
     setSaveResult(null)
@@ -163,7 +206,7 @@ export function TacticPage() {
     )
   }
 
-  if (!current) return <LoadingScreen />
+  if (!current || isHost === undefined) return <LoadingScreen />
 
   if (current.error) {
     return (
@@ -215,7 +258,7 @@ export function TacticPage() {
         </section>
       ) : (
         <>
-          <fieldset className={styles.formations} disabled={locked}>
+          <fieldset className={styles.formations} disabled={readOnly}>
             <legend>포메이션</legend>
             <div className={styles.formationOptions}>
               {formationOptions.map((name) => (
@@ -242,14 +285,19 @@ export function TacticPage() {
             formation={editing.formation}
             placements={editing.placements}
             onChange={(placements) => updateDraft({ placements })}
-            editable={!locked}
+            editable={!readOnly}
           />
 
+          {isHost === false && !locked && (
+            <p className={styles.readOnly} role="status">
+              파티장만 배치를 바꿀 수 있어요. 저장된 배치를 보여드려요.
+            </p>
+          )}
           <ErrorMessage>{saveError?.message}</ErrorMessage>
           {currentSave?.saved && !dirty && (
             <p className={styles.saved} role="status">저장했어요.</p>
           )}
-          {!locked && (
+          {!readOnly && (
             <div className={styles.actions}>
               <Button variant="secondary" onClick={() => updateDraft(saved)} disabled={!dirty || saving}>
                 되돌리기
@@ -259,7 +307,9 @@ export function TacticPage() {
               </Button>
             </div>
           )}
-          <p className={styles.note}>저장은 파티장만 할 수 있어요. 자리를 옮겨도 선수의 배정 포지션은 바뀌지 않아요.</p>
+          {!readOnly && (
+            <p className={styles.note}>자리를 옮겨도 선수의 배정 포지션은 바뀌지 않아요.</p>
+          )}
         </>
       )}
     </PageLayout>
