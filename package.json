@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test": "node --test \"src/**/*.test.js\"",
     "harness": "node scripts/harness/check.mjs",
     "harness:test": "node --test scripts/harness/tests/check.test.mjs"
   },
