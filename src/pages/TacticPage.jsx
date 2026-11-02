@@ -18,6 +18,7 @@ import {
 } from '../components/tacticPlacements.js'
 import styles from './TacticPage.module.css'
 
+const LEAVE_CONFIRM = '저장하지 않은 배치가 있어요. 저장하지 않고 나갈까요?'
 const NETWORK_ERROR = '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
 
 function parseId(value) {
@@ -117,6 +118,7 @@ export function TacticPage() {
   const isHost = hostResult?.key === gameId ? hostResult.isHost : undefined
   const locked = Boolean(saveError?.lock)
   const readOnly = locked || isHost === false
+  const unsaved = dirty && !readOnly
 
   useEffect(() => {
     if (gameId === null || teamId === null) return
@@ -158,6 +160,21 @@ export function TacticPage() {
     }
   }, [gameId, knownHostId])
 
+  // 새로고침·탭 닫기 경고. BrowserRouter는 화면 안 이동을 막는 기능(useBlocker)이 없어
+  // 이 화면의 링크는 confirmLeave로 직접 묻고, 브라우저 뒤로 가기는 막지 못한다.
+  useEffect(() => {
+    if (!unsaved) return
+    function handleBeforeUnload(event) {
+      event.preventDefault()
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [unsaved])
+
+  function confirmLeave(event) {
+    if (unsaved && !window.confirm(LEAVE_CONFIRM)) event.preventDefault()
+  }
+
   function updateDraft(next) {
     setDraft({ key: requestKey, ...editing, ...next })
     if (!locked) setSaveResult(null)
@@ -192,7 +209,9 @@ export function TacticPage() {
     }
   }
 
-  const backLink = <Link className={styles.backLink} to="/games">← 경기 목록</Link>
+  const backLink = (
+    <Link className={styles.backLink} to="/games" onClick={confirmLeave}>← 경기 목록</Link>
+  )
 
   if (gameId === null || teamId === null) {
     return (
@@ -245,6 +264,7 @@ export function TacticPage() {
               to={`/games/${gameId}/teams/${team.teamId}/tactic`}
               state={location.state}
               aria-current={team.teamId === teamId ? 'page' : undefined}
+              onClick={confirmLeave}
             >
               {team.name}
             </Link>
