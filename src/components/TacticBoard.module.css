@@ -1,0 +1,127 @@
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pitchArea {
+  width: 100%;
+}
+
+.slot {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px dashed rgb(255 255 255 / 0.85);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.15);
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  transform: translate(-50%, -50%);
+  cursor: default;
+}
+
+.slot[data-active='true'] {
+  background: rgb(255 255 255 / 0.35);
+  cursor: pointer;
+}
+
+.slot:focus-visible {
+  outline: 2px solid #ffd54f;
+  outline-offset: 2px;
+}
+
+.help,
+.hint,
+.empty {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.bench {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.benchHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.benchHeader h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.unplace {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-danger);
+  border-radius: 8px;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.benchList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.benchList li {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ghost {
+  position: fixed;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transform: translate(-50%, -20px);
+  pointer-events: none;
+}
+
+.ghostPosition {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.35);
+}
+
+.ghostName {
+  padding: 0 var(--space-1);
+  border-radius: 4px;
+  background: rgb(0 0 0 / 0.65);
+  color: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+}

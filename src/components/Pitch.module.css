@@ -1,0 +1,30 @@
+.pitch {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 68 / 105;
+  border-radius: var(--radius);
+  background: repeating-linear-gradient(
+    to bottom,
+    #2f9e57 0,
+    #2f9e57 10%,
+    #2b9150 10%,
+    #2b9150 20%
+  );
+  overflow: hidden;
+  user-select: none;
+}
+
+.lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: rgb(255 255 255 / 0.8);
+  stroke-width: 0.4;
+}
+
+.spot {
+  fill: rgb(255 255 255 / 0.8);
+  stroke: none;
+}

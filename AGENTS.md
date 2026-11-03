@@ -37,7 +37,7 @@ FOOTY는 축구 경기를 만들고, 참가 선수의 포지션·실력을 바�
 - ESLint 10 flat config(`eslint.config.js`): `@eslint/js` recommended, `eslint-plugin-react-hooks` recommended(React Compiler 진단 포함), `eslint-plugin-react-refresh` vite. `scripts/**/*.mjs`는 Node 전역으로 검사한다
 - 진입점: `index.html` → `src/main.jsx` → `src/App.jsx`(라우트). 폴더는 역할별 `src/{api,auth,components,pages}`(FD-02), 스타일은 CSS Modules(FD-08)
 - 선언된 런타임 의존성은 `react`, `react-dom`, `react-router`(FD-03)다. 서버 통신은 fetch 래퍼(FD-04), 전역 상태는 Context(FD-07)이고 상태 관리·HTTP 클라이언트·스타일 라이브러리·테스트 도구·포매터는 없다
-- 스크립트: `dev`, `build`, `lint`, `preview`, `harness`, `harness:test`. `test` 스크립트는 없다(FD-11)
+- 스크립트: `dev`, `build`, `lint`, `preview`, `test`, `harness`, `harness:test`. `test`는 Node 내장 `node:test`로 `src/**/*.test.js`를 실행한다(의존성 없음, #28). 테스트 도구·필수 여부는 아직 미결정이다(FD-11)
 - Node: `engines`·`.nvmrc`가 없다(FD-15). 의존성 요구 범위는 Node 22.13 이상 또는 24 이상이고, 작성 환경은 v24.14.1, CI는 Node 24다
 - 원격 저장소: `team-Gaeddong/FOOTY_FE` (2026-10-21 조회: private, 기본 브랜치 `main`, 브랜치 보호 적용 불가 — FC-02)
 

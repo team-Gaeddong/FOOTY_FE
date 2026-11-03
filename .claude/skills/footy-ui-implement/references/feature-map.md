@@ -23,7 +23,7 @@
 | 선수 실력 매기기 | Sprint 2 | 3 | 곽효오 | game_player.skill_level | `PATCH /games/{gameId}/players/skill-levels` | |
 | 후보 선수 지정 | Sprint 2 | 3 | 곽효오 | game_player.is_substitute | 없음 | 18명이 넘을 경우 실력 차이를 고려해서 공평하게 정해짐 |
 | AI/알고리즘 팀 짜기 | Sprint 2 | 4 | 곽효오 | lineup, team, team_member | 없음 | |
-| 드래그 앤 드롭 전술 배치도 | Sprint 3 | 5 | 김태균 | team_member.pos_x, pos_y | 없음 | |
+| 드래그 앤 드롭 전술 배치도 | Sprint 3 | 5 | 김태균 | team.formation, team_member.pos_x, pos_y | `GET`·`PUT /games/{gameId}/teams/{teamId}/tactic` (BE #46) | 좌표는 퍼센트 0~100. 이름 붙인 전술 저장은 범위 밖(BE D-23) |
 | 팀 확정 | Sprint 3 | 5 | 안세하 | lineup.is_confirmed | 없음 | |
 | 다시 짜기 | Sprint 3 | 5~6 | 안세하 | lineup.version | 없음 | 마음에 안 들면 조건 유지하고 재배정 |
 | 경기 저장 | Sprint 3 | 6 | 안세하 | lineup, (결과 컬럼 없음) | 없음 | 해당 날짜의 팀 구성과 경기 결과 저장 |

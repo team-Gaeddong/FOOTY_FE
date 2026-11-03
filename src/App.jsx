@@ -9,6 +9,7 @@ import { LoginPage } from './pages/LoginPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { OnboardingPage } from './pages/OnboardingPage.jsx'
 import { RematchGamePage } from './pages/RematchGamePage.jsx'
+import { TacticPage } from './pages/TacticPage.jsx'
 import { TeamMatchPage } from './pages/TeamMatchPage.jsx'
 
 // FD-03: react-router. /login/callback은 BE OAUTH_REDIRECT_URI와 맞춘다.
@@ -26,6 +27,7 @@ function App() {
             <Route path="/games" element={<GameListPage />} />
             <Route path="/games/:gameId/rematch" element={<RematchGamePage />} />
             <Route path="/games/:gameId/lineup" element={<TeamMatchPage />} />
+            <Route path="/games/:gameId/teams/:teamId/tactic" element={<TacticPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
