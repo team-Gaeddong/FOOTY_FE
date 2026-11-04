@@ -235,6 +235,9 @@ export function TeamMatchPage() {
           <li>포지션은 선수의 1순위 희망 포지션으로 정해요.</li>
           <li>참가 정원을 넘는 선수는 후보가 돼요.</li>
         </ul>
+        <Link className={styles.tacticLink} to={`/games/${numericId}/skill-levels`} state={game ? { game } : undefined}>
+          선수 실력 매기기 →
+        </Link>
         <ErrorMessage>{submitError}</ErrorMessage>
         <Button onClick={handleCreate} disabled={submitting}>
           {submitting ? '팀 짜는 중…' : '팀 짜기'}

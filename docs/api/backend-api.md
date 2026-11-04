@@ -40,6 +40,8 @@
 | `POST /games` | Bearer + 온보딩 | `CreateGameRequest` | 201 `CreateGameResponse` | `GLOBAL_400_1`(형식·필수·길이), `GAME_400_2`(정원), `GAME_400_4`(팀 수), `GAME_400_3`(일시), `MEMBER_404_1`(없는·탈퇴 회원), `MEMBER_403_1` | #2, #22 |
 | `GET /games` | Bearer + 온보딩 | `page`(0부터, 기본 0), `size`(1~100, 기본 20) 쿼리 | 200 `ListGamesResponse` | `GLOBAL_400_1`(잘못된 페이지·크기), 인증·온보딩 에러 | #14 |
 | `POST /games/{gameId}/rematch` | Bearer + 온보딩, 원본 파티장 | `{ playDate }` | 201 `CreateGameResponse` | `GLOBAL_400_1`, `GAME_400_3`, `GAME_403_1`, `GAME_404_1`, `GAME_409_2`, 인증·온보딩 에러 | #30 |
+| `GET /games/{gameId}/players` | Bearer + 온보딩 | — | 200 `ListGamePlayersResponse` | `GAME_404_1`, 인증·온보딩 에러 | |
+| `PATCH /games/{gameId}/players/skill-levels` | Bearer + 온보딩, 파티장 | `UpdateSkillLevelsRequest` | 204 | `GLOBAL_400_1`(빈 목록·1~10 밖), `GAME_400_1`(같은 선수 중복), `GAME_403_1`, `GAME_404_1`, `GAME_404_2`(이 경기 선수가 아님), 인증·온보딩 에러 | #19 |
 | `POST /games/{gameId}/lineups` | Bearer + 온보딩, 파티장 | — | 201 `LineupResponse` | `GAME_403_1`, `GAME_404_1`, `LINEUP_409_1`(이미 있음), `LINEUP_409_2`(실력 미입력 선수), `LINEUP_409_3`(선수 2명 미만), 인증·온보딩 에러 | #40, #42 |
 | `GET /games/{gameId}/lineups/latest` | Bearer + 온보딩 | — | 200 `LineupResponse` | `GAME_404_1`, `LINEUP_404_2`, 인증·온보딩 에러 | #49 |
 | `PATCH /games/{gameId}/lineups/confirm` | Bearer + 온보딩, 파티장 | — | 200 `LineupResponse` (`isConfirmed: true`) | `GAME_403_1`, `GAME_404_1`, `GAME_409_1`(모집 중인 경기 아님), `LINEUP_404_2`, 인증·온보딩 에러 | #48 |
@@ -115,6 +117,26 @@
 
 `GameSummaryResponse`: `id`, `hostId`, `title`, `playDate`, `location`, `maxPlayers`, `teamCount`, `status`. `status`는 `RECRUITING`·`CONFIRMED`·`FINISHED` 중 하나다.
 
+`ListGamePlayersResponse` (`GET /games/{gameId}/players`, BE `d7c85db`, BE D-20)
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `players` | `{ id, memberId, name, skillLevel, isSubstitute, positions, joinedAt }[]` | 참여 순(`joinedAt`, `id` 오름차순). 선수가 없으면 빈 배열 |
+| `players[].id` | number | 경기 참가자 ID(`gamePlayerId`) |
+| `players[].memberId` | number \| null | 비회원 선수면 `null` |
+| `players[].skillLevel` | number \| null | **파티장이 조회할 때만** 값이 있다. 파티장이 아니거나 아직 매기지 않았으면 `null` |
+| `players[].positions` | string[] | 희망 포지션, 우선순위 순. 없으면 빈 배열 |
+
+`UpdateSkillLevelsRequest` (BE `d7c85db`, BE #19)
+
+| 필드 | 타입 | 규칙 |
+|---|---|---|
+| `players` | `{ gamePlayerId, skillLevel }[]` | 필수, 1개 이상. 보낸 선수만 바뀐다(전체 교체 아님). 같은 선수 중복은 `GAME_400_1` |
+| `skillLevel` | number | 정수 1~10 |
+
+- 파티장만 매긴다. 경기 상태와 관계없이 바꿀 수 있다
+- 한 명이라도 이 경기의 선수가 아니면 `GAME_404_2`이고 아무것도 반영하지 않는다
+
 `LineupResponse` (`POST /games/{gameId}/lineups`, BE `37d2efc` 대조, BE D-21·D-22)
 
 | 필드 | 타입 | 설명 |
@@ -169,9 +191,11 @@
 | `MEMBER_403_1` | 403 | 온보딩을 마친 뒤 이용할 수 있습니다. |
 | `MEMBER_404_1` | 404 | 회원을 찾을 수 없습니다. (회원이 없거나 탈퇴한 경우, BE D-16) |
 | `MEMBER_409_1` | 409 | 이미 온보딩을 마친 회원입니다. |
+| `GAME_400_1` | 400 | 같은 선수를 중복해서 보낼 수 없습니다. |
 | `GAME_400_3` | 400 | 경기 일시는 현재 이후여야 합니다. |
 | `GAME_403_1` | 403 | 파티장만 할 수 있습니다. |
 | `GAME_404_1` | 404 | 경기를 찾을 수 없습니다. |
+| `GAME_404_2` | 404 | 경기 참가자를 찾을 수 없습니다. |
 | `GAME_409_2` | 409 | 종료된 경기만 재경기를 만들 수 있습니다. |
 | `LINEUP_409_1` | 409 | 이미 팀을 짠 경기입니다. |
 | `LINEUP_409_2` | 409 | 실력 점수가 없는 선수가 있습니다. |
