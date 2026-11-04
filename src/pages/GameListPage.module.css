@@ -204,6 +204,12 @@
   background: var(--color-bg);
 }
 
+.hostActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
 .pagination {
   display: flex;
   align-items: center;
