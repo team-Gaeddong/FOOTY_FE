@@ -4,3 +4,11 @@ import { request } from './client.js'
 export function createLineup(gameId) {
   return request(`/games/${gameId}/lineups`, { method: 'POST' })
 }
+
+export function getLatestLineup(gameId) {
+  return request(`/games/${gameId}/lineups/latest`)
+}
+
+export function confirmLineup(gameId) {
+  return request(`/games/${gameId}/lineups/confirm`, { method: 'PATCH' })
+}
