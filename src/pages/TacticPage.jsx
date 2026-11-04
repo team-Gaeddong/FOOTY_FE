@@ -1,8 +1,6 @@
 import { startTransition, useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { ApiError } from '../api/client.js'
-import { listGames } from '../api/games.js'
-import { getMyProfile } from '../api/members.js'
 import { getTactic, updateTactic } from '../api/tactics.js'
 import { useAuth } from '../auth/useAuth.js'
 import { Button } from '../components/Button.jsx'
@@ -16,6 +14,7 @@ import {
   placementsFromMembers,
   toPlacementRequest,
 } from '../components/tacticPlacements.js'
+import { checkHost } from './checkHost.js'
 import styles from './TacticPage.module.css'
 
 const LEAVE_CONFIRM = '저장하지 않은 배치가 있어요. 저장하지 않고 나갈까요?'
@@ -51,25 +50,6 @@ function saveErrorOf(error) {
   }
   if (error.status === 401) return { message: '로그인이 필요합니다. 다시 로그인해 주세요.' }
   return { message: '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' }
-}
-
-// 경기 단건 조회 API가 없어 경기 목록에서 파티장 ID를 찾는다. 못 찾으면 null.
-async function findHostId(gameId) {
-  for (let page = 0; ; page += 1) {
-    const { games, totalPages } = await listGames({ page, size: 100 })
-    const game = games.find((candidate) => candidate.id === gameId)
-    if (game) return game.hostId
-    if (page + 1 >= totalPages) return null
-  }
-}
-
-// 파티장이면 true, 아니면 false, 확인하지 못하면 null(편집은 열어 두고 BE 응답으로 판단)
-async function checkHost(gameId, knownHostId) {
-  const [{ memberId }, hostId] = await Promise.all([
-    getMyProfile(),
-    knownHostId ?? findHostId(gameId),
-  ])
-  return hostId === null ? null : hostId === memberId
 }
 
 function draftFrom(tactic) {
