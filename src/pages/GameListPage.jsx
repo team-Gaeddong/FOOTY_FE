@@ -170,6 +170,15 @@ function GameListContent({ data, page, goToPage, memberId }) {
                   팀 짜기
                 </Link>
               )}
+              {game.status === 'CONFIRMED' && game.hostId === memberId && (
+                <Link
+                  className={styles.rematchLink}
+                  to={`/games/${game.id}/lineup`}
+                  state={{ game }}
+                >
+                  저장된 팀 확인
+                </Link>
+              )}
               {game.status === 'FINISHED' && game.hostId === memberId && (
                 <Link
                   className={styles.rematchLink}
