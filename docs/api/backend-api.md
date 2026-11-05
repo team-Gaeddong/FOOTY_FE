@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 경기 상세 조회·경기 참가 API는 `8d2b767`(2026-11-04, BE PR #55 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -45,6 +45,8 @@
 | `POST /games/{gameId}/players` | Bearer + 온보딩, 회원 본인 | `JoinGameRequest` | 201 `JoinGameResponse` | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `MEMBER_404_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `GAME_409_3`(이미 참가), 인증·온보딩 에러 | #32, #36 |
 | `PATCH /games/{gameId}/players/skill-levels` | Bearer + 온보딩, 파티장 | `UpdateSkillLevelsRequest` | 204 | `GLOBAL_400_1`(빈 목록·1~10 밖), `GAME_400_1`(같은 선수 중복), `GAME_403_1`, `GAME_404_1`, `GAME_404_2`(이 경기 선수가 아님), 인증·온보딩 에러 | #19 |
 | `POST /games/{gameId}/lineups` | Bearer + 온보딩, 파티장 | — | 201 `LineupResponse` | `GAME_403_1`, `GAME_404_1`, `LINEUP_409_1`(이미 있음), `LINEUP_409_2`(실력 미입력 선수), `LINEUP_409_3`(선수 2명 미만), 인증·온보딩 에러 | #40, #42 |
+| `GET /games/{gameId}/lineups/latest` | Bearer + 온보딩 | — | 200 `LineupResponse` | `GAME_404_1`, `LINEUP_404_2`, 인증·온보딩 에러 | #49 |
+| `PATCH /games/{gameId}/lineups/confirm` | Bearer + 온보딩, 파티장 | — | 200 `LineupResponse` (`isConfirmed: true`) | `GAME_403_1`, `GAME_404_1`, `GAME_409_1`(모집 중인 경기 아님), `LINEUP_404_2`, 인증·온보딩 에러 | #48 |
 | `GET /games/{gameId}/teams/{teamId}/tactic` | Bearer + 온보딩 | — | 200 `TacticResponse` | `GAME_404_1`, `LINEUP_404_1`(경기에 속하지 않은 팀), 인증·온보딩 에러 | #45 |
 | `PUT /games/{gameId}/teams/{teamId}/tactic` | Bearer + 온보딩, 파티장 | `UpdateTacticRequest` | 200 `TacticResponse` | `GLOBAL_400_1`(좌표 범위·자릿수, 11명 초과, 포메이션 20자 초과), `LINEUP_400_1`(중복 배치), `LINEUP_400_2`(팀원 아님), `GAME_403_1`, `GAME_404_1`, `LINEUP_404_1`, `LINEUP_409_4`(확정된 팀), 인증·온보딩 에러 | #45 |
 
@@ -165,7 +167,7 @@
 | `teams` | `{ teamId, name, totalSkill, members }[]` | 항상 2팀(`A팀`·`B팀`). `game.teamCount`는 아직 무시(BE D-21 미결정). `totalSkill`은 후보를 뺀 실력 합계 |
 | `teams[].members` | `{ gamePlayerId, name, skillLevel, position, isSubstitute }[]` | `position`은 1순위 희망 포지션, 없으면 `FW`. 실력 순으로 앞의 `maxPlayers`명이 선발이고 나머지는 `isSubstitute: true` |
 
-라인업 조회 API는 없다. 이미 짠 경기(`LINEUP_409_1`)의 팀 구성은 FE에서 다시 볼 수 없다.
+최신 라인업 조회는 로그인 회원 누구나 가능하며, 파티장이 아니면 `totalSkill`·`skillLevel`이 `null`이다. 팀 확정은 파티장만 할 수 있고 `PATCH /games/{gameId}/lineups/confirm`으로 최신 라인업의 `isConfirmed`와 경기 상태를 `CONFIRMED`로 바꾼다. 이 API는 경기 점수·승패를 저장하지 않는다.
 
 `UpdateTacticRequest`(BE `051d972`, BE D-23)
 
@@ -221,6 +223,7 @@
 | `LINEUP_400_1` | 400 | 같은 선수를 중복해서 배치할 수 없습니다. |
 | `LINEUP_400_2` | 400 | 팀에 속하지 않은 선수는 배치할 수 없습니다. |
 | `LINEUP_404_1` | 404 | 팀을 찾을 수 없습니다. |
+| `LINEUP_404_2` | 404 | 아직 팀을 짜지 않은 경기입니다. |
 | `LINEUP_409_3` | 409 | 팀을 짜려면 선수가 2명 이상이어야 합니다. |
 | `LINEUP_409_4` | 409 | 확정된 팀은 수정할 수 없습니다. |
 

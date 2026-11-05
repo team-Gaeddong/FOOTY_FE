@@ -54,6 +54,40 @@
   background: var(--color-surface);
 }
 
+.savePanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.savePanel h2 {
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.savePanel p,
+.loading {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.saved {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius);
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.loading {
+  padding: var(--space-5);
+}
+
 .panel h2 {
   overflow-wrap: anywhere;
   font-size: 20px;
@@ -239,7 +273,8 @@
 
 @media (max-width: 375px) {
   .panel,
-  .teamCard {
+  .teamCard,
+  .savePanel {
     padding: var(--space-4);
   }
 }
