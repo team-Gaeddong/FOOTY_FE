@@ -28,7 +28,7 @@
 | 다시 짜기 | Sprint 3 | 5~6 | 안세하 | lineup.version | 없음 | 마음에 안 들면 조건 유지하고 재배정 |
 | 경기 저장 | Sprint 3 | 6 | 안세하 | lineup, (결과 컬럼 없음) | 없음 | 해당 날짜의 팀 구성과 경기 결과 저장 |
 | 전술 배치도 이미지 저장 | Sprint 3 | 6 | 전재준 | lineup.image_url | 없음 | |
-| 경기 상세 조회 | Sprint 3 | 6 | 곽효오 | game 외 다수 | 없음 | |
+| 경기 상세 조회 | Sprint 3 | 6 | 곽효오 | game 외 다수 | `GET /games/{gameId}` (BE #54, `8d2b767`) | |
 | 경기 이후 밸런스 작성 | Sprint 4 | 7 | 곽효오 | balance_review | 없음 | |
 | 경기 MVP | Sprint 4 | 7 | 곽효오 | mvp_vote | 없음 | 경기 끝나고 오늘의 MVP 선택하게 하기 |
 | 밸런스 취합 및 점수 계산 | Sprint 4 | 7 | 곽효오 | balance_review, member.rating | 없음 | |
