@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 라인업 조회·확정 API는 `develop` `8d2b767`(2026-11-04, BE PR #53 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -40,7 +40,9 @@
 | `POST /games` | Bearer + 온보딩 | `CreateGameRequest` | 201 `CreateGameResponse` | `GLOBAL_400_1`(형식·필수·길이), `GAME_400_2`(정원), `GAME_400_4`(팀 수), `GAME_400_3`(일시), `MEMBER_404_1`(없는·탈퇴 회원), `MEMBER_403_1` | #2, #22 |
 | `GET /games` | Bearer + 온보딩 | `page`(0부터, 기본 0), `size`(1~100, 기본 20) 쿼리 | 200 `ListGamesResponse` | `GLOBAL_400_1`(잘못된 페이지·크기), 인증·온보딩 에러 | #14 |
 | `POST /games/{gameId}/rematch` | Bearer + 온보딩, 원본 파티장 | `{ playDate }` | 201 `CreateGameResponse` | `GLOBAL_400_1`, `GAME_400_3`, `GAME_403_1`, `GAME_404_1`, `GAME_409_2`, 인증·온보딩 에러 | #30 |
+| `GET /games/{gameId}` | Bearer + 온보딩 | — | 200 `GameDetailResponse` | `GAME_404_1`(없음·삭제), 인증·온보딩 에러 | #54 |
 | `GET /games/{gameId}/players` | Bearer + 온보딩 | — | 200 `ListGamePlayersResponse` | `GAME_404_1`, 인증·온보딩 에러 | |
+| `POST /games/{gameId}/players` | Bearer + 온보딩, 회원 본인 | `JoinGameRequest` | 201 `JoinGameResponse` | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `MEMBER_404_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `GAME_409_3`(이미 참가), 인증·온보딩 에러 | #32, #36 |
 | `PATCH /games/{gameId}/players/skill-levels` | Bearer + 온보딩, 파티장 | `UpdateSkillLevelsRequest` | 204 | `GLOBAL_400_1`(빈 목록·1~10 밖), `GAME_400_1`(같은 선수 중복), `GAME_403_1`, `GAME_404_1`, `GAME_404_2`(이 경기 선수가 아님), 인증·온보딩 에러 | #19 |
 | `POST /games/{gameId}/lineups` | Bearer + 온보딩, 파티장 | — | 201 `LineupResponse` | `GAME_403_1`, `GAME_404_1`, `LINEUP_409_1`(이미 있음), `LINEUP_409_2`(실력 미입력 선수), `LINEUP_409_3`(선수 2명 미만), 인증·온보딩 에러 | #40, #42 |
 | `GET /games/{gameId}/lineups/latest` | Bearer + 온보딩 | — | 200 `LineupResponse` | `GAME_404_1`, `LINEUP_404_2`, 인증·온보딩 에러 | #49 |
@@ -116,6 +118,23 @@
 | `totalPages` | number | 전체 페이지 수. 경기가 없으면 0 |
 
 `GameSummaryResponse`: `id`, `hostId`, `title`, `playDate`, `location`, `maxPlayers`, `teamCount`, `status`. `status`는 `RECRUITING`·`CONFIRMED`·`FINISHED` 중 하나다.
+
+`GameDetailResponse` (`GET /games/{gameId}`, BE `8d2b767`, BE D-25)
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `id`, `title`, `playDate`, `location`, `maxPlayers`, `teamCount`, `status` | | `GameSummaryResponse`와 같은 뜻 |
+| `createdAt` | string | 경기를 만든 시각(`LocalDateTime`) |
+| `host` | `{ id, nickname }` | 파티장 |
+| `playerCount` | number | 후보를 포함한 참가 선수 수. 참가가 `maxPlayers`를 넘을 수 있다(BE D-19) |
+| `isHost` | boolean | 요청한 회원이 파티장인지 |
+| `isJoined` | boolean | 요청한 회원이 참가했는지 |
+
+로그인한 회원 누구나 조회한다. 선수 목록·라인업은 들어 있지 않다(`GET /games/{gameId}/players`와 라인업 API를 쓴다).
+
+`JoinGameRequest` (`POST /games/{gameId}/players`, BE D-19): `{ "positions": ["MF", "FW"] }`. 필수, 1~4개, 중복 없이, 순서가 우선순위(BE D-13). 이름은 회원 닉네임, 실력은 파티장이 나중에 매긴다. `RECRUITING` 경기만 참가할 수 있고 정원 초과는 막지 않는다.
+
+`JoinGameResponse`: `id`(`gamePlayerId`), `gameId`, `memberId`, `name`, `skillLevel`(`null`), `isSubstitute`, `positions`, `joinedAt`.
 
 `ListGamePlayersResponse` (`GET /games/{gameId}/players`, BE `d7c85db`, BE D-20)
 
@@ -196,7 +215,9 @@
 | `GAME_403_1` | 403 | 파티장만 할 수 있습니다. |
 | `GAME_404_1` | 404 | 경기를 찾을 수 없습니다. |
 | `GAME_404_2` | 404 | 경기 참가자를 찾을 수 없습니다. |
+| `GAME_409_1` | 409 | 모집 중인 경기에서만 할 수 있습니다. |
 | `GAME_409_2` | 409 | 종료된 경기만 재경기를 만들 수 있습니다. |
+| `GAME_409_3` | 409 | 이미 참여한 경기입니다. |
 | `LINEUP_409_1` | 409 | 이미 팀을 짠 경기입니다. |
 | `LINEUP_409_2` | 409 | 실력 점수가 없는 선수가 있습니다. |
 | `LINEUP_400_1` | 400 | 같은 선수를 중복해서 배치할 수 없습니다. |

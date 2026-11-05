@@ -31,3 +31,18 @@ export function updateSkillLevels(gameId, players) {
     body: { players },
   })
 }
+
+// 로그인한 회원 누구나. isHost·isJoined는 요청자 기준, playerCount는 후보 포함(BE D-25).
+// 선수 목록·라인업은 들어 있지 않다. 없거나 삭제된 경기는 404 GAME_404_1.
+export function getGame(gameId) {
+  return request(`/games/${gameId}`)
+}
+
+// 회원 본인이 참가한다. positions는 1~4개, 순서가 우선순위(BE D-13·D-19). 성공은 201.
+// 모집 중이 아니면 409 GAME_409_1, 이미 참가했으면 409 GAME_409_3.
+export function joinGame(gameId, positions) {
+  return request(`/games/${gameId}/players`, {
+    method: 'POST',
+    body: { positions },
+  })
+}
