@@ -154,7 +154,9 @@ function GameListContent({ data, page, goToPage, memberId }) {
           <li key={game.id}>
             <article className={styles.card} aria-labelledby={`game-title-${game.id}`}>
               <span className={styles.status}>{STATUS_LABELS[game.status] ?? game.status}</span>
-              <h2 id={`game-title-${game.id}`}>{game.title}</h2>
+              <h2 id={`game-title-${game.id}`}>
+                <Link className={styles.titleLink} to={`/games/${game.id}`}>{game.title}</Link>
+              </h2>
               <dl>
                 <div><dt>경기 일시</dt><dd>{formatDateTime(game.playDate)}</dd></div>
                 <div><dt>장소</dt><dd>{game.location}</dd></div>
