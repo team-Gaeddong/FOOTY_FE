@@ -1,0 +1,335 @@
+/*
+ * Figma `경기_상세_조회` 시안(PC, 콘텐츠 1200px)을 따른다. 이 화면은 FD-08(모바일 우선·최대 420px)과
+ * 다르게 PC 기준으로 먼저 만들었다(decisions.md FC-10). 반응형은 나중에 붙이며, 바꿀 곳은
+ * .container 여백, .hero 가로 배치, .columns·.infoGrid 열 수다.
+ */
+.page {
+  min-height: 100svh;
+  background: var(--ds-surface-gray-subtler);
+  color: var(--ds-text-basic);
+  font-family: var(--ds-font);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-gap-6);
+  width: 100%;
+  max-width: calc(var(--ds-content-max) + 2 * var(--ds-padding-8));
+  margin: 0 auto;
+  padding: var(--ds-padding-8) var(--ds-padding-8) 80px;
+}
+
+/* button_text 컴포넌트 */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-gap-2);
+  min-height: var(--ds-height-6);
+  margin-left: calc(-1 * var(--ds-padding-3));
+  padding: 0 var(--ds-padding-3);
+  border-radius: var(--ds-radius-medium1);
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-label-small);
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  background: var(--ds-button-text-fill-hover);
+}
+
+.backLink:active {
+  background: var(--ds-button-text-fill-pressed);
+}
+
+/* 상단 요약 */
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ds-gap-7);
+  padding: 48px;
+  border-radius: var(--ds-radius-xlarge3);
+  background: var(--ds-brand-dark);
+  color: var(--ds-text-inverse);
+}
+
+.heroMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-gap-3);
+  min-width: 0;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-gap-3);
+}
+
+.badge {
+  padding: 2px var(--ds-padding-5);
+  border-radius: var(--ds-radius-max);
+  background: var(--ds-brand-dark-raised);
+  color: var(--ds-brand-lime);
+  font-size: var(--ds-body-xsmall);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.badgeActive {
+  background: var(--ds-brand-lime);
+  color: var(--ds-brand-dark);
+}
+
+.title {
+  overflow-wrap: anywhere;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-gap-4);
+  color: rgb(255 255 255 / 85%);
+  font-size: var(--ds-body-medium);
+  line-height: 1.5;
+}
+
+.metaDot {
+  color: rgb(255 255 255 / 40%);
+}
+
+.count {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: flex-end;
+  gap: var(--ds-gap-2);
+  width: 280px;
+}
+
+.countLabel {
+  font-size: var(--ds-label-small);
+  font-weight: 700;
+}
+
+.countValue {
+  font-size: var(--ds-heading-small);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.countValue strong {
+  margin-right: var(--ds-gap-3);
+  color: var(--ds-brand-lime);
+  font-size: 64px;
+  font-weight: 800;
+}
+
+.meter {
+  width: 100%;
+  height: 8px;
+  margin-top: var(--ds-gap-4);
+  overflow: hidden;
+  border-radius: var(--ds-radius-max);
+  background: var(--ds-brand-dark-raised);
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ds-brand-lime);
+}
+
+.countNote {
+  color: rgb(255 255 255 / 70%);
+  font-size: var(--ds-body-xsmall);
+}
+
+/* 본문 두 열: 경기 정보 | 참가·파티장 카드 */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 384px;
+  gap: var(--ds-gap-7);
+  align-items: start;
+}
+
+.card,
+.messageCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-gap-6);
+  min-width: 0;
+  padding: 32px;
+  border: 1px solid var(--ds-border-gray-light);
+  border-radius: var(--ds-radius-xlarge3);
+  background: var(--ds-surface-white);
+}
+
+.cardTitle {
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-heading-small);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.cardText {
+  margin-top: calc(-1 * var(--ds-gap-3));
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-small);
+  line-height: 1.5;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ds-gap-7) var(--ds-gap-6);
+  margin: 0;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-gap-2);
+  min-width: 0;
+  padding: 20px;
+  border-radius: var(--ds-radius-medium3);
+  background: var(--ds-surface-gray-subtler);
+}
+
+.infoItem dt {
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-small);
+  line-height: 1.5;
+}
+
+.infoItem dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-body-medium);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-gap-4);
+}
+
+/* button_primary / button_tertiary 컴포넌트 */
+.primaryButton,
+.tertiaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--ds-height-8);
+  padding: 0 var(--ds-padding-6);
+  border-radius: var(--ds-radius-medium3);
+  font-size: var(--ds-label-medium);
+  font-weight: 700;
+  line-height: 1.5;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.primaryButton {
+  border: 0;
+  background: var(--ds-button-primary-fill);
+  color: var(--ds-text-inverse);
+}
+
+.primaryButton:hover {
+  background: var(--ds-button-primary-fill-hover);
+}
+
+.primaryButton:active {
+  background: var(--ds-button-primary-fill-pressed);
+}
+
+.primaryButton:disabled {
+  background: var(--ds-button-disabled-fill);
+  color: var(--ds-text-disabled);
+  cursor: not-allowed;
+}
+
+.tertiaryButton {
+  border: 1px solid var(--ds-button-tertiary-border);
+  background: var(--ds-surface-white);
+  color: var(--ds-text-basic);
+}
+
+.tertiaryButton:hover {
+  background: var(--ds-button-tertiary-fill-hover);
+}
+
+.tertiaryButton:active {
+  background: var(--ds-button-tertiary-fill-pressed);
+}
+
+.primaryButton:focus-visible,
+.tertiaryButton:focus-visible,
+.backLink:focus-visible {
+  outline: 2px solid var(--ds-border-primary);
+  outline-offset: 2px;
+}
+
+/* 로딩·에러·없는 경기 */
+.messageCard {
+  align-items: center;
+  gap: var(--ds-gap-4);
+  padding: 64px 32px;
+  text-align: center;
+}
+
+.messageCard .tertiaryButton {
+  min-height: var(--ds-height-6);
+  font-size: var(--ds-label-small);
+  font-weight: 400;
+}
+
+.messageTitle {
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-heading-small);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.messageText {
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-small);
+}
+
+.errorText {
+  color: var(--ds-danger);
+  font-size: var(--ds-body-small);
+  line-height: 1.5;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--ds-border-gray-light);
+  border-top-color: var(--ds-border-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2.4s;
+  }
+}

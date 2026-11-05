@@ -90,6 +90,12 @@ input {
   --ds-button-tertiary-fill-pressed: #e6e8ea;
   --ds-button-text-fill-hover: #eef2f7;
   --ds-button-text-fill-pressed: #d6e0eb;
+  --ds-button-disabled-fill: #cdd1d5;
+
+  /* FOOTY 브랜드(로고·앱 아이콘의 짙은 초록과 라임). 경기 상세 시안 요약 영역에서 쓴다. */
+  --ds-brand-dark: #112a20;
+  --ds-brand-dark-raised: #2b453b;
+  --ds-brand-lime: #c8f06a;
 
   /* 타이포 크기 (line-height는 모두 1.5) */
   --ds-heading-large: 32px;
@@ -116,8 +122,12 @@ input {
   --ds-height-7: 48px;
   --ds-height-8: 56px;
 
+  /* PC 시안의 콘텐츠 폭(경기 상세). 모바일 화면은 FD-08의 420px을 쓴다. */
+  --ds-content-max: 1200px;
+
   --ds-radius-medium1: 6px;
   --ds-radius-medium3: 8px;
   --ds-radius-xlarge2: 12px;
+  --ds-radius-xlarge3: 16px;
   --ds-radius-max: 1000px;
 }

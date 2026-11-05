@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import { AuthProvider } from './auth/AuthProvider.jsx'
 import { RequireAuth } from './auth/RequireAuth.jsx'
 import { CreateGamePage } from './pages/CreateGamePage.jsx'
+import { GameDetailPage } from './pages/GameDetailPage.jsx'
 import { GameListPage } from './pages/GameListPage.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { LoginCallbackPage } from './pages/LoginCallbackPage.jsx'
@@ -28,6 +29,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/games/new" element={<CreateGamePage />} />
             <Route path="/games" element={<GameListPage />} />
+            <Route path="/games/:gameId" element={<GameDetailPage />} />
             <Route path="/games/:gameId/rematch" element={<RematchGamePage />} />
             <Route path="/games/:gameId/skill-levels" element={<SkillLevelPage />} />
             <Route path="/games/:gameId/lineup" element={<TeamMatchPage />} />
