@@ -171,7 +171,9 @@ export function TeamMatchPage() {
             </li>
           ))}
         </ul>
-        <p className={styles.note}>후보 선수는 팀 실력 합계에서 빠져요.</p>
+        {lineup.teams.some((team) => team.totalSkill !== null) && (
+          <p className={styles.note}>후보 선수는 팀 실력 합계에서 빠져요.</p>
+        )}
         {lineup.isConfirmed ? (
           <p className={styles.saved} role="status">팀 구성을 저장했어요. 이 경기의 팀과 전술이 확정됐습니다.</p>
         ) : (

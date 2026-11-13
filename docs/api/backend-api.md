@@ -188,7 +188,7 @@
 
 - 조회는 로그인 회원 누구나, 저장은 파티장만 한다. 팀 확정 뒤에는 저장할 수 없다(`LINEUP_409_4`)
 - 배치 위치를 옮겨도 `members[].position`(배정 포지션)은 바뀌지 않는다. 후보 선수도 배치할 수 있다(BE D-23 미결정)
-- 팀 ID를 얻는 방법은 팀 짜기 응답(`POST /games/{gameId}/lineups`)뿐이다
+- 팀 ID는 팀 짜기 응답(`POST /games/{gameId}/lineups`)이나 최신 라인업 조회(`GET /games/{gameId}/lineups/latest`)로 얻는다
 
 ## 에러 코드
 
