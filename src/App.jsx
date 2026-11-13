@@ -9,6 +9,7 @@ import { LoginCallbackPage } from './pages/LoginCallbackPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { OnboardingPage } from './pages/OnboardingPage.jsx'
+import { PlayerPositionPage } from './pages/PlayerPositionPage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
 import { RematchGamePage } from './pages/RematchGamePage.jsx'
 import { SkillLevelPage } from './pages/SkillLevelPage.jsx'
@@ -33,6 +34,7 @@ function App() {
             <Route path="/games/:gameId" element={<GameDetailPage />} />
             <Route path="/games/:gameId/rematch" element={<RematchGamePage />} />
             <Route path="/games/:gameId/skill-levels" element={<SkillLevelPage />} />
+            <Route path="/games/:gameId/positions" element={<PlayerPositionPage />} />
             <Route path="/games/:gameId/lineup" element={<TeamMatchPage />} />
             <Route path="/games/:gameId/teams/:teamId/tactic" element={<TacticPage />} />
             <Route path="/withdraw" element={<WithdrawPage />} />
