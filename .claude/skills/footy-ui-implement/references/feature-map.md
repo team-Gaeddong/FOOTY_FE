@@ -19,7 +19,7 @@
 | 선수 등록 | Sprint 1 | 2 | 전재준 | game_player | `POST /games/{gameId}/players`(비회원 선수) | 이름/닉네임, 포지션, 실력 등을 등록 |
 | 매치 참여 기능 | Sprint 2 | 3 | 김태균 | game_player | 없음 | |
 | 포지션 복수 선택 | Sprint 2 | 3 | 김태균 | member_position, player_position | `PUT /members/me/positions` | 우선 순위 정하기 |
-| 포지션 설정 | Sprint 2 | 3 | 안세하 | player_position | `PUT /games/{gameId}/players/{gamePlayerId}/positions` | GK / DF / MF / FW, 복수 선택 가능 |
+| 포지션 설정 | Sprint 2 | 3 | 김태균 | player_position | `PUT /games/{gameId}/players/{gamePlayerId}/positions` (BE #17) | GK / DF / MF / FW, 복수 선택 가능. 파티장만, 모집 중인 경기만(BE D-13). FE #41 |
 | 선수 실력 매기기 | Sprint 2 | 3 | 곽효오 | game_player.skill_level | `PATCH /games/{gameId}/players/skill-levels` | |
 | 후보 선수 지정 | Sprint 2 | 3 | 곽효오 | game_player.is_substitute | 없음 | 18명이 넘을 경우 실력 차이를 고려해서 공평하게 정해짐 |
 | AI/알고리즘 팀 짜기 | Sprint 2 | 4 | 곽효오 | lineup, team, team_member | 없음 | |
