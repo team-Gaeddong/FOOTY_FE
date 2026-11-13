@@ -14,6 +14,7 @@ import { RematchGamePage } from './pages/RematchGamePage.jsx'
 import { SkillLevelPage } from './pages/SkillLevelPage.jsx'
 import { TacticPage } from './pages/TacticPage.jsx'
 import { TeamMatchPage } from './pages/TeamMatchPage.jsx'
+import { WithdrawPage } from './pages/WithdrawPage.jsx'
 
 // FD-03: react-router. /login/callback은 BE OAUTH_REDIRECT_URI와 맞춘다.
 function App() {
@@ -34,6 +35,7 @@ function App() {
             <Route path="/games/:gameId/skill-levels" element={<SkillLevelPage />} />
             <Route path="/games/:gameId/lineup" element={<TeamMatchPage />} />
             <Route path="/games/:gameId/teams/:teamId/tactic" element={<TacticPage />} />
+            <Route path="/withdraw" element={<WithdrawPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
