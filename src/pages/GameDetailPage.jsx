@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { ApiError } from '../api/client.js'
 import { getGame, joinGame } from '../api/games.js'
 import { getMyProfile } from '../api/member.js'
@@ -12,6 +12,11 @@ const STATUS_LABELS = {
   RECRUITING: '모집 중',
   CONFIRMED: '팀 확정',
   FINISHED: '경기 종료',
+}
+
+// 다른 화면이 넘겨준 완료 안내(location.state.notice)
+const NOTICE_MESSAGES = {
+  'balance-reviewed': '밸런스 평가를 제출했어요.',
 }
 
 function loadErrorMessage(error) {
@@ -48,6 +53,8 @@ function toSummary(game) {
 export function GameDetailPage() {
   const { gameId: gameIdParam } = useParams()
   const gameId = parseGameId(gameIdParam)
+  const location = useLocation()
+  const noticeMessage = NOTICE_MESSAGES[location.state?.notice]
   const [retryCount, setRetryCount] = useState(0)
   const [result, setResult] = useState(null)
   const requestKey = `${gameId}:${retryCount}`
@@ -114,6 +121,11 @@ export function GameDetailPage() {
             <span aria-hidden="true">←</span> 경기 목록
           </Link>
         </nav>
+        {noticeMessage && currentResult?.game && (
+          <p className={styles.notice} role="status">
+            {noticeMessage}
+          </p>
+        )}
         {content}
       </div>
     </main>
@@ -204,13 +216,22 @@ function GameDetail({ game, onUpdated }) {
             <h2 id="side-title" className={styles.cardTitle}>
               참가 완료
             </h2>
-            <p className={styles.cardText}>이 경기에 참가했어요.</p>
+            {game.status === 'FINISHED' ? (
+              <>
+                <p className={styles.cardText}>경기가 끝났어요. 팀 밸런스는 어땠나요?</p>
+                <BalanceReviewLink game={game} />
+              </>
+            ) : (
+              <>
+                <p className={styles.cardText}>이 경기에 참가했어요.</p>
+                <button type="button" className={styles.primaryButton} disabled>
+                  참가 완료
+                </button>
+              </>
+            )}
             <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices`} state={{ gameTitle: game.title }}>
               공지 확인
             </Link>
-            <button type="button" className={styles.primaryButton} disabled>
-              참가 완료
-            </button>
           </section>
         ) : game.status === 'RECRUITING' ? (
           <JoinCard gameId={game.id} onUpdated={onUpdated} />
@@ -276,8 +297,9 @@ function HostCard({ game }) {
             <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices/new`} state={state}>
               공지 작성
             </Link>
+            <BalanceReviewLink game={game} />
             <Link
-              className={styles.primaryButton}
+              className={styles.tertiaryButton}
               to={`/games/${game.id}/rematch`}
               state={{ sourceGame: toSummary(game) }}
             >
@@ -294,6 +316,19 @@ function HostCard({ game }) {
         </>
       )}
     </section>
+  )
+}
+
+// 작성 여부를 미리 알 수 없어 이미 평가했으면 작성 화면에서 BALANCE_409_2로 안내한다.
+function BalanceReviewLink({ game }) {
+  return (
+    <Link
+      className={styles.primaryButton}
+      to={`/games/${game.id}/balance-review`}
+      state={{ game: toSummary(game) }}
+    >
+      밸런스 평가하기
+    </Link>
   )
 }
 
