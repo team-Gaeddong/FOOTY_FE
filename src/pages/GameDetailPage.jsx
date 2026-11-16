@@ -255,6 +255,9 @@ function HostCard({ game }) {
             <Link className={styles.tertiaryButton} to={`/games/${game.id}/skill-levels`} state={state}>
               선수 실력 매기기
             </Link>
+            <Link className={styles.tertiaryButton} to={`/games/${game.id}/positions`}>
+              포지션 설정
+            </Link>
           </div>
         </>
       ) : game.status === 'FINISHED' ? (

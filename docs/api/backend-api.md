@@ -44,6 +44,7 @@
 | `GET /games/{gameId}/players` | Bearer + 온보딩 | — | 200 `ListGamePlayersResponse` | `GAME_404_1`, 인증·온보딩 에러 | |
 | `POST /games/{gameId}/players` | Bearer + 온보딩, 회원 본인 | `JoinGameRequest` | 201 `JoinGameResponse` | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `MEMBER_404_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `GAME_409_3`(이미 참가), 인증·온보딩 에러 | #32, #36 |
 | `PATCH /games/{gameId}/players/skill-levels` | Bearer + 온보딩, 파티장 | `UpdateSkillLevelsRequest` | 204 | `GLOBAL_400_1`(빈 목록·1~10 밖), `GAME_400_1`(같은 선수 중복), `GAME_403_1`, `GAME_404_1`, `GAME_404_2`(이 경기 선수가 아님), 인증·온보딩 에러 | #19 |
+| `PUT /games/{gameId}/players/{gamePlayerId}/positions` | Bearer + 온보딩, 파티장 | `UpdatePlayerPositionsRequest` | 204 | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `GAME_403_1`, `GAME_404_1`, `GAME_404_2`(이 경기 선수가 아님), `GAME_409_1`(모집 중 아님), 인증·온보딩 에러 | #17 |
 | `POST /games/{gameId}/lineups` | Bearer + 온보딩, 파티장 | — | 201 `LineupResponse` | `GAME_403_1`, `GAME_404_1`, `LINEUP_409_1`(이미 있음), `LINEUP_409_2`(실력 미입력 선수), `LINEUP_409_3`(선수 2명 미만), 인증·온보딩 에러 | #40, #42 |
 | `GET /games/{gameId}/lineups/latest` | Bearer + 온보딩 | — | 200 `LineupResponse` | `GAME_404_1`, `LINEUP_404_2`, 인증·온보딩 에러 | #49 |
 | `PATCH /games/{gameId}/lineups/confirm` | Bearer + 온보딩, 파티장 | — | 200 `LineupResponse` (`isConfirmed: true`) | `GAME_403_1`, `GAME_404_1`, `GAME_409_1`(모집 중인 경기 아님), `LINEUP_404_2`, 인증·온보딩 에러 | #48 |
@@ -67,6 +68,8 @@
 | 필드 | 타입 | 규칙 |
 |---|---|---|
 | `positions` | string[] | `GK`·`DF`·`MF`·`FW` 중 1~4개, 중복 없음. 순서가 우선순위 |
+
+경기별 선수 포지션(`PUT /games/{gameId}/players/{gamePlayerId}/positions`, BE `0d41428`, BE D-13)은 파티장만, `RECRUITING` 경기에서만 바꿀 수 있고 보낸 목록으로 전부 교체한다. 회원 선호 포지션은 바뀌지 않는다.
 
 `MyProfileResponse`
 
