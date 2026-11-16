@@ -249,6 +249,9 @@ function HostCard({ game }) {
         <>
           <p className={styles.cardText}>선수 실력을 매긴 뒤 팀을 나눌 수 있어요.</p>
           <div className={styles.actions}>
+            <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices/new`} state={state}>
+              공지 작성
+            </Link>
             <Link className={styles.primaryButton} to={`/games/${game.id}/lineup`} state={state}>
               팀 짜기
             </Link>
@@ -263,16 +266,26 @@ function HostCard({ game }) {
       ) : game.status === 'FINISHED' ? (
         <>
           <p className={styles.cardText}>같은 조건으로 다음 경기를 만들 수 있어요.</p>
-          <Link
-            className={styles.primaryButton}
-            to={`/games/${game.id}/rematch`}
-            state={{ sourceGame: toSummary(game) }}
-          >
-            이 경기로 재경기 만들기
-          </Link>
+          <div className={styles.actions}>
+            <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices/new`} state={state}>
+              공지 작성
+            </Link>
+            <Link
+              className={styles.primaryButton}
+              to={`/games/${game.id}/rematch`}
+              state={{ sourceGame: toSummary(game) }}
+            >
+              이 경기로 재경기 만들기
+            </Link>
+          </div>
         </>
       ) : (
-        <p className={styles.cardText}>팀이 확정된 경기예요.</p>
+        <>
+          <p className={styles.cardText}>팀이 확정된 경기예요.</p>
+          <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices/new`} state={state}>
+            공지 작성
+          </Link>
+        </>
       )}
     </section>
   )
