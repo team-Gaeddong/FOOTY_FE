@@ -40,6 +40,9 @@
 | `POST /games` | Bearer + 온보딩 | `CreateGameRequest` | 201 `CreateGameResponse` | `GLOBAL_400_1`(형식·필수·길이), `GAME_400_2`(정원), `GAME_400_4`(팀 수), `GAME_400_3`(일시), `MEMBER_404_1`(없는·탈퇴 회원), `MEMBER_403_1` | #2, #22 |
 | `GET /games` | Bearer + 온보딩 | `page`(0부터, 기본 0), `size`(1~100, 기본 20) 쿼리 | 200 `ListGamesResponse` | `GLOBAL_400_1`(잘못된 페이지·크기), 인증·온보딩 에러 | #14 |
 | `POST /games/{gameId}/rematch` | Bearer + 온보딩, 원본 파티장 | `{ playDate }` | 201 `CreateGameResponse` | `GLOBAL_400_1`, `GAME_400_3`, `GAME_403_1`, `GAME_404_1`, `GAME_409_2`, 인증·온보딩 에러 | #30 |
+| `POST /games/{gameId}/notices` | Bearer + 온보딩, 경기 파티장 | `{ title, content }` | 201 `CreateNoticeResponse` | `GLOBAL_400_1`(필수·제목 길이), `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #57 |
+| `GET /games/{gameId}/notices` | Bearer + 온보딩, 경기 파티장 또는 참여자 | — | 200 `{ notices: NoticeResponse[] }`(최신순) | `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #59 |
+| `GET /games/{gameId}/notices/{noticeId}` | Bearer + 온보딩, 경기 파티장 또는 참여자 | — | 200 `NoticeResponse` | `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #59 |
 | `GET /games/{gameId}` | Bearer + 온보딩 | — | 200 `GameDetailResponse` | `GAME_404_1`(없음·삭제), 인증·온보딩 에러 | #54 |
 | `GET /games/{gameId}/players` | Bearer + 온보딩 | — | 200 `ListGamePlayersResponse` | `GAME_404_1`, 인증·온보딩 에러 | |
 | `POST /games/{gameId}/players` | Bearer + 온보딩, 회원 본인 | `JoinGameRequest` | 201 `JoinGameResponse` | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `MEMBER_404_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `GAME_409_3`(이미 참가), 인증·온보딩 에러 | #32, #36 |
@@ -97,6 +100,24 @@
 | 필드 | 타입 | 규칙 |
 |---|---|---|
 | `playDate` | string(`LocalDateTime`) | 필수, 현재(`Asia/Seoul`) 이후 |
+
+`CreateNoticeRequest` (`POST /games/{gameId}/notices`)
+
+| 필드 | 타입 | 규칙 |
+|---|---|---|
+| `title` | string | 필수, 공백만은 불가, 100자 이하 (`GLOBAL_400_1`) |
+| `content` | string | 필수, 공백만은 불가 (`GLOBAL_400_1`) |
+
+`NoticeResponse` (`POST /games/{gameId}/notices`, `GET /games/{gameId}/notices/{noticeId}`)
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `id` | number | 공지 ID |
+| `title` | string | 공지 제목 |
+| `content` | string | 공지 내용 |
+| `createdAt` | string(`LocalDateTime`) | 작성 시각 |
+
+`ListNoticesResponse` (`GET /games/{gameId}/notices`)는 `{ notices: NoticeResponse[] }`이며, 작성 시각 내림차순으로 정렬한다. 공지가 없으면 빈 배열이다. 삭제되지 않은 경기의 파티장만 공지를 쓸 수 있고, 파티장과 경기 참여자는 공지를 조회할 수 있다.
 
 `CreateGameResponse` (`POST /games`, `POST /games/{gameId}/rematch`)
 
