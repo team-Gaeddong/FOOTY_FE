@@ -17,11 +17,13 @@ import {
 import styles from './OnboardingPage.module.css'
 
 const INVALID_NICKNAME = `닉네임은 앞뒤 공백을 제외하고 ${NICKNAME_MIN}~${NICKNAME_MAX}자여야 합니다.`
+const NICKNAME_TAKEN = '이미 사용 중인 닉네임이에요. 다른 닉네임을 입력해 주세요.'
 const INVALID_POSITIONS = '선호 포지션을 1~4개 골라 주세요.'
 const NETWORK_ERROR = '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
 
 function nicknameErrorMessage(error) {
   if (error.code === 'MEMBER_400_1') return INVALID_NICKNAME
+  if (error.code === 'MEMBER_409_2') return NICKNAME_TAKEN
   if (error.status === 0) return NETWORK_ERROR
   return '저장하지 못했습니다. 다시 시도해 주세요.'
 }
@@ -79,9 +81,10 @@ export function OnboardingPage() {
       try {
         await completeOnboarding(nickname.trim())
       } catch (e) {
-        // 409는 다른 탭 등에서 이미 온보딩을 마친 경우다. 포지션 저장은 이어서 한다.
+        // MEMBER_409_1은 다른 탭 등에서 이미 온보딩을 마친 경우다. 포지션 저장은 이어서 한다.
+        // MEMBER_409_2는 다른 회원이 쓰는 닉네임이라 다시 입력받는다(BE D-05e).
         if (e.code !== 'MEMBER_409_1') {
-          const field = e.code === 'MEMBER_400_1' ? 'nickname' : null
+          const field = e.code === 'MEMBER_400_1' || e.code === 'MEMBER_409_2' ? 'nickname' : null
           handleFailure(e, { field, message: nicknameErrorMessage(e) })
           return
         }
@@ -118,7 +121,10 @@ export function OnboardingPage() {
             id="nickname"
             className={styles.input}
             value={nickname}
-            onChange={(event) => setNickname(event.target.value)}
+            onChange={(event) => {
+              setNickname(event.target.value)
+              if (error?.field === 'nickname') setError(null)
+            }}
             readOnly={nicknameSaved}
             autoComplete="nickname"
             autoFocus
@@ -129,7 +135,7 @@ export function OnboardingPage() {
             <span>
               {nicknameSaved
                 ? '저장됐어요'
-                : `앞뒤 공백 제외 ${NICKNAME_MIN}~${NICKNAME_MAX}자`}
+                : `앞뒤 공백 제외 ${NICKNAME_MIN}~${NICKNAME_MAX}자, 다른 회원과 겹칠 수 없어요`}
             </span>
             <span>
               {nicknameLength(nickname)}/{NICKNAME_MAX}
