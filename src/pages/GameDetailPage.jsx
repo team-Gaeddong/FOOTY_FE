@@ -197,31 +197,40 @@ function GameDetail({ game, onUpdated }) {
           </dl>
         </section>
 
-        {game.isHost ? (
-          <HostCard game={game} />
-        ) : game.isJoined ? (
-          <section className={styles.card} aria-labelledby="side-title">
-            <h2 id="side-title" className={styles.cardTitle}>
-              참가 완료
-            </h2>
-            <p className={styles.cardText}>이 경기에 참가했어요.</p>
-            <button type="button" className={styles.primaryButton} disabled>
-              참가 완료
-            </button>
-          </section>
-        ) : game.status === 'RECRUITING' ? (
-          <JoinCard gameId={game.id} onUpdated={onUpdated} />
-        ) : (
-          <section className={styles.card} aria-labelledby="side-title">
-            <h2 id="side-title" className={styles.cardTitle}>
-              참가 신청
-            </h2>
-            <p className={styles.cardText}>모집이 끝난 경기라 참가할 수 없어요.</p>
-            <button type="button" className={styles.primaryButton} disabled>
-              모집 마감
-            </button>
-          </section>
-        )}
+        <div className={styles.side}>
+          {game.isHost ? (
+            <HostCard game={game} />
+          ) : game.isJoined ? (
+            <section className={styles.card} aria-labelledby="side-title">
+              <h2 id="side-title" className={styles.cardTitle}>
+                참가 완료
+              </h2>
+              <p className={styles.cardText}>이 경기에 참가했어요.</p>
+              <button type="button" className={styles.primaryButton} disabled>
+                참가 완료
+              </button>
+            </section>
+          ) : game.status === 'RECRUITING' ? (
+            <JoinCard gameId={game.id} onUpdated={onUpdated} />
+          ) : (
+            <section className={styles.card} aria-labelledby="side-title">
+              <h2 id="side-title" className={styles.cardTitle}>
+                참가 신청
+              </h2>
+              <p className={styles.cardText}>모집이 끝난 경기라 참가할 수 없어요.</p>
+              <button type="button" className={styles.primaryButton} disabled>
+                모집 마감
+              </button>
+            </section>
+          )}
+
+          {/* 신고는 그 경기에 참가한 회원만 할 수 있다(BE D-30). 노출만 조절하고 권한은 BE 응답을 따른다. */}
+          {game.isJoined && (
+            <Link className={styles.reportLink} to={`/games/${game.id}/report`}>
+              참가 선수 신고
+            </Link>
+          )}
+        </div>
       </div>
     </>
   )

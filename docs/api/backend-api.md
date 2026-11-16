@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -53,6 +53,7 @@
 | `PATCH /games/{gameId}/lineups/confirm` | Bearer + 온보딩, 파티장 | — | 200 `LineupResponse` (`isConfirmed: true`) | `GAME_403_1`, `GAME_404_1`, `GAME_409_1`(모집 중인 경기 아님), `LINEUP_404_2`, 인증·온보딩 에러 | #48 |
 | `GET /games/{gameId}/teams/{teamId}/tactic` | Bearer + 온보딩 | — | 200 `TacticResponse` | `GAME_404_1`, `LINEUP_404_1`(경기에 속하지 않은 팀), 인증·온보딩 에러 | #45 |
 | `PUT /games/{gameId}/teams/{teamId}/tactic` | Bearer + 온보딩, 파티장 | `UpdateTacticRequest` | 200 `TacticResponse` | `GLOBAL_400_1`(좌표 범위·자릿수, 11명 초과, 포메이션 20자 초과), `LINEUP_400_1`(중복 배치), `LINEUP_400_2`(팀원 아님), `GAME_403_1`, `GAME_404_1`, `LINEUP_404_1`, `LINEUP_409_4`(확정된 팀), 인증·온보딩 에러 | #45 |
+| `POST /games/{gameId}/reports` | Bearer + 온보딩, 그 경기에 참가한 회원 | `CreateReportRequest` | 201 `CreateReportResponse` | `REPORT_400_1`(자기 신고), `GLOBAL_400_1`(필수값 누락·없는 사유 값·상세 500자 초과), `REPORT_403_1`(참가하지 않은 신고자), `GAME_404_1`, `MEMBER_404_1`(없거나 탈퇴한 피신고자), `GAME_404_2`(그 경기에 참가하지 않은 피신고자), `REPORT_409_1`(대기 중인 같은 신고), 인증·온보딩 에러 | #66 |
 
 닉네임 검증(BE `MemberService`): 앞뒤 공백을 `strip()`으로 지운 뒤 **코드 포인트 수**로 2~10자, 중복 허용. FE에서 같은 규칙으로 미리 검사하려면 `[...nickname.trim()].length`처럼 코드 포인트로 센다.
 
@@ -214,6 +215,28 @@
 - 배치 위치를 옮겨도 `members[].position`(배정 포지션)은 바뀌지 않는다. 후보 선수도 배치할 수 있다(BE D-23 미결정)
 - 팀 ID는 팀 짜기 응답(`POST /games/{gameId}/lineups`)이나 최신 라인업 조회(`GET /games/{gameId}/lineups/latest`)로 얻는다
 
+`CreateReportRequest` (`POST /games/{gameId}/reports`, BE `45a362b`, BE D-30)
+
+| 필드 | 타입 | 규칙 |
+|---|---|---|
+| `reportedMemberId` | number | 필수. 신고할 회원의 `memberId`(`gamePlayerId`가 아니다) |
+| `reason` | string | 필수, 하나만. `ABUSE`(욕설·비방)·`VIOLENT_PLAY`(거친 플레이·폭력)·`NO_SHOW`(무단 불참)·`OTHER`(기타) |
+| `detail` | string \| null | 선택, 500자 이하(Java `String` 길이 = UTF-16 단위, JS `length`와 같다). 공백만이면 `null`로 저장하고 앞뒤 공백은 그대로 둔다 |
+
+`CreateReportResponse`
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `id` | number | 신고 ID |
+| `gameId`, `reportedMemberId`, `reason`, `detail` | | 요청과 같은 뜻. `detail`은 없으면 `null` |
+| `status` | string | `PENDING`·`DONE` 중 하나. 접수하면 `PENDING` |
+| `createdAt` | string(`LocalDateTime`) | |
+
+- 신고자와 피신고자가 모두 그 경기에 참가한 **회원**이어야 한다(`game_player.member_id`). 비회원 선수는 신고할 수 없다. 삭제되지 않은 경기면 상태 제한이 없다
+- 같은 신고자→피신고자→경기 조합에 `PENDING` 신고가 있으면 `REPORT_409_1`이다. BE는 서비스에서만 확인해 동시에 보낸 요청은 둘 다 저장될 수 있다
+- BE 검사 순서: 자기 신고 → 신고자 회원 → 경기 → 피신고자 회원 → 신고자 참가 → 피신고자 참가 → 중복. `MEMBER_404_1`은 신고자·피신고자 어느 쪽이 없거나 탈퇴해도 같은 코드다
+- 신고 조회·처리(`DONE`) API, 누적 제재, 경기 상태에 따른 신고 가능 시점은 BE D-30에서 미결정이다
+
 ## 에러 코드
 
 | code | HTTP | message |
@@ -250,6 +273,9 @@
 | `LINEUP_404_2` | 404 | 아직 팀을 짜지 않은 경기입니다. |
 | `LINEUP_409_3` | 409 | 팀을 짜려면 선수가 2명 이상이어야 합니다. |
 | `LINEUP_409_4` | 409 | 확정된 팀은 수정할 수 없습니다. |
+| `REPORT_400_1` | 400 | 자기 자신은 신고할 수 없습니다. |
+| `REPORT_403_1` | 403 | 경기에 참가한 회원만 신고할 수 있습니다. |
+| `REPORT_409_1` | 409 | 이미 접수되어 처리 중인 신고입니다. |
 
 - 경기 생성 검증용으로 먼저 공유된 번호가 있었다면 바뀌었다: 최대 인원 `GAME_400_1` → `GAME_400_2`, 팀 수 `GAME_400_2` → `GAME_400_4`. `GAME_400_1`은 실력 매기기의 선수 중복에만 쓴다(BE PR #35 안내)
 - 화면에는 BE `message`를 그대로 보여주지 않고 FE가 `code`별 문구를 정한다(FD-04). 분기는 `code`로 한다
