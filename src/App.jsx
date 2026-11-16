@@ -9,6 +9,7 @@ import { LoginCallbackPage } from './pages/LoginCallbackPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
 import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { NoticeCreatePage } from './pages/NoticeCreatePage.jsx'
+import { NoticeDetailPage, NoticeListPage } from './pages/NoticePage.jsx'
 import { OnboardingPage } from './pages/OnboardingPage.jsx'
 import { PlayerPositionPage } from './pages/PlayerPositionPage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
@@ -35,6 +36,8 @@ function App() {
             <Route path="/games" element={<GameListPage />} />
             <Route path="/games/:gameId" element={<GameDetailPage />} />
             <Route path="/games/:gameId/notices/new" element={<NoticeCreatePage />} />
+            <Route path="/games/:gameId/notices" element={<NoticeListPage />} />
+            <Route path="/games/:gameId/notices/:noticeId" element={<NoticeDetailPage />} />
             <Route path="/games/:gameId/rematch" element={<RematchGamePage />} />
             <Route path="/games/:gameId/skill-levels" element={<SkillLevelPage />} />
             <Route path="/games/:gameId/positions" element={<PlayerPositionPage />} />
