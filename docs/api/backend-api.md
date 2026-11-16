@@ -33,7 +33,7 @@
 | `POST /auth/token` | 없음 | `{ code }` | 200 `TokenResponse` | `GLOBAL_400_1`(빈 값), `AUTH_401_1`(없음·만료·사용됨·탈퇴 회원) | #5 |
 | `POST /auth/reissue` | 없음 | `{ refreshToken }` | 200 `TokenResponse` | `GLOBAL_400_1`(빈 값), `AUTH_401_4`(저장된 값과 다름·탈퇴 회원), 토큰 자체 오류는 `AUTH_401_x` | #5 |
 | `POST /auth/logout` | Bearer | — | 204 | 인증 에러 | #5 |
-| `PATCH /members/me/onboarding` | Bearer | `{ nickname }` | 204 | `MEMBER_400_1`, `MEMBER_404_1`(회원 없음·탈퇴), `MEMBER_409_1` | #3 |
+| `PATCH /members/me/onboarding` | Bearer | `{ nickname }` | 204 | `MEMBER_400_1`, `MEMBER_404_1`(회원 없음·탈퇴), `MEMBER_409_1`, `MEMBER_409_2`(이미 쓰는 닉네임, BE PR #69) | #3, #68 |
 | `PUT /members/me/positions` | Bearer + 온보딩 | `{ positions }` | 204 | `MEMBER_400_2`, `GLOBAL_400_1`(없는 포지션 값), `MEMBER_403_1`, `MEMBER_404_1` | #16 |
 | `DELETE /members/me` | Bearer | — | 204 | `MEMBER_404_1` | #3 |
 | `GET /members/me` | Bearer + 온보딩 | — | 200 `MyProfileResponse` | `MEMBER_403_1`, `MEMBER_404_1` | #1 |
@@ -55,7 +55,9 @@
 | `PUT /games/{gameId}/teams/{teamId}/tactic` | Bearer + 온보딩, 파티장 | `UpdateTacticRequest` | 200 `TacticResponse` | `GLOBAL_400_1`(좌표 범위·자릿수, 11명 초과, 포메이션 20자 초과), `LINEUP_400_1`(중복 배치), `LINEUP_400_2`(팀원 아님), `GAME_403_1`, `GAME_404_1`, `LINEUP_404_1`, `LINEUP_409_4`(확정된 팀), 인증·온보딩 에러 | #45 |
 | `POST /games/{gameId}/reports` | Bearer + 온보딩, 그 경기에 참가한 회원 | `CreateReportRequest` | 201 `CreateReportResponse` | `REPORT_400_1`(자기 신고), `GLOBAL_400_1`(필수값 누락·없는 사유 값·상세 500자 초과), `REPORT_403_1`(참가하지 않은 신고자), `GAME_404_1`, `MEMBER_404_1`(없거나 탈퇴한 피신고자), `GAME_404_2`(그 경기에 참가하지 않은 피신고자), `REPORT_409_1`(대기 중인 같은 신고), 인증·온보딩 에러 | #66 |
 
-닉네임 검증(BE `MemberService`): 앞뒤 공백을 `strip()`으로 지운 뒤 **코드 포인트 수**로 2~10자, 중복 허용. FE에서 같은 규칙으로 미리 검사하려면 `[...nickname.trim()].length`처럼 코드 포인트로 센다.
+닉네임 검증(BE `MemberService`): 앞뒤 공백을 `strip()`으로 지운 뒤 **코드 포인트 수**로 2~10자. FE에서 같은 규칙으로 미리 검사하려면 `[...nickname.trim()].length`처럼 코드 포인트로 센다.
+
+닉네임 중복 불가(BE D-05e 2026-11-16 변경, BE 이슈 #68): 공백을 지운 값이 다른 회원의 닉네임과 완전히 같으면(대소문자 구분) `409 MEMBER_409_2`다. 탈퇴한 회원의 닉네임도 계속 점유한다. 검사 순서는 길이(`MEMBER_400_1`) → 회원(`MEMBER_404_1`) → 이미 온보딩(`MEMBER_409_1`) → 중복(`MEMBER_409_2`)이다. **이 항목은 BE PR #69(`f21352f`) 기준이며 작성 시점(2026-11-16)에 `develop`에 병합되지 않았다.** 병합 뒤 `develop` 코드와 다시 대조한다.
 
 ## 요청·응답 본문
 
@@ -257,6 +259,7 @@
 | `MEMBER_403_1` | 403 | 온보딩을 마친 뒤 이용할 수 있습니다. |
 | `MEMBER_404_1` | 404 | 회원을 찾을 수 없습니다. (회원이 없거나 탈퇴한 경우, BE D-16) |
 | `MEMBER_409_1` | 409 | 이미 온보딩을 마친 회원입니다. |
+| `MEMBER_409_2` | 409 | 이미 사용 중인 닉네임입니다. (BE PR #69, `develop` 병합 전) |
 | `GAME_400_1` | 400 | 같은 선수를 중복해서 보낼 수 없습니다. |
 | `GAME_400_3` | 400 | 경기 일시는 현재 이후여야 합니다. |
 | `GAME_403_1` | 403 | 파티장만 할 수 있습니다. |
