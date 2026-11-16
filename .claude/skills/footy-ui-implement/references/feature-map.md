@@ -35,7 +35,7 @@
 | 파티장 공지 작성 / 조회 | Sprint 4 | 7 | 전재준 | notice | 없음 | |
 | 각종 의견 투표 생성 | Sprint 4 | 7 | 전재준 | poll, poll_option, poll_answer | 없음 | |
 | 경기 삭제 | Sprint 4 | 8 | 전재준 | game.is_deleted | 없음 | |
-| 악성 유저 신고 | Sprint 4 | 8 | 김태균 | report | 없음 | |
+| 악성 유저 신고 | Sprint 4 | 8 | 김태균 | report | `POST /games/{gameId}/reports` (BE #66) | 같은 경기에 참가한 회원끼리만. 사유 4종·상세 500자(BE D-30). 조회·처리는 미결정. FE #44 |
 | 전체 기능 연동 테스트 | 마무리 | 9 | — | — | — | |
 | 최종 버그 수정 및 배포 준비 | 마무리 | 9 | — | — | — | |
 
