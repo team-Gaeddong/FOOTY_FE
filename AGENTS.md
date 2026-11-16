@@ -53,7 +53,7 @@ FOOTY는 축구 경기를 만들고, 참가 선수의 포지션·실력을 바�
   - 에러 응답은 `{"code": "AUTH_401_1", "message": "..."}`이고 HTTP 상태와 함께 온다(BE D-04). 분기는 상태 코드와 `code`로 하고 `message` 문구에 의존하지 않는다
   - 인증 헤더는 `Authorization: Bearer {accessToken}`다. access 30분, refresh 14일이며 refresh는 재발급할 때마다 회전한다(BE D-05a·D-05d)
   - 로그인: 브라우저를 BE의 `/oauth2/authorization/google`로 이동 → BE가 `OAUTH_REDIRECT_URI`로 `?code={1회용 코드}`(1분) 또는 `?error=login_failed`를 붙여 돌려보냄 → `POST /auth/token`으로 토큰 교환 → 응답의 `onboarded`가 `false`면 온보딩 화면(BE D-05d·D-05e)
-  - 온보딩을 마치지 않은 회원은 온보딩·로그아웃·탈퇴·토큰 재발급 외의 API에서 `403 MEMBER_403_1`을 받는다. 닉네임은 앞뒤 공백을 제거한 뒤 2~10자이고 중복을 허용한다(BE D-05e)
+  - 온보딩을 마치지 않은 회원은 온보딩·로그아웃·탈퇴·토큰 재발급 외의 API에서 `403 MEMBER_403_1`을 받는다. 닉네임은 앞뒤 공백을 제거한 뒤 2~10자이고 다른 회원과 겹칠 수 없다(`409 MEMBER_409_2`, BE D-05e 2026-11-16 변경, BE 이슈 #68)
 - 토큰 저장(FD-05: access 메모리·refresh localStorage)과 개발 중 API 주소(FD-06: Vite proxy `/api`)는 확정이다. 날짜·시간대(FD-12)와 배포 주소(FD-16)는 미결정이므로 이 결정에 의존하는 코드는 쓰지 않는다.
 - 파티장 전용 동작(공지 작성, 팀 확정, 경기 삭제 등)은 FE에서 버튼 노출만 조절하고, 권한 판단은 BE 응답(403 등)을 따른다. 노출 조건이 기능 문서에 없으면 질문한다.
 
