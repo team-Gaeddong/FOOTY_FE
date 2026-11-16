@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -43,6 +43,7 @@
 | `POST /games/{gameId}/notices` | Bearer + 온보딩, 경기 파티장 | `{ title, content }` | 201 `CreateNoticeResponse` | `GLOBAL_400_1`(필수·제목 길이), `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #57 |
 | `GET /games/{gameId}/notices` | Bearer + 온보딩, 경기 파티장 또는 참여자 | — | 200 `{ notices: NoticeResponse[] }`(최신순) | `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #59 |
 | `GET /games/{gameId}/notices/{noticeId}` | Bearer + 온보딩, 경기 파티장 또는 참여자 | — | 200 `NoticeResponse` | `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #59 |
+| `POST /games/{gameId}/balance-reviews` | Bearer + 온보딩, 경기 참가 회원 | `CreateBalanceReviewRequest` | 201 `CreateBalanceReviewResponse` | `GLOBAL_400_1`(점수 범위·의견 길이·없는 사유 값), `BALANCE_400_1`(사유 중복), `BALANCE_403_1`(참가하지 않은 회원), `GAME_404_1`, `MEMBER_404_1`, `BALANCE_409_1`(종료 전 경기), `BALANCE_409_2`(이미 작성), 인증·온보딩 에러 | BE #61, D-28 |
 | `GET /games/{gameId}` | Bearer + 온보딩 | — | 200 `GameDetailResponse` | `GAME_404_1`(없음·삭제), 인증·온보딩 에러 | #54 |
 | `GET /games/{gameId}/players` | Bearer + 온보딩 | — | 200 `ListGamePlayersResponse` | `GAME_404_1`, 인증·온보딩 에러 | |
 | `POST /games/{gameId}/players` | Bearer + 온보딩, 회원 본인 | `JoinGameRequest` | 201 `JoinGameResponse` | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `MEMBER_404_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `GAME_409_3`(이미 참가), 인증·온보딩 에러 | #32, #36 |
@@ -121,6 +122,16 @@
 | `createdAt` | string(`LocalDateTime`) | 작성 시각 |
 
 `ListNoticesResponse` (`GET /games/{gameId}/notices`)는 `{ notices: NoticeResponse[] }`이며, 작성 시각 내림차순으로 정렬한다. 공지가 없으면 빈 배열이다. 삭제되지 않은 경기의 파티장만 공지를 쓸 수 있고, 파티장과 경기 참여자는 공지를 조회할 수 있다.
+
+`CreateBalanceReviewRequest` (`POST /games/{gameId}/balance-reviews`, BE D-28)
+
+| 필드 | 타입 | 규칙 |
+|---|---|---|
+| `score` | number | 필수, 1~10 정수 (`GLOBAL_400_1`) |
+| `reasons` | string[] | 선택(생략하면 빈 목록), 중복 불가(`BALANCE_400_1`). 값: `OUR_TEAM_TOO_WEAK`(우리 팀이 너무 못한다)·`OPPONENT_TOO_STRONG`(상대 팀이 너무 잘한다)·`SKILL_GAP`(개인 실력 차이가 컸다)·`POSITION_MISMATCH`(포지션 배치가 안 맞았다)·`HEADCOUNT_MISMATCH`(인원이 안 맞았다)·`WELL_BALANCED`(팽팽하고 재밌었다) |
+| `comment` | string | 선택, 500자 이하(`GLOBAL_400_1`). 공백만이면 `null`로 저장 |
+
+`CreateBalanceReviewResponse`: `id`, `gameId`, `score`, `reasons`, `comment`, `createdAt`(`LocalDateTime`). 확인 순서는 참가 여부(`BALANCE_403_1`) → 경기 종료(`BALANCE_409_1`) → 중복 작성(`BALANCE_409_2`)이다. 작성 여부를 미리 조회하는 API는 없다.
 
 `CreateGameResponse` (`POST /games`, `POST /games/{gameId}/rematch`)
 
@@ -279,6 +290,10 @@
 | `REPORT_400_1` | 400 | 자기 자신은 신고할 수 없습니다. |
 | `REPORT_403_1` | 403 | 경기에 참가한 회원만 신고할 수 있습니다. |
 | `REPORT_409_1` | 409 | 이미 접수되어 처리 중인 신고입니다. |
+| `BALANCE_400_1` | 400 | 같은 사유를 중복해서 보낼 수 없습니다. |
+| `BALANCE_403_1` | 403 | 경기에 참가한 회원만 밸런스를 평가할 수 있습니다. |
+| `BALANCE_409_1` | 409 | 종료된 경기만 밸런스를 평가할 수 있습니다. |
+| `BALANCE_409_2` | 409 | 이미 밸런스를 평가한 경기입니다. |
 
 - 경기 생성 검증용으로 먼저 공유된 번호가 있었다면 바뀌었다: 최대 인원 `GAME_400_1` → `GAME_400_2`, 팀 수 `GAME_400_2` → `GAME_400_4`. `GAME_400_1`은 실력 매기기의 선수 중복에만 쓴다(BE PR #35 안내)
 - 화면에는 BE `message`를 그대로 보여주지 않고 FE가 `code`별 문구를 정한다(FD-04). 분기는 `code`로 한다

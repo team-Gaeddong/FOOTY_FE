@@ -312,6 +312,17 @@
   outline-offset: 2px;
 }
 
+/* 다른 화면에서 돌아왔을 때 완료 안내 */
+.notice {
+  padding: var(--ds-padding-5) var(--ds-padding-6);
+  border: 1px solid var(--ds-border-primary);
+  border-radius: var(--ds-radius-medium3);
+  background: var(--ds-button-secondary-fill);
+  color: var(--ds-text-primary);
+  font-size: var(--ds-body-small);
+  font-weight: 600;
+}
+
 /* 로딩·에러·없는 경기 */
 .messageCard {
   align-items: center;
