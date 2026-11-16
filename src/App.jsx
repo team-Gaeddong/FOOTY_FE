@@ -11,6 +11,7 @@ import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { OnboardingPage } from './pages/OnboardingPage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
 import { RematchGamePage } from './pages/RematchGamePage.jsx'
+import { ReportPage } from './pages/ReportPage.jsx'
 import { SkillLevelPage } from './pages/SkillLevelPage.jsx'
 import { TacticPage } from './pages/TacticPage.jsx'
 import { TeamMatchPage } from './pages/TeamMatchPage.jsx'
@@ -35,6 +36,7 @@ function App() {
             <Route path="/games/:gameId/skill-levels" element={<SkillLevelPage />} />
             <Route path="/games/:gameId/lineup" element={<TeamMatchPage />} />
             <Route path="/games/:gameId/teams/:teamId/tactic" element={<TacticPage />} />
+            <Route path="/games/:gameId/report" element={<ReportPage />} />
             <Route path="/withdraw" element={<WithdrawPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
