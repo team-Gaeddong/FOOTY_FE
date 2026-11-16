@@ -43,6 +43,36 @@
   background: var(--ds-button-text-fill-pressed);
 }
 
+/* 오른쪽 열: 참가·파티장 카드와 그 아래 신고 진입 */
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-gap-4);
+  min-width: 0;
+}
+
+/* button_text 컴포넌트 */
+.reportLink {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-end;
+  min-height: var(--ds-height-6);
+  padding: 0 var(--ds-padding-3);
+  border-radius: var(--ds-radius-medium1);
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-label-small);
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.reportLink:hover {
+  background: var(--ds-button-text-fill-hover);
+}
+
+.reportLink:active {
+  background: var(--ds-button-text-fill-pressed);
+}
+
 /* 상단 요약 */
 .hero {
   display: flex;
@@ -276,7 +306,8 @@
 
 .primaryButton:focus-visible,
 .tertiaryButton:focus-visible,
-.backLink:focus-visible {
+.backLink:focus-visible,
+.reportLink:focus-visible {
   outline: 2px solid var(--ds-border-primary);
   outline-offset: 2px;
 }
