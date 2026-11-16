@@ -205,6 +205,9 @@ function GameDetail({ game, onUpdated }) {
               참가 완료
             </h2>
             <p className={styles.cardText}>이 경기에 참가했어요.</p>
+            <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices`} state={{ gameTitle: game.title }}>
+              공지 확인
+            </Link>
             <button type="button" className={styles.primaryButton} disabled>
               참가 완료
             </button>
@@ -245,6 +248,9 @@ function HostCard({ game }) {
       <h2 id="side-title" className={styles.cardTitle}>
         파티장 메뉴
       </h2>
+      <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices`} state={{ gameTitle: game.title }}>
+        공지 확인
+      </Link>
       {game.status === 'RECRUITING' ? (
         <>
           <p className={styles.cardText}>선수 실력을 매긴 뒤 팀을 나눌 수 있어요.</p>
