@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를, 경기 MVP 투표 API는 BE PR #72 병합 커밋 `30bcc06`(2026-11-16)을 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -44,6 +44,9 @@
 | `GET /games/{gameId}/notices` | Bearer + 온보딩, 경기 파티장 또는 참여자 | — | 200 `{ notices: NoticeResponse[] }`(최신순) | `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #59 |
 | `GET /games/{gameId}/notices/{noticeId}` | Bearer + 온보딩, 경기 파티장 또는 참여자 | — | 200 `NoticeResponse` | `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #59 |
 | `POST /games/{gameId}/balance-reviews` | Bearer + 온보딩, 경기 참가 회원 | `CreateBalanceReviewRequest` | 201 `CreateBalanceReviewResponse` | `GLOBAL_400_1`(점수 범위·의견 길이·없는 사유 값), `BALANCE_400_1`(사유 중복), `BALANCE_403_1`(참가하지 않은 회원), `GAME_404_1`, `MEMBER_404_1`, `BALANCE_409_1`(종료 전 경기), `BALANCE_409_2`(이미 작성), 인증·온보딩 에러 | BE #61, D-28 |
+| `POST /games/{gameId}/mvp-votes` | Bearer + 온보딩, 경기 참가 회원·종료 경기 | `{ gamePlayerId }` | 201 `CreateMvpVoteResponse` | `GLOBAL_400_1`, `MVP_400_1`(본인 선택), `MVP_403_1`(비참가자), `GAME_404_1`, `GAME_404_2`(경기 선수가 아님), `MVP_409_1`(종료 전), `MVP_409_2`(이미 투표), 인증·온보딩 에러 | BE #70, PR #72 |
+| `GET /games/{gameId}/mvp-votes/me` | Bearer + 온보딩 | — | 200 `MyMvpVoteResponse` | `GAME_404_1`, 인증·온보딩 에러 | BE #70, PR #72 |
+| `GET /games/{gameId}/mvp-votes/result` | Bearer + 온보딩, 해당 경기 투표 회원 | — | 200 `MvpResultResponse` | `MVP_403_2`(투표하지 않은 회원), `GAME_404_1`, 인증·온보딩 에러 | BE #70, PR #72 |
 | `GET /games/{gameId}` | Bearer + 온보딩 | — | 200 `GameDetailResponse` | `GAME_404_1`(없음·삭제), 인증·온보딩 에러 | #54 |
 | `GET /games/{gameId}/players` | Bearer + 온보딩 | — | 200 `ListGamePlayersResponse` | `GAME_404_1`, 인증·온보딩 에러 | |
 | `POST /games/{gameId}/players` | Bearer + 온보딩, 회원 본인 | `JoinGameRequest` | 201 `JoinGameResponse` | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `MEMBER_404_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `GAME_409_3`(이미 참가), 인증·온보딩 에러 | #32, #36 |
@@ -250,6 +253,18 @@
 - BE 검사 순서: 자기 신고 → 신고자 회원 → 경기 → 피신고자 회원 → 신고자 참가 → 피신고자 참가 → 중복. `MEMBER_404_1`은 신고자·피신고자 어느 쪽이 없거나 탈퇴해도 같은 코드다
 - 신고 조회·처리(`DONE`) API, 누적 제재, 경기 상태에 따른 신고 가능 시점은 BE D-30에서 미결정이다
 
+`CreateMvpVoteRequest` (`POST /games/{gameId}/mvp-votes`, BE PR #72)
+
+| 필드 | 타입 | 규칙 |
+|---|---|---|
+| `gamePlayerId` | number | 필수. 같은 경기 참가 선수 중 본인이 아닌 한 명 |
+
+`CreateMvpVoteResponse`: `{ id, gameId, gamePlayerId, createdAt }`. 한 회원은 종료된 경기에서 한 번만 투표할 수 있고 수정할 수 없다. 회원이 아닌 선수도 후보가 될 수 있다.
+
+`MyMvpVoteResponse`: `{ gameId, voted, gamePlayerId }`. 로그인 회원 누구나 본인의 투표 여부를 조회할 수 있고, 아직 투표하지 않았으면 `gamePlayerId`는 `null`이다.
+
+`MvpResultResponse`: `{ gameId, requiredCount, votedCount, mvpGamePlayerIds, candidates }`. 결과는 해당 경기에서 이미 투표한 회원만 조회할 수 있다. `requiredCount`는 탈퇴하지 않은 회원 참가 선수 수, `candidates`는 참가 선수 전체를 득표 내림차순·참여 순으로 반환한다. 최다 득표 동점은 모두 MVP이며 투표자별 선택 내용은 공개하지 않는다.
+
 ## 에러 코드
 
 | code | HTTP | message |
@@ -294,6 +309,11 @@
 | `BALANCE_403_1` | 403 | 경기에 참가한 회원만 밸런스를 평가할 수 있습니다. |
 | `BALANCE_409_1` | 409 | 종료된 경기만 밸런스를 평가할 수 있습니다. |
 | `BALANCE_409_2` | 409 | 이미 밸런스를 평가한 경기입니다. |
+| `MVP_400_1` | 400 | 자기 자신에게는 MVP 투표를 할 수 없습니다. |
+| `MVP_403_1` | 403 | 경기에 참가한 회원만 MVP 투표를 할 수 있습니다. |
+| `MVP_403_2` | 403 | MVP 투표를 한 회원만 결과를 조회할 수 있습니다. |
+| `MVP_409_1` | 409 | 종료된 경기만 MVP 투표를 할 수 있습니다. |
+| `MVP_409_2` | 409 | 이미 MVP 투표를 한 경기입니다. |
 
 - 경기 생성 검증용으로 먼저 공유된 번호가 있었다면 바뀌었다: 최대 인원 `GAME_400_1` → `GAME_400_2`, 팀 수 `GAME_400_2` → `GAME_400_4`. `GAME_400_1`은 실력 매기기의 선수 중복에만 쓴다(BE PR #35 안내)
 - 화면에는 BE `message`를 그대로 보여주지 않고 FE가 `code`별 문구를 정한다(FD-04). 분기는 `code`로 한다
