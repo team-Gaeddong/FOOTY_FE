@@ -74,12 +74,14 @@ export function MvpVotePage() {
     setSubmitting(true)
     setError('')
     try {
-      await createMvpVote(gameId, selectedId)
-      const [myVote, result] = await Promise.all([
-        getMyMvpVote(gameId),
-        getMvpVoteResult(gameId),
-      ])
-      setData((current) => ({ ...current, myVote, result }))
+      const myVote = await createMvpVote(gameId, selectedId)
+      setData((current) => ({ ...current, myVote: { gameId, voted: true, gamePlayerId: myVote.gamePlayerId }, result: null }))
+      try {
+        const result = await getMvpVoteResult(gameId)
+        setData((current) => ({ ...current, result }))
+      } catch {
+        setData((current) => ({ ...current, result: null }))
+      }
     } catch (voteError) {
       if (voteError instanceof ApiError && voteError.code === 'GAME_404_1') {
         setData({ error: voteError })
