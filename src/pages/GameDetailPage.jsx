@@ -232,6 +232,7 @@ function GameDetail({ game, onUpdated }) {
             <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices`} state={{ gameTitle: game.title }}>
               공지 확인
             </Link>
+            {game.status === 'FINISHED' && <MvpVoteLink game={game} />}
           </section>
         ) : game.status === 'RECRUITING' ? (
           <JoinCard gameId={game.id} onUpdated={onUpdated} />
@@ -297,6 +298,7 @@ function HostCard({ game }) {
             <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices/new`} state={state}>
               공지 작성
             </Link>
+            <MvpVoteLink game={game} />
             <BalanceReviewLink game={game} />
             <Link
               className={styles.tertiaryButton}
@@ -328,6 +330,14 @@ function BalanceReviewLink({ game }) {
       state={{ game: toSummary(game) }}
     >
       밸런스 평가하기
+    </Link>
+  )
+}
+
+function MvpVoteLink({ game }) {
+  return (
+    <Link className={styles.tertiaryButton} to={`/games/${game.id}/mvp-vote`}>
+      오늘의 MVP 투표
     </Link>
   )
 }
