@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { fillRatio, formatCreatedDate, formatPlayDate, parseGameId } from './gameDetail.js'
+import {
+  countUnratedPlayers,
+  fillRatio,
+  formatCreatedDate,
+  formatPlayDate,
+  parseGameId,
+  playerBadges,
+  positionsText,
+} from './gameDetail.js'
 
 test('경기 일시를 요일과 오전·오후로 표시한다', () => {
   assert.equal(formatPlayDate('2026-11-08T08:00:00'), '11월 8일 (일) 오전 8:00')
@@ -33,4 +41,28 @@ test('gameId는 양의 정수만 받는다', () => {
   assert.equal(parseGameId('1.5'), null)
   assert.equal(parseGameId('abc'), null)
   assert.equal(parseGameId('99999999999999999999'), null)
+})
+
+test('참가 선수 배지는 파티장·후보·비회원 순으로 붙인다', () => {
+  const player = { memberId: 7, isSubstitute: false }
+  assert.deepEqual(playerBadges(player, 7), ['파티장'])
+  assert.deepEqual(playerBadges(player, 1), [])
+  assert.deepEqual(playerBadges({ memberId: 7, isSubstitute: true }, 7), ['파티장', '후보'])
+  assert.deepEqual(playerBadges({ memberId: null, isSubstitute: true }, 7), ['후보', '비회원'])
+})
+
+test('비회원은 hostId가 없어도 파티장으로 보지 않는다', () => {
+  assert.deepEqual(playerBadges({ memberId: null, isSubstitute: false }, null), ['비회원'])
+})
+
+test('희망 포지션은 우선순위 순으로 한국어로 잇는다', () => {
+  assert.equal(positionsText(['FW', 'MF']), '공격수 · 미드필더')
+  assert.equal(positionsText(['GK']), '골키퍼')
+  assert.equal(positionsText([]), '희망 포지션 없음')
+  assert.equal(positionsText(undefined), '희망 포지션 없음')
+})
+
+test('실력을 매기지 않은 선수 수를 센다', () => {
+  assert.equal(countUnratedPlayers([{ skillLevel: 7 }, { skillLevel: null }, { skillLevel: null }]), 2)
+  assert.equal(countUnratedPlayers([]), 0)
 })
