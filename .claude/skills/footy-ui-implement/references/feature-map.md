@@ -27,7 +27,7 @@
 | 팀 확정 | Sprint 3 | 5 | 안세하 | lineup.is_confirmed | `PATCH /games/{gameId}/lineups/confirm` (BE #48) | |
 | 다시 짜기 | Sprint 3 | 5~6 | 안세하 | lineup.version | 없음 | 마음에 안 들면 조건 유지하고 재배정 |
 | 경기 저장 | Sprint 3 | 6 | 안세하 | lineup, (결과 컬럼 없음) | 팀 확정만 지원: `PATCH /games/{gameId}/lineups/confirm` (BE #48) | 해당 날짜의 팀 구성과 경기 결과 저장 |
-| 전술 배치도 이미지 저장 | Sprint 3 | 6 | 전재준 | lineup.image_url | 없음 | |
+| 전술 배치도 이미지 저장 | Sprint 3 | 6 | 전재준 | lineup.image_url (미사용, BE D-32) | 없음(`GET .../tactic`으로 그림) | 서버 업로드 없이 모든 팀 배치를 PNG 한 장으로 기기에 내려받는다. 버튼은 파티장에게만(#57) |
 | 경기 상세 조회 | Sprint 3 | 6 | 곽효오 | game 외 다수 | `GET /games/{gameId}` (BE #54, `8d2b767`) | |
 | 경기 이후 밸런스 작성 | Sprint 4 | 7 | 곽효오 | balance_review | 없음 | |
 | 경기 MVP | Sprint 4 | 7 | 곽효오 | mvp_vote | 없음 | 경기 끝나고 오늘의 MVP 선택하게 하기 |
