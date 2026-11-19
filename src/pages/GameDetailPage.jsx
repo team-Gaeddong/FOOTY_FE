@@ -437,9 +437,12 @@ function HostCard({ game }) {
 }
 
 // 경기 삭제(DELETE /games/{gameId}, BE D-33). 되돌릴 수 없으므로 한 번 더 확인받는다.
+// 버튼이 확인 영역으로 바뀌면 눌렀던 버튼이 사라지므로, 키보드 포커스를 "취소"로 옮기고
+// 취소하면 다시 "경기 삭제"로 돌려준다. 처음 화면을 열 때는 포커스를 가져가지 않는다.
 function DeleteGameSection({ gameId }) {
   const navigate = useNavigate()
   const [confirming, setConfirming] = useState(false)
+  const [cancelled, setCancelled] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState(null)
 
@@ -459,7 +462,12 @@ function DeleteGameSection({ gameId }) {
   if (!confirming) {
     return (
       <div className={styles.dangerZone}>
-        <button type="button" className={styles.dangerTextButton} onClick={() => setConfirming(true)}>
+        <button
+          type="button"
+          className={styles.dangerTextButton}
+          onClick={() => setConfirming(true)}
+          autoFocus={cancelled}
+        >
           경기 삭제
         </button>
       </div>
@@ -483,9 +491,11 @@ function DeleteGameSection({ gameId }) {
           className={styles.tertiaryButton}
           onClick={() => {
             setConfirming(false)
+            setCancelled(true)
             setError(null)
           }}
           disabled={deleting}
+          autoFocus
         >
           취소
         </button>
