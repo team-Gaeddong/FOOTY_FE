@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { ApiError } from '../api/client.js'
-import { getGame, joinGame } from '../api/games.js'
+import { getGame, joinGame, listGamePlayers } from '../api/games.js'
 import { getMyProfile } from '../api/member.js'
 import { PositionPicker } from '../components/PositionPicker.jsx'
 import { isValidPositions } from '../components/positions.js'
-import { fillRatio, formatCreatedDate, formatPlayDate, parseGameId } from './gameDetail.js'
+import {
+  countUnratedPlayers,
+  fillRatio,
+  formatCreatedDate,
+  formatPlayDate,
+  parseGameId,
+  playerBadges,
+  positionsText,
+} from './gameDetail.js'
 import styles from './GameDetailPage.module.css'
 
 const STATUS_LABELS = {
@@ -195,19 +203,22 @@ function GameDetail({ game, onUpdated }) {
       </section>
 
       <div className={styles.columns}>
-        <section className={styles.card} aria-labelledby="game-info">
-          <h2 id="game-info" className={styles.cardTitle}>
-            경기 정보
-          </h2>
-          <dl className={styles.infoGrid}>
-            <InfoItem label="일시" value={playDate} />
-            <InfoItem label="장소" value={game.location} />
-            <InfoItem label="파티장" value={game.host.nickname} />
-            <InfoItem label="정원" value={`${game.maxPlayers}명`} />
-            <InfoItem label="팀 수" value={`${game.teamCount}팀`} />
-            <InfoItem label="만든 날짜" value={formatCreatedDate(game.createdAt)} />
-          </dl>
-        </section>
+        <div className={styles.main}>
+          <section className={styles.card} aria-labelledby="game-info">
+            <h2 id="game-info" className={styles.cardTitle}>
+              경기 정보
+            </h2>
+            <dl className={styles.infoGrid}>
+              <InfoItem label="일시" value={playDate} />
+              <InfoItem label="장소" value={game.location} />
+              <InfoItem label="파티장" value={game.host.nickname} />
+              <InfoItem label="정원" value={`${game.maxPlayers}명`} />
+              <InfoItem label="팀 수" value={`${game.teamCount}팀`} />
+              <InfoItem label="만든 날짜" value={formatCreatedDate(game.createdAt)} />
+            </dl>
+          </section>
+          <PlayersCard game={game} />
+        </div>
 
         {game.isHost ? (
           <HostCard game={game} />
@@ -249,6 +260,107 @@ function GameDetail({ game, onUpdated }) {
         )}
       </div>
     </>
+  )
+}
+
+function playersErrorMessage(error) {
+  if (!(error instanceof ApiError)) return '참가 선수를 불러오지 못했습니다.'
+  if (error.status === 0) return '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+  if (error.code === 'GAME_404_1') return '경기가 없거나 삭제됐어요.'
+  if (error.code === 'MEMBER_403_1') return '온보딩을 마친 뒤 볼 수 있어요.'
+  return '참가 선수를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
+}
+
+// 참가 선수 목록(GET /games/{gameId}/players, BE D-20). 로그인한 회원 누구나 보고, 실력은 파티장에게만 내려온다.
+// 참가하면 playerCount가 바뀌므로 그 값을 요청 키에 넣어 목록을 다시 받는다.
+function PlayersCard({ game }) {
+  const [retryCount, setRetryCount] = useState(0)
+  const [result, setResult] = useState(null) // { key, players } | { key, error }
+  const requestKey = `${game.id}:${game.playerCount}:${retryCount}`
+  const current = result?.key === requestKey ? result : null
+  const players = current?.players ?? []
+  const unrated = game.isHost ? countUnratedPlayers(players) : 0
+
+  useEffect(() => {
+    let active = true
+    listGamePlayers(game.id)
+      .then((data) => {
+        if (active) setResult({ key: requestKey, players: data.players })
+      })
+      .catch((error) => {
+        if (active) setResult({ key: requestKey, error })
+      })
+    return () => {
+      active = false
+    }
+  }, [game.id, requestKey])
+
+  return (
+    <section className={styles.card} aria-labelledby="players-title" aria-busy={!current}>
+      <div className={styles.cardHeader}>
+        <h2 id="players-title" className={styles.cardTitle}>
+          참가 선수{current?.players && <span className={styles.playerCount}> {players.length}명</span>}
+        </h2>
+        {game.isHost && current?.players && players.length > 0 && (
+          <span className={unrated > 0 ? styles.unratedBadge : styles.ratedBadge}>
+            {unrated > 0 ? `실력 미입력 ${unrated}명` : '실력 모두 입력'}
+          </span>
+        )}
+      </div>
+
+      {!current ? (
+        <p className={styles.listStatus} role="status">
+          참가 선수를 불러오는 중…
+        </p>
+      ) : current.error ? (
+        <div className={styles.listStatus}>
+          <p className={styles.errorText} role="alert">
+            {playersErrorMessage(current.error)}
+          </p>
+          <button
+            type="button"
+            className={styles.textButton}
+            onClick={() => setRetryCount((count) => count + 1)}
+          >
+            다시 시도
+          </button>
+        </div>
+      ) : players.length === 0 ? (
+        <p className={styles.listStatus}>아직 참가한 선수가 없어요.</p>
+      ) : (
+        <ul className={styles.players}>
+          {players.map((player) => (
+            <li key={player.id} className={styles.player}>
+              <span className={styles.avatar} aria-hidden="true">
+                {Array.from(player.name)[0]}
+              </span>
+              <div className={styles.playerInfo}>
+                <p className={styles.playerName}>
+                  <span>{player.name}</span>
+                  {playerBadges(player, game.host.id).map((badge) => (
+                    <span
+                      key={badge}
+                      className={badge === '파티장' ? styles.hostBadge : styles.playerBadge}
+                    >
+                      {badge}
+                    </span>
+                  ))}
+                </p>
+                <p className={styles.playerPositions}>{positionsText(player.positions)}</p>
+              </div>
+              {game.isHost &&
+                (player.skillLevel === null ? (
+                  <span className={styles.unratedBadge}>미입력</span>
+                ) : (
+                  <span className={styles.skill}>
+                    <span className={styles.skillLabel}>실력</span> {player.skillLevel}
+                  </span>
+                ))}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }
 
