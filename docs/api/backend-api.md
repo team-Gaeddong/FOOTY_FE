@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를, 경기 MVP 투표 API는 BE PR #72 병합 커밋 `30bcc06`(2026-11-16)을 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를, 경기 MVP 투표 API는 BE PR #72 병합 커밋 `30bcc06`(2026-11-16)을 대조했다. 경기 삭제 API는 **아직 병합 전인** BE PR #76 브랜치 `feature/74_game-delete` `2db88be`(2026-11-20)를 대조했다(BE 병합 뒤 develop과 다시 대조). 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -48,6 +48,7 @@
 | `GET /games/{gameId}/mvp-votes/me` | Bearer + 온보딩 | — | 200 `MyMvpVoteResponse` | `GAME_404_1`, 인증·온보딩 에러 | BE #70, PR #72 |
 | `GET /games/{gameId}/mvp-votes/result` | Bearer + 온보딩, 해당 경기 투표 회원 | — | 200 `MvpResultResponse` | `MVP_403_2`(투표하지 않은 회원), `GAME_404_1`, 인증·온보딩 에러 | BE #70, PR #72 |
 | `GET /games/{gameId}` | Bearer + 온보딩 | — | 200 `GameDetailResponse` | `GAME_404_1`(없음·삭제), 인증·온보딩 에러 | #54 |
+| `DELETE /games/{gameId}` | Bearer + 온보딩, 파티장·종료 전 경기 | — | 204 | `GAME_403_1`(파티장 아님), `GAME_404_1`(없음·이미 삭제), `GAME_409_5`(종료된 경기), 인증·온보딩 에러 | #74, PR #76(병합 전) |
 | `GET /games/{gameId}/players` | Bearer + 온보딩 | — | 200 `ListGamePlayersResponse` | `GAME_404_1`, 인증·온보딩 에러 | |
 | `POST /games/{gameId}/players` | Bearer + 온보딩, 회원 본인 | `JoinGameRequest` | 201 `JoinGameResponse` | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `MEMBER_404_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `GAME_409_3`(이미 참가), 인증·온보딩 에러 | #32, #36 |
 | `PATCH /games/{gameId}/players/skill-levels` | Bearer + 온보딩, 파티장 | `UpdateSkillLevelsRequest` | 204 | `GLOBAL_400_1`(빈 목록·1~10 밖), `GAME_400_1`(같은 선수 중복), `GAME_403_1`, `GAME_404_1`, `GAME_404_2`(이 경기 선수가 아님), 인증·온보딩 에러 | #19 |
@@ -173,6 +174,8 @@
 
 로그인한 회원 누구나 조회한다. 선수 목록·라인업은 들어 있지 않다(`GET /games/{gameId}/players`와 라인업 API를 쓴다).
 
+경기 삭제(`DELETE /games/{gameId}`, BE D-33)는 파티장만, 종료 전(`RECRUITING`·`CONFIRMED`) 경기만 할 수 있는 소프트 삭제(`game.is_deleted`)다. 성공은 204이고, 삭제된 경기는 다른 API에서 `GAME_404_1`로 보이며 경기 목록에서 빠진다. 참가 선수 등 연관 데이터는 BE에 남는다. `GAME_409_4`는 경기 종료(BE PR #73)가 쓴다.
+
 `JoinGameRequest` (`POST /games/{gameId}/players`, BE D-19): `{ "positions": ["MF", "FW"] }`. 필수, 1~4개, 중복 없이, 순서가 우선순위(BE D-13). 이름은 회원 닉네임, 실력은 파티장이 나중에 매긴다. `RECRUITING` 경기만 참가할 수 있고 정원 초과는 막지 않는다.
 
 `JoinGameResponse`: `id`(`gamePlayerId`), `gameId`, `memberId`, `name`, `skillLevel`(`null`), `isSubstitute`, `positions`, `joinedAt`.
@@ -294,6 +297,7 @@
 | `GAME_409_1` | 409 | 모집 중인 경기에서만 할 수 있습니다. |
 | `GAME_409_2` | 409 | 종료된 경기만 재경기를 만들 수 있습니다. |
 | `GAME_409_3` | 409 | 이미 참여한 경기입니다. |
+| `GAME_409_5` | 409 | 종료된 경기는 삭제할 수 없습니다. |
 | `LINEUP_409_1` | 409 | 이미 팀을 짠 경기입니다. |
 | `LINEUP_409_2` | 409 | 실력 점수가 없는 선수가 있습니다. |
 | `LINEUP_400_1` | 400 | 같은 선수를 중복해서 배치할 수 없습니다. |

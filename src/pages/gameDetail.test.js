@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
+  canDeleteGame,
   countUnratedPlayers,
+  deleteErrorMessage,
   fillRatio,
   formatCreatedDate,
   formatPlayDate,
@@ -65,4 +67,19 @@ test('희망 포지션은 우선순위 순으로 한국어로 잇는다', () => 
 test('실력을 매기지 않은 선수 수를 센다', () => {
   assert.equal(countUnratedPlayers([{ skillLevel: 7 }, { skillLevel: null }, { skillLevel: null }]), 2)
   assert.equal(countUnratedPlayers([]), 0)
+})
+
+test('경기 삭제 버튼은 파티장에게 종료 전 경기에서만 보인다', () => {
+  assert.equal(canDeleteGame({ isHost: true, status: 'RECRUITING' }), true)
+  assert.equal(canDeleteGame({ isHost: true, status: 'CONFIRMED' }), true)
+  assert.equal(canDeleteGame({ isHost: true, status: 'FINISHED' }), false)
+  assert.equal(canDeleteGame({ isHost: false, status: 'RECRUITING' }), false)
+})
+
+test('경기 삭제 실패는 상태 코드와 code로 안내한다', () => {
+  assert.match(deleteErrorMessage({ status: 0 }), /서버에 연결할 수 없습니다/)
+  assert.equal(deleteErrorMessage({ status: 403, code: 'GAME_403_1' }), '파티장만 경기를 삭제할 수 있어요.')
+  assert.equal(deleteErrorMessage({ status: 404, code: 'GAME_404_1' }), '이미 삭제됐거나 없는 경기예요.')
+  assert.equal(deleteErrorMessage({ status: 409, code: 'GAME_409_5' }), '종료된 경기는 삭제할 수 없어요.')
+  assert.match(deleteErrorMessage(new Error('boom')), /삭제하지 못했습니다/)
 })
