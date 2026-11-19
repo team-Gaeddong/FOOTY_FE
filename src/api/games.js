@@ -47,6 +47,12 @@ export function getGame(gameId) {
   return request(`/games/${gameId}`)
 }
 
+// 파티장만, 종료 전(모집 중·팀 확정) 경기만 소프트 삭제한다(BE D-33). 성공은 204.
+// 파티장이 아니면 403 GAME_403_1, 없거나 이미 삭제됐으면 404 GAME_404_1, 종료된 경기면 409 GAME_409_5.
+export function deleteGame(gameId) {
+  return request(`/games/${gameId}`, { method: 'DELETE' })
+}
+
 // 회원 본인이 참가한다. positions는 1~4개, 순서가 우선순위(BE D-13·D-19). 성공은 201.
 // 모집 중이 아니면 409 GAME_409_1, 이미 참가했으면 409 GAME_409_3.
 export function joinGame(gameId, positions) {
