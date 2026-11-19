@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { Link, useLocation, useSearchParams } from 'react-router'
 import { ApiError } from '../api/client.js'
 import { listGames } from '../api/games.js'
 import { getMyProfile } from '../api/members.js'
@@ -38,7 +38,14 @@ function errorMessage(error) {
   return '경기 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
 }
 
+// 다른 화면이 넘겨준 완료 안내(location.state.notice)
+const NOTICE_MESSAGES = {
+  'game-deleted': '경기를 삭제했어요.',
+}
+
 export function GameListPage() {
+  const location = useLocation()
+  const noticeMessage = NOTICE_MESSAGES[location.state?.notice]
   const [searchParams, setSearchParams] = useSearchParams()
   const [retryCount, setRetryCount] = useState(0)
   const [result, setResult] = useState(null)
@@ -96,6 +103,12 @@ export function GameListPage() {
         </div>
         <Link className={styles.createLink} to="/games/new">경기 만들기</Link>
       </header>
+
+      {noticeMessage && (
+        <p className={styles.doneNotice} role="status">
+          {noticeMessage}
+        </p>
+      )}
 
       {profileResult?.error && currentResult?.data && (
         <p className={styles.profileNotice} role="status">
