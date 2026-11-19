@@ -11,6 +11,12 @@ import { PageLayout } from '../components/PageLayout.jsx'
 import { TacticBoard } from '../components/TacticBoard.jsx'
 import { DEFAULT_FORMATION, FORMATION_NAMES } from '../components/formations.js'
 import {
+  downloadBlob,
+  renderTacticImage,
+  tacticImageFileName,
+  tacticImageLayout,
+} from '../components/tacticImage.js'
+import {
   changeFormation,
   placementsFromMembers,
   toPlacementRequest,
@@ -53,6 +59,16 @@ function saveErrorOf(error) {
   return { message: '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' }
 }
 
+function imageErrorMessage(error) {
+  if (!(error instanceof ApiError)) return '이미지를 만들지 못했어요. 다시 시도해 주세요.'
+  if (error.status === 0) return NETWORK_ERROR
+  if (error.code === 'GAME_404_1' || error.code === 'LINEUP_404_1') {
+    return '경기나 팀이 없어져 이미지를 만들 수 없어요.'
+  }
+  if (error.status === 401) return '로그인이 필요합니다. 다시 로그인해 주세요.'
+  return '팀 배치를 불러오지 못해 이미지를 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
+}
+
 function draftFrom(tactic) {
   const formation = tactic.formation ?? DEFAULT_FORMATION
   return { formation, placements: placementsFromMembers(tactic.members, formation) }
@@ -89,7 +105,9 @@ export function TacticPage() {
   const [saveResult, setSaveResult] = useState(null) // { key, saved } | { key, error: { message, lock } }
   const [hostResult, setHostResult] = useState(null) // { key: gameId, isHost: true | false | null }
   const [lineupTeams, setLineupTeams] = useState(null) // { key: gameId, teams }
+  const [imageResult, setImageResult] = useState(null) // { key, status: 'saving' | 'saved' } | { key, error }
   const pending = useRef(false)
+  const imagePending = useRef(false)
   const teams = stateTeams ?? (lineupTeams?.key === gameId ? lineupTeams.teams : null)
 
   const current = result?.key === requestKey ? result : null
@@ -102,6 +120,8 @@ export function TacticPage() {
   const locked = Boolean(saveError?.lock)
   const readOnly = locked || isHost === false
   const unsaved = dirty && !readOnly
+  const currentImage = imageResult?.key === requestKey ? imageResult : null
+  const savingImage = currentImage?.status === 'saving'
 
   useEffect(() => {
     if (gameId === null || teamId === null) return
@@ -207,6 +227,35 @@ export function TacticPage() {
     } finally {
       pending.current = false
       setSaving(false)
+    }
+  }
+
+  // 라인업의 모든 팀 배치를 한 장의 PNG로 내려받는다(#57, BE #75). 서버에는 저장된 배치만 있으므로
+  // 저장하지 않은 배치가 있으면 막는다. 팀 목록을 못 받았으면 지금 팀만 그린다.
+  async function handleSaveImage() {
+    if (imagePending.current || unsaved || !current?.data) return
+    imagePending.current = true
+    const key = requestKey
+    setImageResult({ key, status: 'saving' })
+    try {
+      const shown = current.data
+      const list = teams?.length ? teams : [{ teamId }]
+      const tactics = await Promise.all(
+        list.map((team) => (team.teamId === teamId ? shown : getTactic(gameId, team.teamId))),
+      )
+      const title = `${gameTitle ?? `경기 #${gameId}`} 전술 배치도`
+      const blob = await renderTacticImage(tacticImageLayout(tactics, title))
+      downloadBlob(blob, tacticImageFileName(gameId))
+      setImageResult({ key, status: 'saved' })
+    } catch (error) {
+      if (error.code === 'MEMBER_404_1') {
+        navigate('/login', { replace: true, state: { error: 'member_not_found' } })
+        startTransition(() => clearSession())
+        return
+      }
+      setImageResult({ key, error: imageErrorMessage(error) })
+    } finally {
+      imagePending.current = false
     }
   }
 
@@ -332,6 +381,23 @@ export function TacticPage() {
             <p className={styles.note}>자리를 옮겨도 선수의 배정 포지션은 바뀌지 않아요.</p>
           )}
         </>
+      )}
+
+      {isHost === true && (
+        <section className={styles.imageSave} aria-label="전술 배치도 이미지 저장">
+          <Button variant="secondary" onClick={handleSaveImage} disabled={savingImage || unsaved}>
+            {savingImage ? '이미지 만드는 중…' : '이미지로 저장'}
+          </Button>
+          <p className={styles.note}>
+            {unsaved
+              ? '배치를 저장한 뒤 이미지로 받을 수 있어요.'
+              : `${teams?.length > 1 ? '모든 팀' : '이 팀'}의 저장된 배치를 PNG 한 장으로 내려받아요.`}
+          </p>
+          <ErrorMessage>{currentImage?.error}</ErrorMessage>
+          {currentImage?.status === 'saved' && (
+            <p className={styles.saved} role="status">이미지를 내려받았어요.</p>
+          )}
+        </section>
       )}
     </PageLayout>
   )
