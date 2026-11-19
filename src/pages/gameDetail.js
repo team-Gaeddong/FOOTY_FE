@@ -57,6 +57,20 @@ export function countUnratedPlayers(players) {
   return players.filter((player) => player.skillLevel === null).length
 }
 
+// 경기 삭제는 파티장만, 종료 전(모집 중·팀 확정)까지만 된다(BE D-33). 버튼 노출에만 쓰고 권한은 BE 응답을 따른다.
+export function canDeleteGame(game) {
+  return game.isHost && game.status !== 'FINISHED'
+}
+
+// 경기 삭제 실패 안내. error는 ApiError(status, code) 또는 그 밖의 오류다.
+export function deleteErrorMessage(error) {
+  if (error?.status === 0) return '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+  if (error?.code === 'GAME_403_1') return '파티장만 경기를 삭제할 수 있어요.'
+  if (error?.code === 'GAME_404_1') return '이미 삭제됐거나 없는 경기예요.'
+  if (error?.code === 'GAME_409_5') return '종료된 경기는 삭제할 수 없어요.'
+  return '경기를 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+}
+
 // 경로의 gameId. 양의 정수가 아니면 null.
 export function parseGameId(value) {
   if (!/^\d+$/.test(value ?? '')) return null
