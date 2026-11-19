@@ -1,3 +1,5 @@
+import { POSITION_LABELS } from '../components/positions.js'
+
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 const DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/
 
@@ -33,6 +35,26 @@ export function formatCreatedDate(value) {
 export function fillRatio(playerCount, maxPlayers) {
   if (!(maxPlayers > 0)) return 0
   return Math.min(Math.max(playerCount / maxPlayers, 0), 1)
+}
+
+// 참가 선수 행의 배지. 파티장은 경기 생성 때 자동 참가한다(BE D-14), 비회원은 memberId가 null이다.
+export function playerBadges(player, hostId) {
+  const badges = []
+  if (player.memberId !== null && player.memberId === hostId) badges.push('파티장')
+  if (player.isSubstitute) badges.push('후보')
+  if (player.memberId === null) badges.push('비회원')
+  return badges
+}
+
+// 희망 포지션(우선순위 순) → "공격수 · 미드필더"
+export function positionsText(positions) {
+  if (!positions?.length) return '희망 포지션 없음'
+  return positions.map((position) => POSITION_LABELS[position] ?? position).join(' · ')
+}
+
+// 실력은 파티장이 볼 때만 내려온다(BE D-20). 파티장 화면에서 아직 매기지 않은 선수 수.
+export function countUnratedPlayers(players) {
+  return players.filter((player) => player.skillLevel === null).length
 }
 
 // 경로의 gameId. 양의 정수가 아니면 null.
