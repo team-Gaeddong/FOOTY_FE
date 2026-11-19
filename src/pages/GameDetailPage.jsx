@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { ApiError } from '../api/client.js'
-import { getGame, joinGame, listGamePlayers } from '../api/games.js'
+import { deleteGame, getGame, joinGame, listGamePlayers } from '../api/games.js'
 import { getMyProfile } from '../api/member.js'
 import { PositionPicker } from '../components/PositionPicker.jsx'
 import { isValidPositions } from '../components/positions.js'
 import {
+  canDeleteGame,
   countUnratedPlayers,
+  deleteErrorMessage,
   fillRatio,
   formatCreatedDate,
   formatPlayDate,
@@ -429,7 +431,69 @@ function HostCard({ game }) {
           </Link>
         </>
       )}
+      {canDeleteGame(game) && <DeleteGameSection gameId={game.id} />}
     </section>
+  )
+}
+
+// 경기 삭제(DELETE /games/{gameId}, BE D-33). 되돌릴 수 없으므로 한 번 더 확인받는다.
+function DeleteGameSection({ gameId }) {
+  const navigate = useNavigate()
+  const [confirming, setConfirming] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function handleDelete() {
+    if (deleting) return
+    setDeleting(true)
+    setError(null)
+    try {
+      await deleteGame(gameId)
+      navigate('/games', { replace: true, state: { notice: 'game-deleted' } })
+    } catch (deleteError) {
+      setError(deleteErrorMessage(deleteError))
+      setDeleting(false)
+    }
+  }
+
+  if (!confirming) {
+    return (
+      <div className={styles.dangerZone}>
+        <button type="button" className={styles.dangerTextButton} onClick={() => setConfirming(true)}>
+          경기 삭제
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className={styles.dangerZone} role="group" aria-labelledby="delete-title">
+      <p id="delete-title" className={styles.dangerTitle}>
+        이 경기를 삭제할까요?
+      </p>
+      <p className={styles.dangerText}>삭제하면 참가 선수와 공지를 포함해 경기를 볼 수 없고, 되돌릴 수 없어요.</p>
+      {error && (
+        <p className={styles.errorText} role="alert">
+          {error}
+        </p>
+      )}
+      <div className={styles.dangerActions}>
+        <button
+          type="button"
+          className={styles.tertiaryButton}
+          onClick={() => {
+            setConfirming(false)
+            setError(null)
+          }}
+          disabled={deleting}
+        >
+          취소
+        </button>
+        <button type="button" className={styles.dangerButton} onClick={handleDelete} disabled={deleting}>
+          {deleting ? '삭제하는 중…' : '삭제'}
+        </button>
+      </div>
+    </div>
   )
 }
 
