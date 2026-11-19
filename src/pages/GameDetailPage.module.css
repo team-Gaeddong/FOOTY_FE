@@ -190,6 +190,14 @@
   align-items: start;
 }
 
+/* 왼쪽 열: 경기 정보와 그 아래 참가 선수 */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-gap-7);
+  min-width: 0;
+}
+
 .card,
 .messageCard {
   display: flex;
@@ -308,6 +316,167 @@
 .tertiaryButton:focus-visible,
 .backLink:focus-visible,
 .reportLink:focus-visible {
+  outline: 2px solid var(--ds-border-primary);
+  outline-offset: 2px;
+}
+
+/*
+ * 참가 선수 목록. Figma에 경기 상세용 시안이 없어 `선수_실력_매기기`의 참가 선수 목록
+ * (이름+배지 / 포지션 한 줄, 행 사이 구분선, 미입력 배지)을 경기 정보 카드 톤에 맞춰 옮겼다.
+ */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-gap-4);
+}
+
+.playerCount {
+  color: var(--ds-text-primary);
+}
+
+.players {
+  display: flex;
+  flex-direction: column;
+  margin: calc(-1 * var(--ds-gap-3)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-gap-4);
+  min-width: 0;
+  padding: var(--ds-padding-5) 0;
+  border-top: 1px solid var(--ds-surface-gray-subtler);
+}
+
+.player:first-child {
+  border-top: 0;
+}
+
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ds-brand-lime);
+  color: var(--ds-brand-dark);
+  font-size: var(--ds-body-small);
+  font-weight: 700;
+}
+
+.playerInfo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.playerName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-gap-3);
+  overflow-wrap: anywhere;
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-body-medium);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.playerPositions {
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-xsmall);
+  line-height: 1.5;
+}
+
+.playerBadge,
+.hostBadge,
+.unratedBadge,
+.ratedBadge {
+  flex-shrink: 0;
+  padding: 0 var(--ds-padding-3);
+  border-radius: var(--ds-radius-medium1);
+  font-size: var(--ds-body-xsmall);
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.playerBadge {
+  background: var(--ds-surface-gray-subtler);
+  color: var(--ds-text-subtle);
+}
+
+.hostBadge {
+  background: var(--ds-brand-dark);
+  color: var(--ds-brand-lime);
+}
+
+.unratedBadge {
+  border-radius: var(--ds-radius-max);
+  background: var(--color-danger-bg);
+  color: var(--ds-danger);
+}
+
+.ratedBadge {
+  border-radius: var(--ds-radius-max);
+  background: var(--ds-button-secondary-fill);
+  color: var(--ds-text-primary);
+}
+
+.skill {
+  flex-shrink: 0;
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-body-medium);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.skillLabel {
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-xsmall);
+  font-weight: 400;
+}
+
+.listStatus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ds-gap-3);
+  padding: var(--ds-padding-8) 0;
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-small);
+  text-align: center;
+}
+
+/* button_text 컴포넌트 */
+.textButton {
+  min-height: var(--ds-height-6);
+  padding: 0 var(--ds-padding-3);
+  border: 0;
+  border-radius: var(--ds-radius-medium1);
+  background: transparent;
+  color: var(--ds-text-primary);
+  font-size: var(--ds-label-small);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.textButton:hover {
+  background: var(--ds-button-text-fill-hover);
+}
+
+.textButton:active {
+  background: var(--ds-button-text-fill-pressed);
+}
+
+.textButton:focus-visible {
   outline: 2px solid var(--ds-border-primary);
   outline-offset: 2px;
 }
