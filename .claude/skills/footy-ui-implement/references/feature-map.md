@@ -16,7 +16,7 @@
 | 내 프로필 조회 | Sprint 1 | 1 | 곽효오 | member, member_position | `GET /members/me` | |
 | 경기 생성 | Sprint 1 | 1~2 | 안세하 | game | `POST /games` | |
 | 경기 일정 조회 / 목록 | Sprint 1 | 2 | 안세하 | game | `GET /games` | |
-| 선수 등록 | Sprint 1 | 2 | 전재준 | game_player | `POST /games/{gameId}/players`(비회원 선수) | 이름/닉네임, 포지션, 실력 등을 등록 |
+| 선수 등록 | Sprint 1 | 2 | 전재준 | game_player, player_position | `POST /games/{gameId}/players`(회원 본인 참가, BE #36·D-19), `GET /games/{gameId}/players`(참가 선수 목록, BE #38·D-20) | 이름/닉네임, 포지션, 실력 등을 등록 |
 | 매치 참여 기능 | Sprint 2 | 3 | 김태균 | game_player | 없음 | |
 | 포지션 복수 선택 | Sprint 2 | 3 | 김태균 | member_position, player_position | `PUT /members/me/positions` | 우선 순위 정하기 |
 | 포지션 설정 | Sprint 2 | 3 | 김태균 | player_position | `PUT /games/{gameId}/players/{gamePlayerId}/positions` (BE #17) | GK / DF / MF / FW, 복수 선택 가능. 파티장만, 모집 중인 경기만(BE D-13). FE #41 |
