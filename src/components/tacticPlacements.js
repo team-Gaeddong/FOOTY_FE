@@ -118,6 +118,42 @@ export function changeFormation(placements, formation) {
   })
 }
 
+const ROLE_ORDER = ['GK', 'DF', 'MF', 'FW']
+
+function roleDistance(a, b) {
+  return Math.abs(ROLE_ORDER.indexOf(a) - ROLE_ORDER.indexOf(b))
+}
+
+// 선발 선수를 포메이션 슬롯에 자동으로 놓는다. 기존 배치는 모두 대체한다.
+// 팀 배정 포지션(member.position)과 같은 역할의 슬롯을 먼저 채우고, 남은 슬롯은 가까운 포지션의
+// 남은 선수로 채운다(예: GK가 없으면 DF). 같은 조건이면 팀원 순서(팀 짜기 순위)가 앞선 선수가 먼저다.
+// 후보 선수는 놓지 않고, 슬롯 수가 11개라 최대 11명이다.
+export function autoPlace(members, formation) {
+  const slots = formationSlots(formation)
+  const rest = members.filter((member) => !member.isSubstitute)
+  const owners = slots.map(() => null)
+
+  slots.forEach((slot, index) => {
+    const at = rest.findIndex((member) => member.position === slot.role)
+    if (at !== -1) owners[index] = rest.splice(at, 1)[0]
+  })
+
+  slots.forEach((slot, index) => {
+    if (owners[index] || rest.length === 0) return
+    let best = 0
+    rest.forEach((member, at) => {
+      if (roleDistance(member.position, slot.role) < roleDistance(rest[best].position, slot.role)) best = at
+    })
+    owners[index] = rest.splice(best, 1)[0]
+  })
+
+  return owners.flatMap((member, index) =>
+    member
+      ? [{ gamePlayerId: member.gamePlayerId, slot: index, x: slots[index].x, y: slots[index].y }]
+      : [],
+  )
+}
+
 // PUT /games/{gameId}/teams/{teamId}/tactic 의 placements 형식
 export function toPlacementRequest(placements) {
   return placements.map(({ gamePlayerId, x, y }) => ({

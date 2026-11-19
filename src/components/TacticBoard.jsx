@@ -6,6 +6,7 @@ import { clientToPercent, pitchPosition } from './pitchCoords.js'
 import styles from './TacticBoard.module.css'
 import {
   MAX_PLACEMENTS,
+  autoPlace,
   freeSlotIndexes,
   isFull,
   movePlayer,
@@ -44,6 +45,15 @@ export function TacticBoard({ members, formation, placements, onChange, editable
   const bench = members.filter((member) => !placedIds.has(member.gamePlayerId))
   const memberById = new Map(members.map((member) => [member.gamePlayerId, member]))
   const selected = selectedId === null ? null : memberById.get(selectedId)
+  const canAutoPlace = slots.length > 0 && members.some((member) => !member.isSubstitute)
+
+  // 선발 선수를 포지션에 맞춰 한 번에 놓는다. 기존 배치는 대체되고 저장은 저장 버튼으로 한다.
+  function handleAutoPlace() {
+    const next = autoPlace(members, formation)
+    setSelectedId(null)
+    setNotice(`${next.length}명을 포지션에 맞춰 놓았어요. 자리는 끌어서 바꿀 수 있어요.`)
+    onChange(next)
+  }
 
   function move(gamePlayerId, target) {
     const isNew = !placedIds.has(gamePlayerId)
@@ -164,6 +174,19 @@ export function TacticBoard({ members, formation, placements, onChange, editable
 
   return (
     <div className={styles.board}>
+      {editable && (
+        <div className={styles.toolbar}>
+          <button
+            type="button"
+            className={styles.autoPlace}
+            onClick={handleAutoPlace}
+            disabled={!canAutoPlace}
+          >
+            자동 배치
+          </button>
+          <span className={styles.toolbarHint}>포지션에 맞춰 선발 선수를 놓아요</span>
+        </div>
+      )}
       <div className={styles.pitchArea} onClick={handlePitchClick}>
         <Pitch ref={pitchRef} label={`경기장, ${placements.length}/${MAX_PLACEMENTS}명 배치`}>
           {editable &&

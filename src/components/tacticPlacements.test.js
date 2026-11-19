@@ -3,6 +3,7 @@ import { test } from 'node:test'
 import { FORMATIONS } from './formations.js'
 import {
   MAX_PLACEMENTS,
+  autoPlace,
   changeFormation,
   freeSlotIndexes,
   movePlayer,
@@ -114,3 +115,69 @@ test('저장 요청은 BE 형식(퍼센트 0~100, 소수 2자리)이다', () => 
 function pick({ x, y }) {
   return { x, y }
 }
+
+// 팀 구성 1 GK, 4 DF, 4 MF, 2 FW. id는 포지션 순서대로 1부터 매긴다.
+const squad = (positions, substitutes = []) =>
+  positions.map((position, index) => ({
+    gamePlayerId: index + 1,
+    position,
+    isSubstitute: substitutes.includes(index + 1),
+  }))
+const FULL = ['GK', 'DF', 'DF', 'DF', 'DF', 'MF', 'MF', 'MF', 'MF', 'FW', 'FW']
+
+test('자동 배치는 선수를 같은 포지션의 슬롯 좌표에 놓는다', () => {
+  const placed = autoPlace(squad(FULL), F)
+  assert.equal(placed.length, 11)
+  placed.forEach((placement) => {
+    const slot = FORMATIONS[F][placement.slot]
+    assert.equal(slot.role, FULL[placement.gamePlayerId - 1])
+    assert.deepEqual([placement.x, placement.y], [slot.x, slot.y])
+  })
+  assert.equal(new Set(placed.map((placement) => placement.slot)).size, 11)
+})
+
+test('자동 배치는 섞인 순서로 와도 포지션에 맞춰 놓고, 같은 포지션은 먼저 온 선수가 앞 슬롯을 받는다', () => {
+  const members = squad(['FW', 'MF', 'DF', 'GK', 'DF', 'MF', 'FW', 'DF', 'MF', 'DF', 'MF'])
+  const placed = autoPlace(members, F)
+  assert.equal(placed.length, 11)
+  assert.equal(FORMATIONS[F][placed.find((p) => p.gamePlayerId === 4).slot].role, 'GK')
+  const defenders = placed.filter((p) => members[p.gamePlayerId - 1].position === 'DF')
+  assert.deepEqual(defenders.map((p) => p.gamePlayerId), [3, 5, 8, 10])
+  assert.deepEqual(defenders.map((p) => p.slot), [1, 2, 3, 4])
+})
+
+test('자동 배치는 후보를 놓지 않는다', () => {
+  const placed = autoPlace(squad([...FULL, 'MF'], [12]), F)
+  assert.equal(placed.length, 11)
+  assert.equal(ids(placed).includes(12), false)
+  const fewer = autoPlace(squad(['GK', 'DF', 'MF'], [3]), F)
+  assert.deepEqual(ids(fewer), [1, 2])
+})
+
+test('자동 배치는 포지션이 모자라면 가까운 포지션의 선수로 슬롯을 채운다', () => {
+  const noKeeper = squad(['DF', 'DF', 'DF', 'DF', 'DF', 'MF', 'MF', 'MF', 'MF', 'FW', 'FW'])
+  const placed = autoPlace(noKeeper, F)
+  assert.equal(placed.length, 11)
+  const goalkeeper = placed.find((p) => FORMATIONS[F][p.slot].role === 'GK')
+  assert.equal(noKeeper[goalkeeper.gamePlayerId - 1].position, 'DF')
+  assert.equal(goalkeeper.gamePlayerId, 5)
+})
+
+test('자동 배치는 11명을 넘지 않고 선수가 적으면 그만큼만 놓는다', () => {
+  const many = squad([...FULL, 'DF', 'MF', 'FW', 'GK'])
+  assert.equal(autoPlace(many, F).length, MAX_PLACEMENTS)
+  assert.equal(autoPlace(squad(['GK', 'DF', 'MF']), F).length, 3)
+  assert.deepEqual(autoPlace([], F), [])
+})
+
+test('자동 배치 결과는 같은 선수·같은 슬롯이 겹치지 않고 다른 포메이션에서도 슬롯을 따른다', () => {
+  const placed = autoPlace(squad(FULL), '4-3-3')
+  assert.equal(placed.length, 11)
+  assert.equal(new Set(ids(placed)).size, 11)
+  assert.equal(new Set(placed.map((p) => p.slot)).size, 11)
+  placed.forEach((p) => {
+    const slot = FORMATIONS['4-3-3'][p.slot]
+    assert.deepEqual([p.x, p.y], [slot.x, slot.y])
+  })
+  assert.deepEqual(autoPlace(squad(FULL), '5-4-1'), [])
+})
