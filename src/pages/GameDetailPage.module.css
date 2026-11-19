@@ -481,6 +481,89 @@
   outline-offset: 2px;
 }
 
+/*
+ * 경기 삭제. Figma에 시안이 없어 파티장 메뉴 맨 아래에 구분선으로 나누고,
+ * 위험 동작이라 처음엔 텍스트 버튼만 보이다가 누르면 확인 단계를 연다.
+ */
+.dangerZone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-gap-3);
+  padding-top: var(--ds-gap-6);
+  border-top: 1px solid var(--ds-surface-gray-subtler);
+}
+
+.dangerTextButton {
+  align-self: flex-start;
+  min-height: var(--ds-height-6);
+  margin-left: calc(-1 * var(--ds-padding-3));
+  padding: 0 var(--ds-padding-3);
+  border: 0;
+  border-radius: var(--ds-radius-medium1);
+  background: transparent;
+  color: var(--ds-danger);
+  font-size: var(--ds-label-small);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dangerTextButton:hover {
+  background: var(--color-danger-bg);
+}
+
+.dangerTitle {
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-body-medium);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.dangerText {
+  color: var(--ds-text-subtle);
+  font-size: var(--ds-body-small);
+  line-height: 1.5;
+}
+
+.dangerActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ds-gap-3);
+  margin-top: var(--ds-gap-3);
+}
+
+.dangerButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--ds-height-8);
+  padding: 0 var(--ds-padding-6);
+  border: 0;
+  border-radius: var(--ds-radius-medium3);
+  background: var(--ds-danger);
+  color: var(--ds-text-inverse);
+  font-size: var(--ds-label-medium);
+  font-weight: 700;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.dangerButton:hover {
+  background: #a12020;
+}
+
+.dangerButton:disabled,
+.dangerActions .tertiaryButton:disabled {
+  background: var(--ds-button-disabled-fill);
+  color: var(--ds-text-disabled);
+  cursor: not-allowed;
+}
+
+.dangerTextButton:focus-visible,
+.dangerButton:focus-visible {
+  outline: 2px solid var(--ds-border-primary);
+  outline-offset: 2px;
+}
+
 /* 다른 화면에서 돌아왔을 때 완료 안내 */
 .notice {
   padding: var(--ds-padding-5) var(--ds-padding-6);
