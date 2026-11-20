@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import { AuthProvider } from './auth/AuthProvider.jsx'
 import { RequireAuth } from './auth/RequireAuth.jsx'
 import { BalanceReviewPage } from './pages/BalanceReviewPage.jsx'
+import { BalanceSummaryPage } from './pages/BalanceSummaryPage.jsx'
 import { CreateGamePage } from './pages/CreateGamePage.jsx'
 import { GameDetailPage } from './pages/GameDetailPage.jsx'
 import { GameListPage } from './pages/GameListPage.jsx'
@@ -41,6 +42,7 @@ function App() {
             <Route path="/games/:gameId/notices" element={<NoticeListPage />} />
             <Route path="/games/:gameId/notices/:noticeId" element={<NoticeDetailPage />} />
             <Route path="/games/:gameId/balance-review" element={<BalanceReviewPage />} />
+            <Route path="/games/:gameId/balance-summary" element={<BalanceSummaryPage />} />
             <Route path="/games/:gameId/mvp-vote" element={<MvpVotePage />} />
             <Route path="/games/:gameId/rematch" element={<RematchGamePage />} />
             <Route path="/games/:gameId/skill-levels" element={<SkillLevelPage />} />

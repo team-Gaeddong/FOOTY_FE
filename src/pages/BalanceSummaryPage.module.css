@@ -1,0 +1,277 @@
+.backLink,
+.secondaryLink {
+  color: var(--ds-text-primary);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--ds-text-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.header h1,
+.messageCard h1 {
+  margin: 0;
+  color: var(--ds-text-bolder);
+}
+
+.header h1 {
+  font-size: clamp(1.7rem, 7vw, 2.1rem);
+  line-height: 1.2;
+}
+
+.intro,
+.messageCard p,
+.cardText {
+  margin: 0;
+  color: var(--ds-text-subtle);
+  line-height: 1.6;
+}
+
+.card,
+.messageCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.messageCard {
+  align-items: flex-start;
+}
+
+.centered {
+  align-items: center;
+  text-align: center;
+}
+
+.cardTitle {
+  margin: 0;
+  color: var(--ds-text-bolder);
+  font-size: var(--ds-heading-small);
+  overflow-wrap: anywhere;
+}
+
+.subTitle {
+  margin: 0 0 var(--space-2);
+  color: var(--ds-text-basic);
+  font-size: 0.95rem;
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ds-text-subtle);
+  font-size: 0.9rem;
+}
+
+.progressLabel strong {
+  color: var(--ds-text-primary);
+}
+
+.progressLabel strong span,
+.average span,
+.teamAverage span {
+  color: var(--ds-text-subtle);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.progressTrack,
+.reasonBar {
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--ds-surface-gray-subtler);
+}
+
+.progressTrack {
+  height: 10px;
+}
+
+.progressTrack span,
+.reasonBar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ds-button-primary-fill);
+}
+
+.average {
+  margin: 0;
+}
+
+.average strong {
+  color: var(--ds-text-primary);
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.teams {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 720px) {
+  .teams {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.teamHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.teamAverage {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.teamAverage strong {
+  color: var(--ds-text-primary);
+  font-size: 1.5rem;
+}
+
+.reasonList,
+.reviewList,
+.tags {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reasonList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.reasonList li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px 36px;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+}
+
+.reasonName {
+  color: var(--ds-text-basic);
+}
+
+.reasonZero .reasonName,
+.reasonZero .reasonCount {
+  color: var(--ds-text-disabled);
+}
+
+.reasonBar {
+  height: 8px;
+}
+
+.reasonCount {
+  color: var(--ds-text-basic);
+  text-align: right;
+}
+
+.reviewList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.nickname {
+  min-width: 0;
+  color: var(--ds-text-bolder);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.reviewScore {
+  color: var(--ds-text-primary);
+  white-space: nowrap;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.tags li {
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  background: var(--ds-button-secondary-fill);
+  color: var(--ds-text-primary);
+  font-size: 0.78rem;
+}
+
+.comment {
+  margin: 0;
+  color: var(--ds-text-basic);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius);
+  background: var(--ds-surface-gray-subtler);
+  color: var(--ds-text-subtle);
+  text-align: center;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--ds-border-primary);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2s; }
+}
