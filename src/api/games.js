@@ -12,6 +12,16 @@ export function listGames({ page = 0, size = 20 } = {}) {
   return request(`/games?${params}`)
 }
 
+// 경기 목록을 size 100으로 마지막 페이지까지 한 페이지씩 돌려준다. BE에 "내 경기" 필터가 없어
+// 파티장 확인·내 경기 모으기처럼 FE가 목록을 훑을 때 쓴다. maxPages로 상한을 둘 수 있다(기본은 끝까지).
+export async function* listGamePages({ maxPages = Infinity } = {}) {
+  for (let page = 0; page < maxPages; page += 1) {
+    const data = await listGames({ page, size: 100 })
+    yield data
+    if (page + 1 >= data.totalPages) return
+  }
+}
+
 export function rematchGame(gameId, playDate) {
   return request(`/games/${gameId}/rematch`, {
     method: 'POST',
