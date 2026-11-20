@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를, 경기 MVP 투표 API는 BE PR #72 병합 커밋 `30bcc06`(2026-11-16)을 대조했다. 경기 삭제 API는 BE PR #76 병합 커밋 `develop` `1750741`(2026-11-20)을 대조했다.  의견 투표 API는 BE PR #79 병합 커밋 `976e9ef`(2026-11-20)를 대조했다. 이 코드는 BE PR #73 병합(`7265d7e`)에서 develop에서 빠졌고 BE PR #81로 복구 중이다(정책 번호는 D-34 → D-35). 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를, 밸런스 취합 API는 `develop` `7265d7e`(2026-11-20 조회, BE PR #65 병합)를, 경기 MVP 투표 API는 BE PR #72 병합 커밋 `30bcc06`(2026-11-16)을 대조했다. 경기 삭제 API는 BE PR #76 병합 커밋 `develop` `1750741`(2026-11-20)을 대조했다.  의견 투표 API는 BE PR #79 병합 커밋 `976e9ef`(2026-11-20)를 대조했다. 이 코드는 BE PR #73 병합(`7265d7e`)에서 develop에서 빠졌고 BE PR #81로 복구 중이다(정책 번호는 D-34 → D-35). 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -48,6 +48,7 @@
 | `GET /games/{gameId}/polls/{pollId}` | Bearer + 온보딩, 파티장·경기 참가 회원 | — | 200 `PollResponse` | `POLL_403_1`, `GAME_404_1`, `POLL_404_1`(없음·다른 경기), 인증·온보딩 에러 | BE #78 |
 | `PUT /games/{gameId}/polls/{pollId}/answers` | Bearer + 온보딩, 파티장·경기 참가 회원 | `{ optionIds }` | 200 `PollResponse` | `GLOBAL_400_1`, `POLL_400_3`(단일 선택에 여러 개), `POLL_400_4`(같은 선택지 중복), `POLL_403_1`, `GAME_404_1`, `MEMBER_404_1`, `POLL_404_1`, `POLL_404_2`(이 투표의 선택지가 아님), `POLL_409_1`(마감), `POLL_409_2`(동시 응답), 인증·온보딩 에러 | BE #78 |
 | `POST /games/{gameId}/balance-reviews` | Bearer + 온보딩, 경기 참가 회원 | `CreateBalanceReviewRequest` | 201 `CreateBalanceReviewResponse` | `GLOBAL_400_1`(점수 범위·의견 길이·없는 사유 값), `BALANCE_400_1`(사유 중복), `BALANCE_403_1`(참가하지 않은 회원), `GAME_404_1`, `MEMBER_404_1`, `BALANCE_409_1`(종료 전 경기), `BALANCE_409_2`(이미 작성), 인증·온보딩 에러 | BE #61, D-28 |
+| `GET /games/{gameId}/balance-reviews/summary` | Bearer + 온보딩, 파티장·경기 참가자 | — | 200 `BalanceSummaryResponse` | `BALANCE_403_2`(파티장·참가자 아님), `GAME_404_1`, `LINEUP_404_2`(전원 작성 후 라인업 없음), 인증·온보딩 에러 | BE #64, D-29 |
 | `POST /games/{gameId}/mvp-votes` | Bearer + 온보딩, 경기 참가 회원·종료 경기 | `{ gamePlayerId }` | 201 `CreateMvpVoteResponse` | `GLOBAL_400_1`, `MVP_400_1`(본인 선택), `MVP_403_1`(비참가자), `GAME_404_1`, `GAME_404_2`(경기 선수가 아님), `MVP_409_1`(종료 전), `MVP_409_2`(이미 투표), 인증·온보딩 에러 | BE #70, PR #72 |
 | `GET /games/{gameId}/mvp-votes/me` | Bearer + 온보딩 | — | 200 `MyMvpVoteResponse` | `GAME_404_1`, 인증·온보딩 에러 | BE #70, PR #72 |
 | `GET /games/{gameId}/mvp-votes/result` | Bearer + 온보딩, 해당 경기 투표 회원 | — | 200 `MvpResultResponse` | `MVP_403_2`(투표하지 않은 회원), `GAME_404_1`, 인증·온보딩 에러 | BE #70, PR #72 |
@@ -140,6 +141,19 @@
 | `comment` | string | 선택, 500자 이하(`GLOBAL_400_1`). 공백만이면 `null`로 저장 |
 
 `CreateBalanceReviewResponse`: `id`, `gameId`, `score`, `reasons`, `comment`, `createdAt`(`LocalDateTime`). 확인 순서는 참가 여부(`BALANCE_403_1`) → 경기 종료(`BALANCE_409_1`) → 중복 작성(`BALANCE_409_2`)이다. 작성 여부를 미리 조회하는 API는 없다.
+
+`BalanceSummaryResponse` (`GET /games/{gameId}/balance-reviews/summary`, BE D-29)
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `gameId` | number | |
+| `completed` | boolean | 작성 대상 전원이 작성했으면 `true`. 작성 대상은 탈퇴하지 않은 회원 참가 선수(비회원 제외) |
+| `requiredCount` | number | 작성 대상 수 |
+| `reviewedCount` | number | 작성한 평가 수 |
+| `averageScore` | number \| null | 전체 평균(BE `BigDecimal`, 소수 둘째 자리 반올림). `completed=false`면 `null` |
+| `teams` | `TeamResponse[]` | 가장 높은 `version` 라인업의 팀, 팀 ID 오름차순. `completed=false`면 빈 배열 |
+
+`TeamResponse`: `teamId`, `name`, `reviewCount`(그 팀에 배정된 작성자의 평가 수), `averageScore`(number \| null, 평가가 없으면 `null`), `reasonCounts`(사유 6개 전부를 키로 가진 객체, 고른 사람 수, 0 포함), `reviews`(`{writerId, nickname, score, reasons, comment}[]`, 작성 순). `comment`는 `null`일 수 있다. 팀에 배정되지 않은 작성자는 전체 평균에만 들어간다. 계산은 조회할 때마다 하며 저장하지 않고, `member.rating`도 바꾸지 않는다. 경기 상태 제한은 없다.
 
 `CreateGameResponse` (`POST /games`, `POST /games/{gameId}/rematch`)
 
@@ -322,6 +336,7 @@
 | `REPORT_409_1` | 409 | 이미 접수되어 처리 중인 신고입니다. |
 | `BALANCE_400_1` | 400 | 같은 사유를 중복해서 보낼 수 없습니다. |
 | `BALANCE_403_1` | 403 | 경기에 참가한 회원만 밸런스를 평가할 수 있습니다. |
+| `BALANCE_403_2` | 403 | 파티장과 경기 참가자만 밸런스 결과를 조회할 수 있습니다. |
 | `BALANCE_409_1` | 409 | 종료된 경기만 밸런스를 평가할 수 있습니다. |
 | `BALANCE_409_2` | 409 | 이미 밸런스를 평가한 경기입니다. |
 | `MVP_400_1` | 400 | 자기 자신에게는 MVP 투표를 할 수 없습니다. |

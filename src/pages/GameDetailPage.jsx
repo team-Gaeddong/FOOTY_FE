@@ -246,7 +246,12 @@ function GameDetail({ game, onUpdated }) {
               공지 확인
             </Link>
             <PollsLink game={game} />
-            {game.status === 'FINISHED' && <MvpVoteLink game={game} />}
+            {game.status === 'FINISHED' && (
+              <>
+                <BalanceSummaryLink game={game} />
+                <MvpVoteLink game={game} />
+              </>
+            )}
           </section>
         ) : game.status === 'RECRUITING' ? (
           <JoinCard gameId={game.id} onUpdated={onUpdated} />
@@ -416,6 +421,7 @@ function HostCard({ game }) {
             </Link>
             <MvpVoteLink game={game} />
             <BalanceReviewLink game={game} />
+            <BalanceSummaryLink game={game} />
             <Link
               className={styles.tertiaryButton}
               to={`/games/${game.id}/rematch`}
@@ -531,6 +537,19 @@ function BalanceReviewLink({ game }) {
       state={{ game: toSummary(game) }}
     >
       밸런스 평가하기
+    </Link>
+  )
+}
+
+// 결과 조회는 파티장·참가자만 된다(BE D-29). 경기 상태 제한은 없지만 평가가 종료 후에만 가능해 종료된 경기에서만 보여준다.
+function BalanceSummaryLink({ game }) {
+  return (
+    <Link
+      className={styles.tertiaryButton}
+      to={`/games/${game.id}/balance-summary`}
+      state={{ game: toSummary(game) }}
+    >
+      밸런스 결과 보기
     </Link>
   )
 }
