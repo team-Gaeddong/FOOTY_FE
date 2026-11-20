@@ -6,15 +6,10 @@ import { getMyProfile } from '../api/members.js'
 import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
 import { PageLayout } from '../components/PageLayout.jsx'
+import { GAME_STATUS_LABELS } from './gameDetail.js'
 import styles from './GameListPage.module.css'
 
 const PAGE_SIZE = 20
-
-const STATUS_LABELS = {
-  RECRUITING: '모집 중',
-  CONFIRMED: '팀 확정',
-  FINISHED: '경기 종료',
-}
 
 function parsePage(value) {
   if (value === null) return 0
@@ -166,7 +161,7 @@ function GameListContent({ data, page, goToPage, memberId }) {
         {data.games.map((game) => (
           <li key={game.id}>
             <article className={styles.card} aria-labelledby={`game-title-${game.id}`}>
-              <span className={styles.status}>{STATUS_LABELS[game.status] ?? game.status}</span>
+              <span className={styles.status}>{GAME_STATUS_LABELS[game.status] ?? game.status}</span>
               <h2 id={`game-title-${game.id}`}>
                 <Link className={styles.titleLink} to={`/games/${game.id}`}>{game.title}</Link>
               </h2>

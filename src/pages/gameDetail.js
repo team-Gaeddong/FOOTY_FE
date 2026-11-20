@@ -12,6 +12,13 @@ function parse(value) {
   return { year, month, day, hour, minute }
 }
 
+// 경기 상태 배지 문구(BE `status`)
+export const GAME_STATUS_LABELS = {
+  RECRUITING: '모집 중',
+  CONFIRMED: '팀 확정',
+  FINISHED: '경기 종료',
+}
+
 // "2026-11-08T08:00:00" → "11월 8일 (토) 오전 8:00"
 export function formatPlayDate(value) {
   const date = parse(value)

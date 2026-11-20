@@ -12,6 +12,7 @@ import { NotFoundPage } from './pages/NotFoundPage.jsx'
 import { NoticeCreatePage } from './pages/NoticeCreatePage.jsx'
 import { NoticeDetailPage, NoticeListPage } from './pages/NoticePage.jsx'
 import { MvpVotePage } from './pages/MvpVotePage.jsx'
+import { MyGamesPage } from './pages/MyGamesPage.jsx'
 import { OnboardingPage } from './pages/OnboardingPage.jsx'
 import { PlayerPositionPage } from './pages/PlayerPositionPage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
@@ -35,6 +36,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/games/new" element={<CreateGamePage />} />
+            <Route path="/games/mine" element={<MyGamesPage />} />
             <Route path="/games" element={<GameListPage />} />
             <Route path="/games/:gameId" element={<GameDetailPage />} />
             <Route path="/games/:gameId/notices/new" element={<NoticeCreatePage />} />
