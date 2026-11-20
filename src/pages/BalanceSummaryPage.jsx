@@ -29,21 +29,22 @@ export function BalanceSummaryPage() {
   const location = useLocation()
   const gameTitle = location.state?.game?.id === gameId ? location.state.game.title : null
   const [retry, setRetry] = useState(0)
-  const [data, setData] = useState(null)
+  // 다른 경기 결과가 남아 보이지 않게 불러온 gameId를 함께 저장한다.
+  const [loaded, setLoaded] = useState(null)
+  const data = loaded?.gameId === gameId ? loaded : null
 
   const load = useCallback(async (active) => {
     if (gameId === null) return
     try {
       const summary = await getBalanceSummary(gameId)
-      if (active()) setData({ summary })
+      if (active()) setLoaded({ gameId, summary })
     } catch (loadError) {
-      if (active()) setData({ error: loadError })
+      if (active()) setLoaded({ gameId, error: loadError })
     }
   }, [gameId])
 
   useEffect(() => {
     let active = true
-    setData(null)
     load(() => active)
     return () => {
       active = false
@@ -55,6 +56,12 @@ export function BalanceSummaryPage() {
       {gameId === null ? '← 경기 목록' : '← 경기 상세'}
     </Link>
   )
+
+  // 로딩 표시는 effect가 아니라 이벤트에서 초기화한다(react-hooks set-state-in-effect).
+  function reload() {
+    setLoaded(null)
+    setRetry((count) => count + 1)
+  }
 
   if (gameId === null) {
     return (
@@ -92,7 +99,7 @@ export function BalanceSummaryPage() {
           {blocked ? (
             <Link className={styles.secondaryLink} to={`/games/${gameId}`}>경기 상세로 돌아가기</Link>
           ) : (
-            <Button variant="secondary" onClick={() => setRetry((count) => count + 1)}>다시 시도</Button>
+            <Button variant="secondary" onClick={reload}>다시 시도</Button>
           )}
         </section>
       </PageLayout>
@@ -112,7 +119,7 @@ export function BalanceSummaryPage() {
       {summary.completed ? (
         <CompletedSummary summary={summary} />
       ) : (
-        <PendingSummary summary={summary} onRefresh={() => setRetry((count) => count + 1)} />
+        <PendingSummary summary={summary} onRefresh={reload} />
       )}
     </PageLayout>
   )
