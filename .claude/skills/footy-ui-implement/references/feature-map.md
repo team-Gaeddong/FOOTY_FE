@@ -33,7 +33,7 @@
 | 경기 MVP | Sprint 4 | 7 | 곽효오 | mvp_vote | 없음 | 경기 끝나고 오늘의 MVP 선택하게 하기 |
 | 밸런스 취합 및 점수 계산 | Sprint 4 | 7 | 곽효오 | balance_review, member.rating | `GET /games/{gameId}/balance-reviews/summary` (BE #64·PR #65, D-29) | 참가 회원 전원 작성 후 전체·팀별 평균. `member.rating`은 바꾸지 않음(D-29). FE #66 |
 | 파티장 공지 작성 / 조회 | Sprint 4 | 7 | 전재준 | notice | 없음 | |
-| 각종 의견 투표 생성 | Sprint 4 | 7 | 전재준 | poll, poll_option, poll_answer | 없음 | |
+| 각종 의견 투표 생성 | Sprint 4 | 7 | 전재준 | poll, poll_option, poll_answer | `POST·GET /games/{gameId}/polls`, `GET /games/{gameId}/polls/{pollId}`, `PUT .../answers`(BE #78·D-35, PR #79·#81) | |
 | 경기 삭제 | Sprint 4 | 8 | 전재준 | game.is_deleted | `DELETE /games/{gameId}`(BE #74·PR #76, D-33) | |
 | 악성 유저 신고 | Sprint 4 | 8 | 김태균 | report | `POST /games/{gameId}/reports` (BE #66) | 같은 경기에 참가한 회원끼리만. 사유 4종·상세 500자(BE D-30). 조회·처리는 미결정. FE #44 |
 | 전체 기능 연동 테스트 | 마무리 | 9 | — | — | — | |
