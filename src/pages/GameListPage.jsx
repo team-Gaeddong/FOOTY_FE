@@ -96,7 +96,10 @@ export function GameListPage() {
           <h1>경기 목록</h1>
           <p className={styles.intro}>지난 경기까지 경기 일시 순서로 볼 수 있어요.</p>
         </div>
-        <Link className={styles.createLink} to="/games/new">경기 만들기</Link>
+        <div className={styles.headerLinks}>
+          <Link className={styles.createLink} to="/games/new">경기 만들기</Link>
+          <Link className={styles.createLink} to="/games/mine">내 경기</Link>
+        </div>
       </header>
 
       {noticeMessage && (

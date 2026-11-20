@@ -42,6 +42,7 @@ export function HomePage() {
         <div className={styles.actions}>
           <Link className={styles.createLink} to="/games/new">경기 만들기</Link>
           <Link className={styles.listLink} to="/games">경기 목록 보기</Link>
+          <Link className={`${styles.listLink} ${styles.wideLink}`} to="/games/mine">내 경기</Link>
         </div>
       </section>
       <footer className={styles.footer}>
