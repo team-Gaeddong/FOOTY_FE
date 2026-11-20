@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 import { getBalanceSummary } from '../api/balanceReviews.js'
 import { ApiError } from '../api/client.js'
@@ -33,23 +33,22 @@ export function BalanceSummaryPage() {
   const [loaded, setLoaded] = useState(null)
   const data = loaded?.gameId === gameId ? loaded : null
 
-  const load = useCallback(async (active) => {
-    if (gameId === null) return
-    try {
-      const summary = await getBalanceSummary(gameId)
-      if (active()) setLoaded({ gameId, summary })
-    } catch (loadError) {
-      if (active()) setLoaded({ gameId, error: loadError })
-    }
-  }, [gameId])
-
+  // 상태는 응답 콜백에서만 바꾼다(react-hooks set-state-in-effect).
   useEffect(() => {
+    if (gameId === null) return undefined
     let active = true
-    load(() => active)
+    getBalanceSummary(gameId).then(
+      (summary) => {
+        if (active) setLoaded({ gameId, summary })
+      },
+      (loadError) => {
+        if (active) setLoaded({ gameId, error: loadError })
+      },
+    )
     return () => {
       active = false
     }
-  }, [load, retry])
+  }, [gameId, retry])
 
   const backLink = (
     <Link className={styles.backLink} to={gameId === null ? '/games' : `/games/${gameId}`}>
