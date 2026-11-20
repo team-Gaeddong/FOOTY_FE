@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를, 밸런스 취합 API는 `develop` `7265d7e`(2026-11-20 조회, BE PR #65 병합)를, 경기 MVP 투표 API는 BE PR #72 병합 커밋 `30bcc06`(2026-11-16)을 대조했다. 경기 삭제 API는 BE PR #76 병합 커밋 `develop` `1750741`(2026-11-20)을 대조했다.  의견 투표 API는 BE PR #79 병합 커밋 `976e9ef`(2026-11-20)를 대조했다. 이 코드는 BE PR #73 병합(`7265d7e`)에서 develop에서 빠졌고 BE PR #81로 복구 중이다(정책 번호는 D-34 → D-35). 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를, 밸런스 취합 API는 `develop` `7265d7e`(2026-11-20 조회, BE PR #65 병합)를, 경기 MVP 투표 API는 BE PR #72 병합 커밋 `30bcc06`(2026-11-16)을 대조했다. 경기 삭제 API는 BE PR #76 병합 커밋 `develop` `1750741`(2026-11-20)을 대조했다.  의견 투표 API는 BE PR #79 병합 커밋 `976e9ef`(2026-11-20)를 대조했다. 이 코드는 BE PR #73 병합(`7265d7e`)에서 develop에서 빠졌고 BE PR #81로 복구 중이다(정책 번호는 D-34 → D-35). 팀 직접 편성 API(`PUT /games/{gameId}/lineups/latest/teams`)는 **BE 미병합**이라 `develop`이 아니라 BE 이슈 #82 브랜치 `feature/82_manual-team-edit`(BE PR #85, base `develop` `2457cd6`, 미병합)의 컨트롤러·DTO·서비스·테스트를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다(팀 직접 편성은 D-36, 제안 상태). 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -61,6 +61,7 @@
 | `POST /games/{gameId}/lineups` | Bearer + 온보딩, 파티장 | — | 201 `LineupResponse` | `GAME_403_1`, `GAME_404_1`, `LINEUP_409_1`(이미 있음), `LINEUP_409_2`(실력 미입력 선수), `LINEUP_409_3`(선수 2명 미만), 인증·온보딩 에러 | #40, #42 |
 | `GET /games/{gameId}/lineups/latest` | Bearer + 온보딩 | — | 200 `LineupResponse` | `GAME_404_1`, `LINEUP_404_2`, 인증·온보딩 에러 | #49 |
 | `PATCH /games/{gameId}/lineups/confirm` | Bearer + 온보딩, 파티장 | — | 200 `LineupResponse` (`isConfirmed: true`) | `GAME_403_1`, `GAME_404_1`, `GAME_409_1`(모집 중인 경기 아님), `LINEUP_404_2`, 인증·온보딩 에러 | #48 |
+| `PUT /games/{gameId}/lineups/latest/teams` | Bearer + 온보딩, 파티장 | `UpdateLineupTeamsRequest` | 200 `LineupResponse` | **BE 미병합(브랜치 `feature/82_manual-team-edit`, 제안 D-36)**. `GLOBAL_400_1`(형식), `LINEUP_400_1`(선수 중복), `LINEUP_400_2`(라인업에 없는 선수), `LINEUP_400_3`(팀 목록이 라인업과 다름, 새), `LINEUP_400_4`(선수 누락, 새), `LINEUP_400_5`(빈 팀, 새), `GAME_403_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `LINEUP_404_2`, `LINEUP_409_4`(확정된 팀), 인증·온보딩 에러 | BE #82 |
 | `GET /games/{gameId}/teams/{teamId}/tactic` | Bearer + 온보딩 | — | 200 `TacticResponse` | `GAME_404_1`, `LINEUP_404_1`(경기에 속하지 않은 팀), 인증·온보딩 에러 | #45 |
 | `PUT /games/{gameId}/teams/{teamId}/tactic` | Bearer + 온보딩, 파티장 | `UpdateTacticRequest` | 200 `TacticResponse` | `GLOBAL_400_1`(좌표 범위·자릿수, 11명 초과, 포메이션 20자 초과), `LINEUP_400_1`(중복 배치), `LINEUP_400_2`(팀원 아님), `GAME_403_1`, `GAME_404_1`, `LINEUP_404_1`, `LINEUP_409_4`(확정된 팀), 인증·온보딩 에러 | #45 |
 | `POST /games/{gameId}/reports` | Bearer + 온보딩, 그 경기에 참가한 회원 | `CreateReportRequest` | 201 `CreateReportResponse` | `REPORT_400_1`(자기 신고), `GLOBAL_400_1`(필수값 누락·없는 사유 값·상세 500자 초과), `REPORT_403_1`(참가하지 않은 신고자), `GAME_404_1`, `MEMBER_404_1`(없거나 탈퇴한 피신고자), `GAME_404_2`(그 경기에 참가하지 않은 피신고자), `REPORT_409_1`(대기 중인 같은 신고), 인증·온보딩 에러 | #66 |
@@ -231,6 +232,19 @@
 
 최신 라인업 조회는 로그인 회원 누구나 가능하며, 파티장이 아니면 `totalSkill`·`skillLevel`이 `null`이다. 팀 확정은 파티장만 할 수 있고 `PATCH /games/{gameId}/lineups/confirm`으로 최신 라인업의 `isConfirmed`와 경기 상태를 `CONFIRMED`로 바꾼다. 이 API는 경기 점수·승패를 저장하지 않는다.
 
+`UpdateLineupTeamsRequest` (`PUT /games/{gameId}/lineups/latest/teams`, **BE 미병합**: BE #82 브랜치 `feature/82_manual-team-edit`, BE D-36 제안. 리뷰에서 계약이 바뀔 수 있다)
+
+| 필드 | 타입 | 규칙 |
+|---|---|---|
+| `teams` | `{ teamId, gamePlayerIds }[]` | 필수. **최신 라인업의 모든 팀**을 한 번씩 담는다. 빠지거나 모르는 팀·같은 팀 중복은 `LINEUP_400_3` |
+| `teams[].gamePlayerIds` | number[] | 그 팀에 둘 선수의 경기 참가자 ID. 모든 팀의 합집합이 지금 라인업에 배정된 선수와 정확히 같아야 한다(중복 `LINEUP_400_1`, 라인업 밖 선수 `LINEUP_400_2`, 누락 `LINEUP_400_4`). 팀마다 1명 이상(빈 팀 `LINEUP_400_5`) |
+
+- 응답은 `GET /games/{gameId}/lineups/latest`와 같은 `LineupResponse`다. 파티장만 호출하므로 `skillLevel`·`totalSkill`이 들어 있다
+- 파티장만, 팀 확정 전(`LINEUP_409_4`)·경기 모집 중(`GAME_409_1`)에만 할 수 있다. 검사 순서: 경기·파티장 → 라인업 → 팀 확정 → 모집 중 → 요청 내용
+- **전체 교체**다. 옮긴 선수는 `team_member.team_id`가 바뀌고 좌표(`posX`·`posY`)는 `null`이 된다(전술 배치도를 다시 짜야 한다). 배정 포지션(`position`)·후보 여부(`isSubstitute`)·팀 포메이션·`method`는 그대로다
+- `totalSkill`은 BE가 후보를 뺀 선발 실력 합계로 다시 계산한다. 같은 본문을 다시 보내도 결과가 같고 옮기지 않은 선수의 좌표는 지우지 않는다
+- 응답의 팀원 순서는 `team_member_id` 순이라, 옮겨 온 선수가 목록 끝이 아니라 원래 배정 순서 자리에 들어간다
+
 `UpdateTacticRequest`(BE `051d972`, BE D-23)
 
 | 필드 | 타입 | 규칙 |
@@ -327,6 +341,9 @@
 | `LINEUP_409_2` | 409 | 실력 점수가 없는 선수가 있습니다. |
 | `LINEUP_400_1` | 400 | 같은 선수를 중복해서 배치할 수 없습니다. |
 | `LINEUP_400_2` | 400 | 팀에 속하지 않은 선수는 배치할 수 없습니다. |
+| `LINEUP_400_3` | 400 | 요청한 팀이 현재 라인업의 팀과 다릅니다. (BE 미병합, BE #82) |
+| `LINEUP_400_4` | 400 | 라인업의 모든 선수를 한 팀에 배정해야 합니다. (BE 미병합, BE #82) |
+| `LINEUP_400_5` | 400 | 팀에는 선수가 1명 이상 있어야 합니다. (BE 미병합, BE #82) |
 | `LINEUP_404_1` | 404 | 팀을 찾을 수 없습니다. |
 | `LINEUP_404_2` | 404 | 아직 팀을 짜지 않은 경기입니다. |
 | `LINEUP_409_3` | 409 | 팀을 짜려면 선수가 2명 이상이어야 합니다. |
@@ -360,6 +377,8 @@
 ## BE 결정과 `develop` 코드의 차이
 
 2026-10-28 BE PR #35(`0a6c46f`)로 BE 이슈 #11·#12·#22·#23의 코드가 `develop`에 복구되어, FC-08에서 보고한 차이는 없다. 쌓은 PR은 병합 커밋이 `develop`의 조상인지 아래 방법으로 확인한다.
+
+**BE에 병합되지 않은 API**: `PUT /games/{gameId}/lineups/latest/teams`(팀 직접 편성, BE 이슈 #82)와 에러 코드 `LINEUP_400_3`~`LINEUP_400_5`는 BE `develop`에 없다. BE 브랜치 `feature/82_manual-team-edit`의 제안이고 BE `decisions.md` D-36도 "제안" 상태다. BE PR이 병합되기 전에는 실제 BE와 연동하지 못하고(요청하면 404 `GLOBAL_404_1`일 수 있다), 병합된 뒤에는 `develop` 코드와 다시 대조해 이 문서의 "BE 미병합" 표시를 지운다. 계약이 리뷰에서 바뀌면 FE(`src/api/lineups.js`, `src/pages/lineupEdit.js`)도 맞춘다(FD-22).
 
 ## 다시 확인하는 방법
 
