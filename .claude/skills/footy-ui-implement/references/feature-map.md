@@ -31,7 +31,7 @@
 | 경기 상세 조회 | Sprint 3 | 6 | 곽효오 | game 외 다수 | `GET /games/{gameId}` (BE #54, `8d2b767`) | |
 | 경기 이후 밸런스 작성 | Sprint 4 | 7 | 곽효오 | balance_review | 없음 | |
 | 경기 MVP | Sprint 4 | 7 | 곽효오 | mvp_vote | 없음 | 경기 끝나고 오늘의 MVP 선택하게 하기 |
-| 밸런스 취합 및 점수 계산 | Sprint 4 | 7 | 곽효오 | balance_review, member.rating | 없음 | |
+| 밸런스 취합 및 점수 계산 | Sprint 4 | 7 | 곽효오 | balance_review, member.rating | `GET /games/{gameId}/balance-reviews/summary` (BE #64·PR #65, D-29) | 참가 회원 전원 작성 후 전체·팀별 평균. `member.rating`은 바꾸지 않음(D-29). FE #66 |
 | 파티장 공지 작성 / 조회 | Sprint 4 | 7 | 전재준 | notice | 없음 | |
 | 각종 의견 투표 생성 | Sprint 4 | 7 | 전재준 | poll, poll_option, poll_answer | 없음 | |
 | 경기 삭제 | Sprint 4 | 8 | 전재준 | game.is_deleted | `DELETE /games/{gameId}`(BE #74·PR #76, D-33) | |
