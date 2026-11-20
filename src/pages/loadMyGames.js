@@ -7,7 +7,8 @@ export const MAX_PAGES = 20
 
 // 내가 만든 경기를 불러온다. BE에 "내 경기" 필터가 없어(FD-21) 전체 목록을 페이지마다 받아 거른다.
 // 경기별 상세는 부르지 않는다. truncated가 true면 상한 때문에 마지막 쪽 경기(일시가 먼 경기)를 못 봤다는 뜻이다.
-export async function loadMyGames() {
+// 화면이 이미 떠났으면(isActive가 false) 남은 페이지는 더 받지 않는다.
+export async function loadMyGames({ isActive = () => true } = {}) {
   const { memberId } = await getMyProfile()
 
   const games = []
@@ -17,6 +18,7 @@ export async function loadMyGames() {
     games.push(...data.games)
     pagesRead += 1
     totalPages = data.totalPages
+    if (!isActive()) break
   }
 
   return { ...groupMyGames(games, memberId), truncated: totalPages > pagesRead }

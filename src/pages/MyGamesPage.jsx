@@ -21,7 +21,7 @@ export function MyGamesPage() {
   useEffect(() => {
     let active = true
 
-    loadMyGames()
+    loadMyGames({ isActive: () => active })
       .then((data) => {
         if (active) setResult({ key: retryCount, data })
       })
@@ -130,7 +130,7 @@ function MyGameSection({ id, title, games, emptyText }) {
                 <Link
                   className={styles.detailLink}
                   to={`/games/${game.id}`}
-                  aria-label={`${game.title} 경기 상세·관리`}
+                  aria-label={`${game.title}, 경기 상세·관리`}
                 >
                   경기 상세·관리
                 </Link>
