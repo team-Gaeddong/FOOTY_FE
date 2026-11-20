@@ -7,3 +7,9 @@ export function createBalanceReview(gameId, { score, reasons, comment }) {
     body: { score, reasons, comment },
   })
 }
+
+// 밸런스 취합 결과(BE D-29). 파티장과 경기 참가자만 조회한다.
+// 참가 회원 전원이 작성하기 전에는 completed=false, averageScore=null, teams=[]다.
+export function getBalanceSummary(gameId) {
+  return request(`/games/${gameId}/balance-reviews/summary`)
+}

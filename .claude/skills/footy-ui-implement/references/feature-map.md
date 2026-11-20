@@ -31,7 +31,7 @@
 | 경기 상세 조회 | Sprint 3 | 6 | 곽효오 | game 외 다수 | `GET /games/{gameId}` (BE #54, `8d2b767`) | |
 | 경기 이후 밸런스 작성 | Sprint 4 | 7 | 곽효오 | balance_review | 없음 | |
 | 경기 MVP | Sprint 4 | 7 | 곽효오 | mvp_vote | 없음 | 경기 끝나고 오늘의 MVP 선택하게 하기 |
-| 밸런스 취합 및 점수 계산 | Sprint 4 | 7 | 곽효오 | balance_review, member.rating | 없음 | |
+| 밸런스 취합 및 점수 계산 | Sprint 4 | 7 | 곽효오 | balance_review, member.rating | `GET /games/{gameId}/balance-reviews/summary` (BE #64·PR #65, D-29) | 참가 회원 전원 작성 후 전체·팀별 평균. `member.rating`은 바꾸지 않음(D-29). FE #66 |
 | 파티장 공지 작성 / 조회 | Sprint 4 | 7 | 전재준 | notice | 없음 | |
 | 각종 의견 투표 생성 | Sprint 4 | 7 | 전재준 | poll, poll_option, poll_answer | `POST·GET /games/{gameId}/polls`, `GET /games/{gameId}/polls/{pollId}`, `PUT .../answers`(BE #78·D-35, PR #79·#81) | |
 | 경기 삭제 | Sprint 4 | 8 | 전재준 | game.is_deleted | `DELETE /games/{gameId}`(BE #74·PR #76, D-33) | |
@@ -43,3 +43,4 @@
 - "경기 저장"의 경기 결과(스코어·승패)는 ERD에 저장 구조가 없다(BE C-06). 현재 BE #48 API는 팀 구성을 확정하고 경기 상태를 `CONFIRMED`로 바꾸지만, 경기 점수·승패는 저장하지 않는다.
 - 채택하지 않은 기능: "전술 배치도 자동 생성"(재준) — 사유 "위 팀짜기 기능과 겹침 이슈". 구현하지 않는다. 단, 팀이 정해진 뒤 선발 선수를 포메이션 슬롯에 놓는 FE 보조 "자동 배치" 버튼은 사용자 요청으로 #62에서 구현했고, 이 범위를 팀이 채택할지는 FD-20에서 확인한다.
 - "내 경기 관리"(FOOTY 제안서 ⑭, 예정·종료 구분은 ③)는 Notion 스프린트 일정 표에 행이 없다. 담당·스프린트는 사람에게 확인한다. FE #67이 기존 `GET /games`·`GET /members/me`만으로 파티장인 경기를 `/games/mine`에 모아 보여준다. `GET /games`에 필터와 `isJoined`가 없어 참여한 경기는 목록으로 만들 수 없다(FD-21).
+- Notion 기능 목록에 없는 기능: "팀 직접 수정"(FOOTY 제안서 기능 ⑥ "직접 팀 편성"과 ⑦ 중 "자동 편성 결과에서 일부 선수만 직접 변경"). 팀 짜기 결과 화면에서 파티장이 선수를 다른 팀으로 옮긴다(FE #68, BE 이슈 #82의 `PUT /games/{gameId}/lineups/latest/teams`, **BE 미병합·제안 상태**). 담당·스프린트 확인이 필요하고 범위는 FD-22에서 확인한다.
