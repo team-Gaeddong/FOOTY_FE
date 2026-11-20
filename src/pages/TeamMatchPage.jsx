@@ -458,6 +458,7 @@ function EditPanel({
       <p className={changeCount > 0 ? styles.unsaved : styles.noChange} role="status">
         {changeCount > 0 ? `저장하지 않은 변경 ${changeCount}명` : '옮긴 선수가 없어요'}
       </p>
+      {changeCount > 0 && <p>옮긴 선수는 저장하면 전술 배치가 해제돼요. 저장한 뒤 전술 배치도를 다시 짜 주세요.</p>}
       <ul className={styles.counts} aria-label="팀별 인원">
         {teams.map((team) => (
           <li key={team.teamId}>{team.name} {team.members.length}명</li>
