@@ -245,6 +245,7 @@ function GameDetail({ game, onUpdated }) {
             <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices`} state={{ gameTitle: game.title }}>
               공지 확인
             </Link>
+            <PollsLink game={game} />
             {game.status === 'FINISHED' && <MvpVoteLink game={game} />}
           </section>
         ) : game.status === 'RECRUITING' ? (
@@ -387,6 +388,7 @@ function HostCard({ game }) {
       <Link className={styles.tertiaryButton} to={`/games/${game.id}/notices`} state={{ gameTitle: game.title }}>
         공지 확인
       </Link>
+      <PollsLink game={game} />
       {game.status === 'RECRUITING' ? (
         <>
           <p className={styles.cardText}>선수 실력을 매긴 뒤 팀을 나눌 수 있어요.</p>
@@ -504,6 +506,19 @@ function DeleteGameSection({ gameId }) {
         </button>
       </div>
     </div>
+  )
+}
+
+// 의견 투표(BE D-34)는 파티장과 참가 회원만 본다. 투표 목록의 "투표 만들기" 노출에 쓰도록 파티장 여부를 넘긴다.
+function PollsLink({ game }) {
+  return (
+    <Link
+      className={styles.tertiaryButton}
+      to={`/games/${game.id}/polls`}
+      state={{ gameTitle: game.title, isHost: game.isHost }}
+    >
+      의견 투표
+    </Link>
   )
 }
 
