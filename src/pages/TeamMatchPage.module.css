@@ -295,3 +295,135 @@
   outline: 2px solid var(--color-primary);
   outline-offset: 3px;
 }
+
+/* 팀 직접 수정 */
+.teamMeta {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.count {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.previewSkill {
+  padding: var(--space-1) var(--space-2);
+  border: 1px dashed var(--color-primary);
+  border-radius: 99px;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 옮긴 선수는 배경을 칸 밖으로 조금 넓혀 다른 줄과 글자 위치를 맞춘다 */
+.members li.moved {
+  margin-right: calc(-1 * var(--space-2));
+  margin-left: calc(-1 * var(--space-2));
+  padding-right: var(--space-2);
+  padding-left: var(--space-2);
+  border-radius: 8px;
+  background: var(--color-primary-bg);
+}
+
+.movedTag {
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.moveButton {
+  flex-shrink: 0;
+  min-width: 72px;
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-primary);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.moveButton:hover:not(:disabled) {
+  background: var(--color-primary-bg);
+}
+
+.moveButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.moveButton:disabled {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.editPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.editPanel h2 {
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.editPanel p {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.editPanel .unsaved {
+  align-self: flex-start;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-primary);
+  border-radius: 99px;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.editPanel .noChange {
+  color: var(--color-text-muted);
+}
+
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.editActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.editActions button {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 375px) {
+  .editPanel {
+    padding: var(--space-4);
+  }
+}
