@@ -6,15 +6,10 @@ import { getMyProfile } from '../api/members.js'
 import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
 import { PageLayout } from '../components/PageLayout.jsx'
+import { GAME_STATUS_LABELS } from './gameDetail.js'
 import styles from './GameListPage.module.css'
 
 const PAGE_SIZE = 20
-
-const STATUS_LABELS = {
-  RECRUITING: '모집 중',
-  CONFIRMED: '팀 확정',
-  FINISHED: '경기 종료',
-}
 
 function parsePage(value) {
   if (value === null) return 0
@@ -101,7 +96,10 @@ export function GameListPage() {
           <h1>경기 목록</h1>
           <p className={styles.intro}>지난 경기까지 경기 일시 순서로 볼 수 있어요.</p>
         </div>
-        <Link className={styles.createLink} to="/games/new">경기 만들기</Link>
+        <div className={styles.headerLinks}>
+          <Link className={styles.createLink} to="/games/new">경기 만들기</Link>
+          <Link className={styles.createLink} to="/games/mine">내 경기</Link>
+        </div>
       </header>
 
       {noticeMessage && (
@@ -166,7 +164,7 @@ function GameListContent({ data, page, goToPage, memberId }) {
         {data.games.map((game) => (
           <li key={game.id}>
             <article className={styles.card} aria-labelledby={`game-title-${game.id}`}>
-              <span className={styles.status}>{STATUS_LABELS[game.status] ?? game.status}</span>
+              <span className={styles.status}>{GAME_STATUS_LABELS[game.status] ?? game.status}</span>
               <h2 id={`game-title-${game.id}`}>
                 <Link className={styles.titleLink} to={`/games/${game.id}`}>{game.title}</Link>
               </h2>
