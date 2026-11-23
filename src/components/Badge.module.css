@@ -1,0 +1,31 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-8);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.green {
+  background: var(--badge-green-bg);
+  color: var(--badge-green-fg);
+}
+
+.navy {
+  background: var(--badge-navy-bg);
+  color: var(--signal-blue-light);
+}
+
+.gray {
+  background: var(--gray-700);
+  color: var(--gray-200);
+}
+
+.red {
+  background: var(--badge-red-bg);
+  color: var(--signal-red);
+}

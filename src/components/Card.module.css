@@ -1,0 +1,27 @@
+.card {
+  min-width: 0;
+  background: var(--surface-card);
+  border-radius: var(--radius-12);
+}
+
+.deep {
+  background: var(--surface-deep);
+}
+
+.md {
+  border-radius: var(--radius-12);
+}
+
+.xl {
+  border-radius: var(--radius-24);
+}
+
+.padded {
+  padding: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .padded {
+    padding: var(--space-5);
+  }
+}
