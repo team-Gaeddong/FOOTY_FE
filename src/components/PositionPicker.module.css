@@ -9,22 +9,12 @@
 }
 
 .legend {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
   padding: 0;
   margin-bottom: var(--space-2);
   color: var(--gray-200);
   font-size: var(--text-14);
   line-height: var(--leading-14);
   font-weight: 600;
-}
-
-.tag {
-  color: var(--text-faint);
-  font-size: var(--text-12);
-  line-height: var(--leading-12);
-  font-weight: 500;
 }
 
 .positions {
