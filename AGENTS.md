@@ -19,7 +19,7 @@ FOOTY는 축구 경기를 만들고, 참가 선수의 포지션·실력을 바�
 | 인증·응답·에러 형식 결정 | `FOOTY_BE` `docs/harness/decisions.md` | 이 문서 3장 요약 |
 | DB 스키마 | ERD Cloud `footy` 다이어그램 | `FOOTY_BE`의 `docs/erd/` (FE에는 사본 없음) |
 | 이슈·브랜치·커밋·PR·버전 | Notion `FOOTY > Github Commit 명세` | `.claude/skills/footy-git-workflow/SKILL.md` |
-| 화면 디자인 | Figma 디자인시스템 https://www.figma.com/design/lsFTFCIDZ41v462bQ5HOkA/FOOTY (FD-09) | `src/index.css`의 `--ds-*` 토큰 |
+| 화면 디자인 | 김태균이 확정한 새 시안(다크 단일 테마·PC/모바일 반응형, 저장소에 넣지 않는 인계 자료)과 `src/index.css`의 토큰. 2026-11-23 김태균 결정으로 변경(FD-08·FD-09) | `src/index.css`의 토큰 |
 | 빌드·런타임 | 이 저장소의 `package.json`, `vite.config.js`, `eslint.config.js`, `src/` | — |
 | 미결정 사항·문서 충돌 | 팀 결정 대기 | `docs/harness/decisions.md` |
 
@@ -81,7 +81,7 @@ npm run harness:test                   # 하네스 변경 시 회귀 검사
 - 검사기(`scripts/harness/check.mjs`)는 BE `scripts/harness/check.sh`와 같은 브랜치·커밋 규칙과 종료 코드를 Node로 구현했다. Bash·Python 없이 Windows·macOS·Linux에서 돈다. npm으로 옵션을 넘길 때는 `--` 뒤에 적는다.
 - 빌드 단계는 `npm run lint` → `npm run build` → (`test` 스크립트가 있으면) `npm run test`다. 2026-10-21 기준 lint·build는 통과한다. 의존성이 `package-lock.json`과 다르면 먼저 `npm ci`를 실행한다.
 - 종료 코드 0은 명시한 모드의 통과, 1은 실패, 2는 일부 검사다. `--skip-build` 또는 변경 커밋 0개는 완료 증거가 아니다. 기준 ref 누락·얕은 이력은 실패다.
-- 화면을 바꿨으면 브라우저에서 확인한다. 개발 서버 설정은 `.claude/launch.json`(`footy-fe-dev`, 5173 포트, 사용 중이면 다른 포트)이다. 바뀐 흐름을 직접 조작하고, 콘솔 에러가 없는지, 모바일 폭(375px)에서 깨지지 않는지 본다. 확인하지 못한 범위는 보고한다.
+- 화면을 바꿨으면 브라우저에서 확인한다. 개발 서버 설정은 `.claude/launch.json`(`footy-fe-dev`, 5173 포트, 사용 중이면 다른 포트)이다. 바뀐 흐름을 직접 조작하고, 콘솔 에러가 없는지, PC 폭(1440px)과 모바일 폭(390px)에서 깨지지 않는지 본다. 확인하지 못한 범위는 보고한다.
 - `.github/workflows/harness.yml`은 PR 변경 검사와 기본 브랜치 baseline 검사를 Ubuntu·Windows에서 수행한다. 원격에 반영된 뒤에만 실행되며, 이 저장소에서는 브랜치 보호로 필수 검사를 강제할 수 없다(FC-02).
 
 ## 6. 완료 조건 (모든 작업 공통)

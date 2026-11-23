@@ -1,0 +1,25 @@
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: var(--brand-green);
+  color: var(--on-brand);
+  font-weight: 700;
+  user-select: none;
+}
+
+.md {
+  width: 36px;
+  height: 36px;
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.lg {
+  width: 72px;
+  height: 72px;
+  font-size: 22px;
+  line-height: 30px;
+}
