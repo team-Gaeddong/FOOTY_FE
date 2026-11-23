@@ -4,16 +4,6 @@ export const INVALID_NICKNAME = `닉네임은 앞뒤 공백을 제외하고 ${NI
 export const INVALID_POSITIONS = '선호 포지션을 1~4개 골라 주세요.'
 export const NETWORK_ERROR = '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
 
-// 저장 순서: 닉네임 PATCH → 포지션 PUT. 포지션 API는 온보딩 전에는 막혀 있어서 닉네임이 먼저다(BE D-05e, D-13).
-// 선호 포지션은 선택 항목이라 고르지 않았으면 보내지 않는다. 닉네임이 이미 저장됐다면(포지션만 실패해서 다시
-// 시도하는 경우) 포지션 단계만 남는다.
-export function onboardingSteps({ nicknameSaved, positions }) {
-  const steps = []
-  if (!nicknameSaved) steps.push('nickname')
-  if (positions.length > 0) steps.push('positions')
-  return steps
-}
-
 // 닉네임 저장 실패를 화면이 다룰 종류로 나눈다. 화면 문구는 BE message가 아니라 code로 정한다(FD-04).
 //   already  MEMBER_409_1 다른 탭 등에서 이미 온보딩을 마쳤다 → 포지션 저장은 이어서 한다
 //   taken    MEMBER_409_2 다른 회원이 쓰는 닉네임(탈퇴한 회원 포함) → 안내 카드로 다시 입력받는다

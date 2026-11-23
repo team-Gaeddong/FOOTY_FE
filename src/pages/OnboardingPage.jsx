@@ -8,6 +8,7 @@ import { Field } from '../components/Field.jsx'
 import { LogoutIcon, UserIcon } from '../components/Icons.jsx'
 import { LoadingScreen } from '../components/LoadingScreen.jsx'
 import { PositionPicker } from '../components/PositionPicker.jsx'
+import { isValidPositions } from '../components/positions.js'
 import { StateCard } from '../components/StateCard.jsx'
 import {
   NICKNAME_MAX,
@@ -17,19 +18,18 @@ import {
 } from './nickname.js'
 import {
   INVALID_NICKNAME,
+  INVALID_POSITIONS,
   describeNicknameFailure,
   describePositionsFailure,
-  onboardingSteps,
 } from './onboarding.js'
 import styles from './OnboardingPage.module.css'
 
 const NICKNAME_HINT = `앞뒤 공백을 빼고 ${NICKNAME_MIN}~${NICKNAME_MAX}자. 다른 사람이 쓰는 닉네임은 쓸 수 없어요.`
 const POSITIONS_HINT =
-  '누른 순서가 우선순위예요. 경기에 참가할 때 기본값으로 들어가고, 프로필에서 바꿀 수 있어요.'
+  '1~4개를 골라 주세요. 누른 순서가 우선순위예요. 경기에 참가할 때 기본값으로 들어가고, 프로필에서 바꿀 수 있어요.'
 
 // 첫 로그인 뒤 닉네임과 선호 포지션을 받아 가입을 마친다(BE D-05e, D-13).
 // 포지션 API는 온보딩 전에는 막혀 있으므로 닉네임 PATCH가 성공한 뒤에 PUT한다.
-// 선호 포지션은 선택이라 고르지 않으면 닉네임만 저장한다.
 export function OnboardingPage() {
   const { status, onboarded, markOnboarded, clearSession, signOut } = useAuth()
   const navigate = useNavigate()
@@ -74,13 +74,15 @@ export function OnboardingPage() {
       setError({ kind: 'invalid', field: 'nickname', message: INVALID_NICKNAME })
       return
     }
+    if (!isValidPositions(positions)) {
+      setError({ kind: 'invalid', field: 'positions', message: INVALID_POSITIONS })
+      return
+    }
 
     setSubmitting(true)
     setError(null)
 
-    const steps = onboardingSteps({ nicknameSaved, positions })
-
-    if (steps.includes('nickname')) {
+    if (!nicknameSaved) {
       try {
         await completeOnboarding(nickname.trim())
       } catch (e) {
@@ -94,13 +96,11 @@ export function OnboardingPage() {
       setNicknameSaved(true)
     }
 
-    if (steps.includes('positions')) {
-      try {
-        await updatePositions(positions)
-      } catch (e) {
-        handleFailure(e, describePositionsFailure(e))
-        return
-      }
+    try {
+      await updatePositions(positions)
+    } catch (e) {
+      handleFailure(e, describePositionsFailure(e))
+      return
     }
 
     markOnboarded()
@@ -171,7 +171,6 @@ export function OnboardingPage() {
             <section className={styles.section}>
               <PositionPicker
                 legend="선호 포지션"
-                tag="선택"
                 hint={POSITIONS_HINT}
                 value={positions}
                 onChange={(next) => {

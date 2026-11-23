@@ -5,21 +5,7 @@ import {
   INVALID_POSITIONS,
   describeNicknameFailure,
   describePositionsFailure,
-  onboardingSteps,
 } from './onboarding.js'
-
-test('닉네임을 저장하고, 포지션을 골랐으면 이어서 포지션도 저장한다', () => {
-  assert.deepEqual(onboardingSteps({ nicknameSaved: false, positions: ['MF', 'FW'] }), ['nickname', 'positions'])
-})
-
-test('선호 포지션은 선택이라 고르지 않았으면 닉네임만 저장한다', () => {
-  assert.deepEqual(onboardingSteps({ nicknameSaved: false, positions: [] }), ['nickname'])
-})
-
-test('닉네임이 이미 저장됐으면 포지션 단계만 남는다', () => {
-  assert.deepEqual(onboardingSteps({ nicknameSaved: true, positions: ['GK'] }), ['positions'])
-  assert.deepEqual(onboardingSteps({ nicknameSaved: true, positions: [] }), [])
-})
 
 test('닉네임 저장 실패를 code로 나눈다', () => {
   assert.equal(describeNicknameFailure({ code: 'MEMBER_409_1' }).kind, 'already')
