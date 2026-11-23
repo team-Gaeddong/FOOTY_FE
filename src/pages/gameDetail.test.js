@@ -2,14 +2,21 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
   canDeleteGame,
+  canOpenMemberTabs,
+  capacityNote,
   countUnratedPlayers,
   deleteErrorMessage,
   fillRatio,
   formatCreatedDate,
+  formatCreatedDateFull,
   formatPlayDate,
+  lineupLocked,
+  nextTask,
   parseGameId,
   playerBadges,
   positionsText,
+  progressSteps,
+  toSummary,
 } from './gameDetail.js'
 
 test('경기 일시를 요일과 오전·오후로 표시한다', () => {
@@ -82,4 +89,84 @@ test('경기 삭제 실패는 상태 코드와 code로 안내한다', () => {
   assert.equal(deleteErrorMessage({ status: 404, code: 'GAME_404_1' }), '이미 삭제됐거나 없는 경기예요.')
   assert.equal(deleteErrorMessage({ status: 409, code: 'GAME_409_5' }), '종료된 경기는 삭제할 수 없어요.')
   assert.match(deleteErrorMessage(new Error('boom')), /삭제하지 못했습니다/)
+})
+
+test('정원 안내는 남은 자리, 가득 찬 경우, 초과(후보)를 구분한다', () => {
+  assert.equal(capacityNote(8, 12), '정원까지 4명 남았어요')
+  assert.equal(capacityNote(12, 12), '정원이 모두 찼어요')
+  assert.equal(capacityNote(24, 22), '정원 초과 2명은 팀 짜기에서 후보가 돼요')
+})
+
+const states = (steps) => steps.map((step) => step.state)
+
+test('진행 단계: 선수가 2명 미만이면 1단계, 실력이 비었으면 2단계, 모두 입력했으면 3단계다', () => {
+  assert.deepEqual(states(progressSteps({ status: 'RECRUITING', playerCount: 1, unrated: 1 })), ['current', 'todo', 'todo', 'todo', 'todo'])
+  assert.deepEqual(states(progressSteps({ status: 'RECRUITING', playerCount: 24, unrated: 3 })), ['done', 'current', 'todo', 'todo', 'todo'])
+  assert.deepEqual(states(progressSteps({ status: 'RECRUITING', playerCount: 24, unrated: 0 })), ['done', 'done', 'current', 'todo', 'todo'])
+})
+
+test('진행 단계: 실력 목록을 못 받았으면 2단계로 두고, 팀 확정은 5단계, 경기 종료는 전부 끝이다', () => {
+  assert.equal(progressSteps({ status: 'RECRUITING', playerCount: 10, unrated: null })[1].state, 'current')
+  assert.deepEqual(states(progressSteps({ status: 'CONFIRMED', playerCount: 10, unrated: 0 })), ['done', 'done', 'done', 'done', 'current'])
+  assert.deepEqual(states(progressSteps({ status: 'FINISHED', playerCount: 10, unrated: 0 })), ['done', 'done', 'done', 'done', 'done'])
+})
+
+test('진행 단계의 설명은 참가 인원과 실력 입력 수를 보여 준다', () => {
+  const steps = progressSteps({ status: 'RECRUITING', playerCount: 24, unrated: 3 })
+  assert.equal(steps[0].caption, '24명 참가')
+  assert.equal(steps[1].caption, '21 / 24명')
+  assert.equal(steps[2].caption, '실력 입력 뒤')
+  assert.equal(steps[3].caption, '확정 뒤 수정 불가')
+  assert.equal(steps[4].caption, '평가·MVP 열림')
+  assert.equal(progressSteps({ status: 'RECRUITING', playerCount: 24, unrated: 0 })[1].caption, '모두 입력')
+  assert.deepEqual(steps.map((step) => step.label), ['선수 모집', '실력 입력', '팀 짜기', '팀 확정', '경기 종료'])
+})
+
+test('다음 할 일은 단계에 맞는 안내와 버튼 키를 준다', () => {
+  assert.deepEqual(
+    nextTask({ status: 'RECRUITING', playerCount: 24, unrated: 3 }),
+    {
+      key: 'skill',
+      title: '실력 매기기',
+      text: '3명의 실력이 아직 없어요. 모두 입력해야 팀을 짤 수 있어요.',
+      action: 'skill',
+      label: '실력 매기기',
+    },
+  )
+  assert.equal(nextTask({ status: 'RECRUITING', playerCount: 24, unrated: 0 }).action, 'lineup')
+  assert.equal(nextTask({ status: 'RECRUITING', playerCount: 1, unrated: 1 }).action, null)
+  assert.equal(nextTask({ status: 'RECRUITING', playerCount: 10, unrated: null }).action, 'skill')
+  assert.equal(nextTask({ status: 'CONFIRMED', playerCount: 10, unrated: 0 }).action, 'viewLineup')
+  assert.equal(nextTask({ status: 'FINISHED', playerCount: 10, unrated: 0 }).action, 'rematch')
+})
+
+test('팀 짜기 버튼은 모집 중이고 실력이 비었거나 선수가 모자랄 때만 잠근다', () => {
+  assert.equal(lineupLocked({ status: 'RECRUITING', playerCount: 24, unrated: 3 }), true)
+  assert.equal(lineupLocked({ status: 'RECRUITING', playerCount: 1, unrated: 0 }), true)
+  assert.equal(lineupLocked({ status: 'RECRUITING', playerCount: 24, unrated: 0 }), false)
+  assert.equal(lineupLocked({ status: 'RECRUITING', playerCount: 24, unrated: null }), false)
+  assert.equal(lineupLocked({ status: 'CONFIRMED', playerCount: 24, unrated: 3 }), false)
+})
+
+test('공지·투표 탭은 파티장과 참가자만 연다', () => {
+  assert.equal(canOpenMemberTabs({ isHost: true, isJoined: true }), true)
+  assert.equal(canOpenMemberTabs({ isHost: false, isJoined: true }), true)
+  assert.equal(canOpenMemberTabs({ isHost: false, isJoined: false }), false)
+})
+
+test('다른 화면에 넘기는 경기 요약은 파티장 ID를 host.id에서 가져온다', () => {
+  const game = {
+    id: 3, title: '경기', playDate: '2026-11-25T20:00:00', location: '구장', maxPlayers: 12,
+    teamCount: 2, status: 'RECRUITING', host: { id: 7, nickname: '철벽수비' }, playerCount: 5, isHost: false, isJoined: true,
+  }
+  assert.deepEqual(toSummary(game), {
+    id: 3, title: '경기', playDate: '2026-11-25T20:00:00', location: '구장', maxPlayers: 12,
+    teamCount: 2, status: 'RECRUITING', hostId: 7,
+  })
+})
+
+test('만든 날짜는 연·월·일을 점으로 이어 쓴다', () => {
+  assert.equal(formatCreatedDateFull('2026-11-20T09:00:00'), '2026. 11. 20.')
+  assert.equal(formatCreatedDateFull('2026-03-04T09:00:00'), '2026. 03. 04.')
+  assert.equal(formatCreatedDateFull('이상한 값'), '이상한 값')
 })
