@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
 import { AuthProvider } from './auth/AuthProvider.jsx'
 import { RequireAuth } from './auth/RequireAuth.jsx'
+import { AppShell } from './components/AppShell.jsx'
 import { BalanceReviewPage } from './pages/BalanceReviewPage.jsx'
 import { BalanceSummaryPage } from './pages/BalanceSummaryPage.jsx'
 import { CreateGamePage } from './pages/CreateGamePage.jsx'
@@ -36,28 +37,30 @@ function App() {
           <Route path="/login/callback" element={<LoginCallbackPage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route element={<RequireAuth />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/games/new" element={<CreateGamePage />} />
-            <Route path="/games/mine" element={<MyGamesPage />} />
-            <Route path="/games" element={<GameListPage />} />
-            <Route path="/games/:gameId" element={<GameDetailPage />} />
-            <Route path="/games/:gameId/notices/new" element={<NoticeCreatePage />} />
-            <Route path="/games/:gameId/notices" element={<NoticeListPage />} />
-            <Route path="/games/:gameId/notices/:noticeId" element={<NoticeDetailPage />} />
-            <Route path="/games/:gameId/polls/new" element={<PollCreatePage />} />
-            <Route path="/games/:gameId/polls" element={<PollListPage />} />
-            <Route path="/games/:gameId/polls/:pollId" element={<PollDetailPage />} />
-            <Route path="/games/:gameId/balance-review" element={<BalanceReviewPage />} />
-            <Route path="/games/:gameId/balance-summary" element={<BalanceSummaryPage />} />
-            <Route path="/games/:gameId/mvp-vote" element={<MvpVotePage />} />
-            <Route path="/games/:gameId/rematch" element={<RematchGamePage />} />
-            <Route path="/games/:gameId/skill-levels" element={<SkillLevelPage />} />
-            <Route path="/games/:gameId/positions" element={<PlayerPositionPage />} />
-            <Route path="/games/:gameId/lineup" element={<TeamMatchPage />} />
-            <Route path="/games/:gameId/teams/:teamId/tactic" element={<TacticPage />} />
-            <Route path="/games/:gameId/report" element={<ReportPage />} />
-            <Route path="/withdraw" element={<WithdrawPage />} />
+            <Route element={<AppShell />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/games/new" element={<CreateGamePage />} />
+              <Route path="/games/mine" element={<MyGamesPage />} />
+              <Route path="/games" element={<GameListPage />} />
+              <Route path="/games/:gameId" element={<GameDetailPage />} />
+              <Route path="/games/:gameId/notices/new" element={<NoticeCreatePage />} />
+              <Route path="/games/:gameId/notices" element={<NoticeListPage />} />
+              <Route path="/games/:gameId/notices/:noticeId" element={<NoticeDetailPage />} />
+              <Route path="/games/:gameId/polls/new" element={<PollCreatePage />} />
+              <Route path="/games/:gameId/polls" element={<PollListPage />} />
+              <Route path="/games/:gameId/polls/:pollId" element={<PollDetailPage />} />
+              <Route path="/games/:gameId/balance-review" element={<BalanceReviewPage />} />
+              <Route path="/games/:gameId/balance-summary" element={<BalanceSummaryPage />} />
+              <Route path="/games/:gameId/mvp-vote" element={<MvpVotePage />} />
+              <Route path="/games/:gameId/rematch" element={<RematchGamePage />} />
+              <Route path="/games/:gameId/skill-levels" element={<SkillLevelPage />} />
+              <Route path="/games/:gameId/positions" element={<PlayerPositionPage />} />
+              <Route path="/games/:gameId/lineup" element={<TeamMatchPage />} />
+              <Route path="/games/:gameId/teams/:teamId/tactic" element={<TacticPage />} />
+              <Route path="/games/:gameId/report" element={<ReportPage />} />
+              <Route path="/withdraw" element={<WithdrawPage />} />
+            </Route>
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
