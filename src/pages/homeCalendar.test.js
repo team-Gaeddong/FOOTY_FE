@@ -3,6 +3,8 @@ import { test } from 'node:test'
 import {
   addDays,
   buildDays,
+  capacityText,
+  dateTimeLabel,
   dayAriaLabel,
   dayHeading,
   gameSubtitle,
@@ -13,6 +15,7 @@ import {
   playTime,
   rangeLabel,
   todayString,
+  weekendTone,
   windowEnd,
 } from './homeCalendar.js'
 
@@ -100,6 +103,14 @@ test('경기 부제는 장소·최대 인원·팀 수다', () => {
   )
 })
 
+test('인원 문구는 장소와 따로 만들 수 있다', () => {
+  assert.equal(capacityText({ maxPlayers: 22, teamCount: 2 }), '최대 22명 · 2팀')
+  assert.equal(
+    gameSubtitle({ location: '북구 · 제2구장', maxPlayers: 10, teamCount: 2 }),
+    '북구 · 제2구장 · 최대 10명 · 2팀',
+  )
+})
+
 test('오류 문구는 상태 코드와 code로 고른다', () => {
   assert.match(homeErrorMessage({ status: 0 }), /서버에 연결할 수 없습니다/)
   assert.match(homeErrorMessage({ status: 403, code: 'MEMBER_403_1' }), /온보딩/)
@@ -107,4 +118,18 @@ test('오류 문구는 상태 코드와 code로 고른다', () => {
   assert.match(homeErrorMessage({ status: 500, message: '서버 문구' }), /불러오지 못했습니다/)
   assert.doesNotMatch(homeErrorMessage({ status: 500, message: '서버 문구' }), /서버 문구/)
   assert.match(homeErrorMessage(undefined), /불러오지 못했습니다/)
+})
+
+test('주말 색 구분은 토요일 sat, 일요일 sun이다', () => {
+  assert.equal(weekendTone('2026-11-28'), 'sat')
+  assert.equal(weekendTone('2026-11-29'), 'sun')
+  assert.equal(weekendTone('2026-11-23'), null)
+})
+
+test('경기 일시를 날짜·요일·24시간 시각 문구로 만든다', () => {
+  assert.equal(dateTimeLabel('2026-11-27T20:00:00'), '11월 27일 금요일 20:00')
+  assert.equal(dateTimeLabel('2026-11-29T07:00:00'), '11월 29일 일요일 07:00')
+  assert.equal(dateTimeLabel('2026-11-29'), '11월 29일 일요일')
+  assert.equal(dateTimeLabel('이상한 값'), '')
+  assert.equal(dateTimeLabel(null), '')
 })

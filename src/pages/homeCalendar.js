@@ -38,7 +38,7 @@ export function buildDays(startDate, today, count = DAYS_PER_VIEW) {
       day: parseDate(date).day,
       weekday: WEEKDAYS[weekday],
       isToday: date === today,
-      tone: weekday === 6 ? 'sat' : weekday === 0 ? 'sun' : null,
+      tone: weekendTone(date),
     }
   })
 }
@@ -59,6 +59,12 @@ export function rangeLabel(startDate, count = DAYS_PER_VIEW) {
 export function dayHeading(date) {
   const { month, day } = parseDate(date)
   return `${month}월 ${day}일 ${WEEKDAYS[weekdayIndex(date)]}요일`
+}
+
+// 토요일 'sat', 일요일 'sun', 그 밖은 null(날짜 글자색)
+export function weekendTone(date) {
+  const weekday = weekdayIndex(date)
+  return weekday === 6 ? 'sat' : weekday === 0 ? 'sun' : null
 }
 
 // 날짜 버튼의 읽기 이름: "11월 23일 · 경기 있음"
@@ -97,8 +103,13 @@ export function groupGamesByDate(games) {
   return groups
 }
 
+// "최대 12명 · 2팀"
+export function capacityText(game) {
+  return `최대 ${game.maxPlayers}명 · ${game.teamCount}팀`
+}
+
 export function gameSubtitle(game) {
-  return `${game.location} · 최대 ${game.maxPlayers}명 · ${game.teamCount}팀`
+  return `${game.location} · ${capacityText(game)}`
 }
 
 // 분기는 상태 코드와 code로 하고 BE message에는 기대지 않는다.
@@ -107,4 +118,12 @@ export function homeErrorMessage(error) {
   if (error?.code === 'MEMBER_403_1') return '온보딩을 마친 뒤 경기를 볼 수 있어요.'
   if (error?.status === 401) return '로그인이 필요합니다. 다시 로그인해 주세요.'
   return '경기를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
+}
+
+// 경기 일시를 "11월 27일 금요일 20:00"으로(24시간제). 읽을 수 없는 값은 빈 문자열이다.
+export function dateTimeLabel(playDate) {
+  const key = playDateKey(playDate ?? '')
+  if (key === null) return ''
+  const time = playTime(playDate)
+  return time ? `${dayHeading(key)} ${time}` : dayHeading(key)
 }
