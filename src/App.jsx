@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router'
 import { AuthProvider } from './auth/AuthProvider.jsx'
 import { RequireAuth } from './auth/RequireAuth.jsx'
 import { AppShell } from './components/AppShell.jsx'
@@ -6,7 +6,6 @@ import { BalanceReviewPage } from './pages/BalanceReviewPage.jsx'
 import { BalanceSummaryPage } from './pages/BalanceSummaryPage.jsx'
 import { CreateGamePage } from './pages/CreateGamePage.jsx'
 import { GameDetailPage } from './pages/GameDetailPage.jsx'
-import { GameListPage } from './pages/GameListPage.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { LoginCallbackPage } from './pages/LoginCallbackPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
@@ -27,6 +26,12 @@ import { TacticPage } from './pages/TacticPage.jsx'
 import { TeamMatchPage } from './pages/TeamMatchPage.jsx'
 import { WithdrawPage } from './pages/WithdrawPage.jsx'
 
+// 홈(/)이 경기 목록을 겸하므로 옛 /games는 홈으로 보낸다. 삭제 완료 안내 같은 state는 그대로 넘긴다.
+function GamesRedirect() {
+  const { state } = useLocation()
+  return <Navigate to="/" replace state={state} />
+}
+
 // FD-03: react-router. /login/callback은 BE OAUTH_REDIRECT_URI와 맞춘다.
 function App() {
   return (
@@ -42,7 +47,7 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/games/new" element={<CreateGamePage />} />
               <Route path="/games/mine" element={<MyGamesPage />} />
-              <Route path="/games" element={<GameListPage />} />
+              <Route path="/games" element={<GamesRedirect />} />
               <Route path="/games/:gameId" element={<GameDetailPage />} />
               <Route path="/games/:gameId/notices/new" element={<NoticeCreatePage />} />
               <Route path="/games/:gameId/notices" element={<NoticeListPage />} />
