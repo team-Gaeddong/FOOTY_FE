@@ -2,7 +2,13 @@
   display: flex;
   justify-content: center;
   min-height: 100svh;
-  padding: var(--space-5) var(--space-4);
+  padding: var(--space-5) var(--page-gutter);
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding-block: var(--space-6);
+  }
 }
 
 .centered {
