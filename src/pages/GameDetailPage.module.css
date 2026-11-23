@@ -82,7 +82,7 @@
   padding: 48px;
   border-radius: var(--ds-radius-xlarge3);
   background: var(--ds-brand-dark);
-  color: var(--ds-text-inverse);
+  color: var(--gray-50);
 }
 
 .heroMain {
@@ -548,7 +548,7 @@
 }
 
 .dangerButton:hover {
-  background: #a12020;
+  background: color-mix(in srgb, var(--signal-red) 85%, var(--gray-950));
 }
 
 .dangerButton:disabled,

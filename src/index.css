@@ -1,16 +1,97 @@
-/* 디자인 토큰 (FD-08: CSS Modules + :root 변수, 다크 모드 미지원) */
+/*
+ * 디자인 토큰
+ * - FD-08 (2026-11-23 김태균 결정으로 변경): CSS Modules + :root CSS 변수. 다크 단일 테마, PC·모바일 반응형.
+ * - FD-09 (2026-11-23 김태균 결정으로 변경): 화면 디자인 기준은 새 시안과 이 파일의 토큰이다.
+ *
+ * 반응형 기준: 같은 컴포넌트가 폭에 따라 두 모습이 되게 만든다.
+ *   모바일   767px 이하    기본값. 한 열, 하단 탭, 주요 버튼은 폭 전체, 제목은 작게
+ *   PC       768px 이상    @media (min-width: 768px). 상단 내비게이션, 큰 제목, 넓은 여백
+ *   두 열    1024px 이상   @media (min-width: 1024px). 두 열로 나눈 화면은 이보다 좁으면 한 열로 쌓는다
+ * CSS 변수는 @media 조건에 쓸 수 없으므로 중단점 값은 각 CSS에 그대로 적는다.
+ */
 :root {
-  --color-bg: #f5f7f5;
-  --color-surface: #fff;
-  --color-text: #1b1f1c;
-  --color-text-muted: #5f6b63;
-  --color-border: #dfe5e0;
-  --color-primary: #1f8a4c;
-  --color-primary-hover: #19733f;
-  --color-primary-bg: #e8f5ed;
-  --color-on-primary: #fff;
-  --color-danger: #c62828;
-  --color-danger-bg: #fdecea;
+  /* 팔레트 */
+  --gray-50: #f7f7f7;
+  --gray-100: #ededed;
+  --gray-200: #e0e0e0;
+  --gray-300: #cfcfcf;
+  --gray-400: #a0a0a0;
+  --gray-500: #8a8a8a;
+  --gray-600: #6e6e6e;
+  --gray-700: #454545;
+  --gray-800: #2b2b2b;
+  --gray-900: #1f1f1f;
+  --gray-950: #171717;
+
+  --brand-green: #a6f56f;
+  --brand-green-hover: #93e65c;
+  --brand-green-pressed: #80d64c;
+
+  --line: #2f2f2f;
+
+  --badge-green-bg: #28553b;
+  --badge-green-fg: #bff893;
+  --badge-navy-bg: #031142;
+  --signal-blue-light: #77b2ff;
+  --signal-blue: #1570ff;
+  --badge-red-bg: #390c1a;
+  --signal-red: #ff6a55;
+
+  /* 모서리 */
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-24: 24px;
+  --radius-pill: 9999px;
+
+  /*
+   * 면과 글자: 페이지 gray-900, 카드 gray-800, 카드 안의 입력·선택 영역 gray-900,
+   * 가장 깊은 면(경기 상단 정보·로그인 왼쪽 면·모바일 하단 탭) gray-950. 그림자 없이 line 1px로 나눈다.
+   * gray-500은 gray-900 위 14px 이상에서만, gray-600은 비활성 전용이다.
+   */
+  --surface-page: var(--gray-900);
+  --surface-card: var(--gray-800);
+  --surface-field: var(--gray-900);
+  --surface-deep: var(--gray-950);
+  --text-body: var(--gray-100);
+  --text-sub: var(--gray-300);
+  --text-faint: var(--gray-400);
+  --text-disabled: var(--gray-600);
+  --on-brand: var(--gray-950);
+
+  /* 글꼴. 웹폰트는 index.html에서 CDN으로 불러온다(2026-11-23 김태균 결정). */
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, system-ui,
+    'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+
+  /* 글자 크기 / 줄 높이 */
+  --text-12: 12px;
+  --leading-12: 16px;
+  --text-14: 14px;
+  --leading-14: 20px;
+  --text-16: 16px;
+  --leading-16: 24px;
+  --text-18: 18px;
+  --leading-18: 28px;
+  /* 제목은 폭에 따라 커진다(시안 .mobile → .pc). 아래 @media에서 바뀐다. */
+  --text-title: 22px;
+  --leading-title: 30px;
+  --text-display: 28px;
+  --leading-display: 36px;
+
+  /* 컨트롤 크기: 누를 수 있는 것은 44px 이상 */
+  --control-h: 44px;
+  --control-h-lg: 52px;
+  --field-h: 48px;
+  --tap-min: 44px;
+
+  /* 반응형 레이아웃 */
+  --page-gutter: 16px;
+  --content-max: 1200px;
+  --content-form: 840px;
+  --content-medium: 680px;
+  --content-narrow: 600px;
+  --content-auth: 420px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 
   --space-1: 4px;
   --space-2: 8px;
@@ -19,16 +100,42 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  --radius: 12px;
-  --font-sans: system-ui, -apple-system, 'Apple SD Gothic Neo', 'Segoe UI',
-    Roboto, sans-serif;
-
-  font: 16px/1.5 var(--font-sans);
-  color-scheme: light;
-  color: var(--color-text);
-  background: var(--color-bg);
+  font: var(--text-16) / var(--leading-16) var(--font-sans);
+  color-scheme: dark;
+  color: var(--text-body);
+  background: var(--surface-page);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: 24px;
+    --text-title: 28px;
+    --leading-title: 36px;
+    --text-display: 44px;
+    --leading-display: 56px;
+  }
+}
+
+/*
+ * 호환용 별칭: 새 시안 범위 밖 화면(BalanceReviewPage, BalanceSummaryPage, ReportPage, MvpVotePage,
+ * RematchGamePage)과 아직 옮기지 않은 화면이 쓰는 이전 변수다. 지우지 말고 새 값에 연결해 둔다.
+ */
+:root {
+  --color-bg: var(--surface-page);
+  --color-surface: var(--surface-card);
+  --color-text: var(--text-body);
+  --color-text-muted: var(--text-sub);
+  --color-border: var(--line);
+  --color-primary: var(--brand-green);
+  --color-primary-hover: var(--brand-green-hover);
+  --color-primary-bg: var(--badge-green-bg);
+  --color-on-primary: var(--on-brand);
+  --color-danger: var(--signal-red);
+  --color-danger-bg: var(--badge-red-bg);
+
+  --radius: var(--radius-12);
 }
 
 *,
@@ -39,7 +146,7 @@
 
 body {
   margin: 0;
-  background: var(--color-bg);
+  background: var(--surface-page);
 }
 
 #root {
@@ -53,49 +160,51 @@ p {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
 /*
- * Figma 디자인시스템 토큰 (FD-09, https://www.figma.com/design/lsFTFCIDZ41v462bQ5HOkA/FOOTY).
- * Figma 변수 이름을 --ds-{그룹}-{이름}으로 옮겼다. 우선 내 프로필 화면에서만 쓰고,
- * 기존 화면을 이 토큰으로 옮기는 일은 별도 이슈로 한다.
+ * 호환용 별칭: 이전 Figma 디자인시스템 토큰(--ds-*, 2026-11-23 이전 FD-09). 경기 상세·내 프로필 등
+ * 아직 새 시안으로 옮기지 않은 화면이 쓴다. 이름은 그대로 두고 값만 새 다크 토큰에 연결했다.
+ * --ds-text-inverse는 밝은 면(brand-green·signal-red 버튼) 위의 어두운 글자다.
+ * --ds-text-disabled는 비활성뿐 아니라 흐린 글자(0명 같은 값)에도 쓰여서 흐린 글자 토큰(gray-400)에 연결했다(gray-600은 카드 위 대비 2.8:1, gray-500은 4.1:1).
  */
 :root {
-  --ds-font: 'Pretendard GOV', 'Pretendard', var(--font-sans);
+  --ds-font: var(--font-sans);
 
-  --ds-text-bolder: #131416;
-  --ds-text-basic: #1e2124;
-  --ds-text-subtle: #464c53;
-  --ds-text-disabled: #8a949e;
-  --ds-text-primary: #0b50d0;
-  --ds-text-inverse: #fff;
+  --ds-text-bolder: var(--gray-50);
+  --ds-text-basic: var(--gray-100);
+  --ds-text-subtle: var(--gray-300);
+  --ds-text-disabled: var(--gray-400);
+  --ds-text-primary: var(--brand-green);
+  --ds-text-inverse: var(--gray-950);
 
-  --ds-surface-white: #fff;
-  --ds-surface-gray-subtler: #f4f5f6;
-  --ds-border-gray: #b1b8be;
-  --ds-border-gray-light: #cdd1d5;
-  --ds-border-primary: #256ef4;
-  --ds-danger: #c62828;
+  --ds-surface-white: var(--surface-card);
+  --ds-surface-gray-subtler: var(--gray-900);
+  --ds-border-gray: var(--gray-600);
+  --ds-border-gray-light: var(--line);
+  --ds-border-primary: var(--brand-green);
+  --ds-danger: var(--signal-red);
 
-  --ds-button-primary-fill: #256ef4;
-  --ds-button-primary-fill-hover: #0b50d0;
-  --ds-button-primary-fill-pressed: #083891;
-  --ds-button-secondary-fill: #ecf2fe;
-  --ds-button-secondary-fill-hover: #d8e5fd;
-  --ds-button-secondary-fill-pressed: #b1cefb;
-  --ds-button-tertiary-border: #58616a;
-  --ds-button-tertiary-fill-hover: #f4f5f6;
-  --ds-button-tertiary-fill-pressed: #e6e8ea;
-  --ds-button-text-fill-hover: #eef2f7;
-  --ds-button-text-fill-pressed: #d6e0eb;
-  --ds-button-disabled-fill: #cdd1d5;
+  --ds-button-primary-fill: var(--brand-green);
+  --ds-button-primary-fill-hover: var(--brand-green-hover);
+  --ds-button-primary-fill-pressed: var(--brand-green-pressed);
+  --ds-button-secondary-fill: var(--gray-800);
+  --ds-button-secondary-fill-hover: var(--gray-700);
+  --ds-button-secondary-fill-pressed: var(--gray-600);
+  --ds-button-tertiary-border: var(--gray-700);
+  --ds-button-tertiary-fill-hover: var(--gray-800);
+  --ds-button-tertiary-fill-pressed: var(--gray-700);
+  --ds-button-text-fill-hover: var(--gray-800);
+  --ds-button-text-fill-pressed: var(--gray-700);
+  --ds-button-disabled-fill: var(--gray-700);
 
-  /* FOOTY 브랜드(로고·앱 아이콘의 짙은 초록과 라임). 경기 상세 시안 요약 영역에서 쓴다. */
-  --ds-brand-dark: #112a20;
-  --ds-brand-dark-raised: #2b453b;
-  --ds-brand-lime: #c8f06a;
+  --ds-brand-dark: var(--gray-950);
+  --ds-brand-dark-raised: var(--gray-800);
+  --ds-brand-lime: var(--brand-green);
 
   /* 타이포 크기 (line-height는 모두 1.5) */
   --ds-heading-large: 32px;
@@ -122,8 +231,7 @@ input {
   --ds-height-7: 48px;
   --ds-height-8: 56px;
 
-  /* PC 시안의 콘텐츠 폭(경기 상세). 모바일 화면은 FD-08의 420px을 쓴다. */
-  --ds-content-max: 1200px;
+  --ds-content-max: var(--content-max);
 
   --ds-radius-medium1: 6px;
   --ds-radius-medium3: 8px;
