@@ -1,0 +1,519 @@
+/* 개요 탭. 모바일은 한 열(참가·메뉴 카드가 맨 위), 1024px 이상은 왼쪽에 경기 정보·선수, 오른쪽에 참가·메뉴 카드. */
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'side'
+    'info'
+    'players';
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.info {
+  grid-area: info;
+}
+
+.playersArea {
+  grid-area: players;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.cardTitle {
+  color: var(--text-body);
+  font-size: var(--text-18);
+  line-height: var(--leading-18);
+  font-weight: 700;
+}
+
+.smallTitle {
+  color: var(--text-body);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.cardCount {
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--line);
+}
+
+.code {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notes li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--gray-300);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.notes svg {
+  margin-top: 2px;
+  color: var(--text-faint);
+}
+
+/* 진행 단계: 모바일은 세로 목록, PC는 가로 5칸(막대 + 표시) */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.stepBar {
+  display: none;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--gray-700);
+}
+
+.step[data-state='done'] .stepBar,
+.step[data-state='current'] .stepBar {
+  background: var(--brand-green);
+}
+
+.stepBody {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stepMark {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
+}
+
+.step[data-state='done'] .stepMark {
+  border-color: var(--badge-green-bg);
+  background: var(--badge-green-bg);
+  color: var(--badge-green-fg);
+}
+
+.step[data-state='current'] .stepMark {
+  border-color: var(--brand-green);
+  background: var(--brand-green);
+  color: var(--on-brand);
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stepLabel {
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+}
+
+.step[data-state='done'] .stepLabel,
+.step[data-state='current'] .stepLabel {
+  color: var(--text-body);
+}
+
+.stepCaption {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+/* 경기 정보 */
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.infoItem dt {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.infoItem dd {
+  margin: 0;
+  color: var(--text-body);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* 참가 선수 */
+.players {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: 60px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-12);
+  background: var(--surface-field);
+}
+
+.playerInfo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.playerName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-body);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+}
+
+.playerName > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.noPositions {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+}
+
+.skill {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.skillLabel {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.skillValue {
+  color: var(--text-body);
+  font-size: var(--text-16);
+  line-height: var(--leading-16);
+  font-weight: 700;
+}
+
+.listStatus {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+/* 파티장 메뉴 */
+.task {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border-radius: var(--radius-12);
+  background: var(--surface-field);
+}
+
+.taskEyebrow {
+  color: var(--brand-green);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
+}
+
+.taskTitle {
+  color: var(--text-body);
+  font-size: var(--text-16);
+  line-height: var(--leading-16);
+  font-weight: 600;
+}
+
+.taskText {
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.task > a {
+  margin-top: var(--space-3);
+}
+
+.lineupRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lineupRow button:disabled {
+  border-color: var(--gray-700);
+  background: var(--gray-700);
+  color: var(--gray-400);
+}
+
+.lockHint {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+  text-align: center;
+}
+
+.twoButtons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.textLink {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  color: var(--gray-300);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  text-decoration: underline;
+}
+
+.textLink:focus-visible,
+.deleteTrigger:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
+}
+
+.danger {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.deleteTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--signal-red);
+  font-family: inherit;
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.deleteTrigger:hover {
+  background: var(--badge-red-bg);
+}
+
+.dangerTitle {
+  color: var(--text-body);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+}
+
+.dangerHint {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.danger > .twoButtons {
+  margin-top: var(--space-2);
+}
+
+/* 경기 후(임시) */
+.afterText {
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.afterButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.side .closedCard {
+  min-height: 0;
+}
+
+@media (min-width: 768px) {
+  .overview,
+  .columns,
+  .side {
+    gap: var(--space-5);
+  }
+
+  .card {
+    padding: var(--space-5);
+  }
+
+  .infoGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .players {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .stepBar {
+    display: block;
+  }
+
+  .stepBody {
+    gap: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'info side'
+      'players side';
+  }
+
+  .columns[data-role='host'] {
+    grid-template-areas:
+      'players side'
+      'info side';
+  }
+
+  .side {
+    grid-row: 1 / span 2;
+  }
+}
