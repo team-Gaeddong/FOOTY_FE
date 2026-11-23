@@ -32,7 +32,7 @@ npm run harness -- --base origin/main
 
 base는 실제 PR 대상에 맞춘다. 커밋 전 로컬 감사는 `npm run harness -- --mode baseline`으로 lint·build를 검증하고 브랜치·커밋 검증 미완료를 명시한다. 하네스 변경이면 `npm run harness:test`도 실행한다. detached HEAD에서는 실제 PR head를 checkout한 뒤 `--head <head SHA> --branch <원본 브랜치>`를 전달한다. 인자를 임의로 바꿔 검사를 우회하지 않는다.
 
-화면 변경이면 개발 서버(`.claude/launch.json`의 `footy-fe-dev`)를 띄워 바뀐 흐름을 직접 조작하고, 콘솔 에러와 모바일 폭(375px)을 확인한다.
+화면 변경이면 개발 서버(`.claude/launch.json`의 `footy-fe-dev`)를 띄워 바뀐 흐름을 직접 조작하고, 콘솔 에러와 PC 폭(1440px)·모바일 폭(390px)을 확인한다.
 
 결과(모드, 기준 ref, 종료 코드, 통과/실패/일부 검사와 실패 출력, 브라우저 확인 범위)를 리뷰 맨 앞에 적는다. baseline 통과·종료 코드 2는 변경 완료 증거가 아니다.
 
