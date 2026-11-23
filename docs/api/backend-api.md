@@ -38,7 +38,7 @@
 | `DELETE /members/me` | Bearer | — | 204 | `MEMBER_404_1` | #3 |
 | `GET /members/me` | Bearer + 온보딩 | — | 200 `MyProfileResponse` | `MEMBER_403_1`, `MEMBER_404_1` | #1 |
 | `POST /games` | Bearer + 온보딩 | `CreateGameRequest` | 201 `CreateGameResponse` | `GLOBAL_400_1`(형식·필수·길이), `GAME_400_2`(정원), `GAME_400_4`(팀 수), `GAME_400_3`(일시), `MEMBER_404_1`(없는·탈퇴 회원), `MEMBER_403_1` | #2, #22 |
-| `GET /games` | Bearer + 온보딩 | `page`(0부터, 기본 0), `size`(1~100, 기본 20) 쿼리 | 200 `ListGamesResponse` | `GLOBAL_400_1`(잘못된 페이지·크기), 인증·온보딩 에러 | #14 |
+| `GET /games` | Bearer + 온보딩 | `page`(0부터, 기본 0), `size`(1~100, 기본 20) 쿼리. 선택 필터(모두 AND, 생략하면 이전과 같다): `from`·`to`(경기 날짜 `yyyy-MM-dd`, 둘 다 그 날 포함, 한쪽만 가능), `status`(`RECRUITING`·`CONFIRMED`·`FINISHED`, 쉼표 또는 반복으로 여러 개), `role`(`host`=내가 파티장, `joined`=내가 참가 선수·직접 만든 경기 포함, 대소문자 무관) | 200 `ListGamesResponse` | `GLOBAL_400_1`(잘못된 페이지·크기, `from`이 `to`보다 늦음, 날짜 형식, 알 수 없는 `status`·`role`), 인증·온보딩 에러 | #14, BE #86·D-37 |
 | `POST /games/{gameId}/rematch` | Bearer + 온보딩, 원본 파티장 | `{ playDate }` | 201 `CreateGameResponse` | `GLOBAL_400_1`, `GAME_400_3`, `GAME_403_1`, `GAME_404_1`, `GAME_409_2`, 인증·온보딩 에러 | #30 |
 | `POST /games/{gameId}/notices` | Bearer + 온보딩, 경기 파티장 | `{ title, content }` | 201 `CreateNoticeResponse` | `GLOBAL_400_1`(필수·제목 길이), `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #57 |
 | `GET /games/{gameId}/notices` | Bearer + 온보딩, 경기 파티장 또는 참여자 | — | 200 `{ notices: NoticeResponse[] }`(최신순) | `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #59 |
@@ -172,13 +172,15 @@
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
-| `games` | `GameSummaryResponse[]` | 삭제되지 않은 모든 경기. 지난 경기 포함, `playDate`·`id` 오름차순 |
+| `games` | `GameSummaryResponse[]` | 삭제되지 않은 경기(필터를 주면 그 조건에 맞는 것만). 지난 경기 포함, `playDate`·`id` 오름차순 |
 | `page` | number | 현재 페이지(0부터) |
 | `size` | number | 페이지 크기 |
 | `totalElements` | number | 전체 경기 수 |
 | `totalPages` | number | 전체 페이지 수. 경기가 없으면 0 |
 
-`GameSummaryResponse`: `id`, `hostId`, `title`, `playDate`, `location`, `maxPlayers`, `teamCount`, `status`. `status`는 `RECRUITING`·`CONFIRMED`·`FINISHED` 중 하나다.
+`GameSummaryResponse`: `id`, `hostId`, `title`, `playDate`, `location`, `maxPlayers`, `teamCount`, `status`, `playerCount`(후보 포함 참가 선수 수, 경기 상세 D-25와 같은 기준). `status`는 `RECRUITING`·`CONFIRMED`·`FINISHED` 중 하나다. 파티장 닉네임과 요청자 기준 참가 여부(`isJoined`)는 목록 응답에 없다.
+
+날짜 범위(`from`·`to`)를 줘도 페이지 규칙은 그대로다(`size` 최대 100). 홈 화면처럼 7일치를 한 번에 받을 때는 `size=100`으로 요청하고 `totalElements`가 `size`를 넘으면 다음 쪽을 더 받는다. `from`은 그 날 0시부터, `to`는 다음 날 0시 전까지이고 `playDate`는 시간대 없는 서버(`Asia/Seoul`) 기준 일시다. BE D-37 기준 미결정: 날짜 범위를 주면 페이지 없이 전부 내려 줄지, 기본 정렬을 예정 경기 우선으로 바꿀지, 목록에 `isJoined`를 넣을지. 이 필터와 `playerCount`는 BE `develop` `be934a8`(2026-11-23, BE PR #88 병합)에서 대조했다.
 
 `GameDetailResponse` (`GET /games/{gameId}`, BE `8d2b767`, BE D-25)
 
