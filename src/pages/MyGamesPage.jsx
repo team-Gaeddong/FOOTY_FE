@@ -1,16 +1,28 @@
 import { startTransition, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../auth/useAuth.js'
+import { Badge } from '../components/Badge.jsx'
 import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
-import { PageLayout } from '../components/PageLayout.jsx'
-import { GAME_STATUS_LABELS, formatPlayDate } from './gameDetail.js'
+import {
+  ArrowRightIcon,
+  CalendarIcon,
+  PinIcon,
+  PlusIcon,
+  RepeatIcon,
+  UsersIcon,
+} from '../components/Icons.jsx'
+import { StateCard } from '../components/StateCard.jsx'
+import { GAME_STATUS_LABELS } from './gameDetail.js'
+import { capacityText, dateTimeLabel } from './homeCalendar.js'
 import { loadMyGames } from './loadMyGames.js'
-import { loadErrorMessage } from './myGames.js'
+import { loadErrorMessage, statusGuide } from './myGames.js'
 import styles from './MyGamesPage.module.css'
 
-// 내가 만든(파티장인) 경기를 예정된 경기와 종료된 경기로 나눠 보여준다(제안서 ⑭·③).
-// BE에 "내 경기" 필터가 없어 전체 목록을 받아 거른다(FD-21). 참여만 한 경기는 가져올 수 없다.
+const STATUS_TONES = { RECRUITING: 'green', CONFIRMED: 'navy', FINISHED: 'gray' }
+
+// 내가 파티장인 경기를 예정된 경기와 종료된 경기로 나눠 보여준다(제안서 ⑭·③).
+// BE `GET /games?role=host`(BE D-37)로 받는다. 참여만 한 경기는 시안에 없어 보여주지 않는다.
 export function MyGamesPage() {
   const navigate = useNavigate()
   const { clearSession } = useAuth()
@@ -41,36 +53,37 @@ export function MyGamesPage() {
   }, [retryCount, navigate, clearSession])
 
   return (
-    <PageLayout>
-      <Link className={styles.backLink} to="/">← 홈으로</Link>
+    <main className={styles.page}>
       <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>내가 파티장인 경기</p>
-          <h1>내 경기</h1>
-          <p className={styles.intro}>
-            내가 만든 경기를 예정된 경기와 종료된 경기로 나눠 볼 수 있어요. 참여만 한 경기는
-            경기 목록에서 찾아 주세요.
-          </p>
+        <div className={styles.headerText}>
+          <h1 className={styles.title}>내 경기</h1>
+          <p className={styles.lead}>내가 파티장으로 만든 경기예요.</p>
         </div>
-        <div className={styles.headerLinks}>
-          <Link className={styles.headerLink} to="/games/new">경기 만들기</Link>
-          <Link className={styles.headerLink} to="/games">전체 경기 목록</Link>
-        </div>
+        <Button as={Link} to="/games/new" fit="auto" className={styles.create}>
+          <PlusIcon size={18} />
+          경기 만들기
+        </Button>
       </header>
 
       {!current ? (
-        <div className={styles.messagePanel} role="status">내 경기를 불러오는 중…</div>
+        <p className={styles.message} role="status">
+          내 경기를 불러오는 중…
+        </p>
       ) : current.error ? (
-        <section className={styles.messagePanel}>
+        <div className={styles.message}>
           <ErrorMessage>{loadErrorMessage(current.error)}</ErrorMessage>
-          <Button variant="secondary" onClick={() => setRetryCount((count) => count + 1)}>
+          <Button
+            variant="secondary"
+            fit="auto"
+            onClick={() => setRetryCount((count) => count + 1)}
+          >
             다시 시도
           </Button>
-        </section>
+        </div>
       ) : (
         <MyGamesContent data={current.data} />
       )}
-    </PageLayout>
+    </main>
   )
 }
 
@@ -81,16 +94,22 @@ function MyGamesContent({ data }) {
   return (
     <>
       {truncated && (
-        <p className={styles.truncatedNotice} role="status">
+        <p className={styles.notice} role="status">
           경기가 많아 일부만 불러왔어요. 일정이 먼 경기가 보이지 않을 수 있어요.
         </p>
       )}
       {isEmpty ? (
-        <section className={styles.messagePanel}>
-          <h2>{truncated ? '불러온 경기 중에는 내가 만든 경기가 없어요' : '아직 만든 경기가 없어요'}</h2>
-          <p>{truncated ? '경기를 직접 만들면 여기에 모여요.' : '첫 경기를 직접 만들어 보세요.'}</p>
-          <Link className={styles.emptyLink} to="/games/new">경기 만들기</Link>
-        </section>
+        <StateCard
+          icon={<CalendarIcon size={22} />}
+          title={truncated ? '불러온 경기 중에는 내가 만든 경기가 없어요' : '아직 만든 경기가 없어요'}
+          actions={
+            <Button as={Link} to="/games/new" fit="auto">
+              경기 만들기
+            </Button>
+          }
+        >
+          {truncated ? '경기를 직접 만들면 여기에 모여요.' : '첫 경기를 직접 만들어 보세요.'}
+        </StateCard>
       ) : (
         <>
           <MyGameSection id="upcoming" title="예정된 경기" games={upcoming} emptyText="예정된 경기가 없어요." />
@@ -107,7 +126,9 @@ function MyGameSection({ id, title, games, emptyText }) {
   return (
     <section className={styles.section} aria-labelledby={headingId}>
       <div className={styles.sectionHeader}>
-        <h2 id={headingId}>{title}</h2>
+        <h2 id={headingId} className={styles.sectionTitle}>
+          {title}
+        </h2>
         <span className={styles.count}>{games.length}개</span>
       </div>
       {games.length === 0 ? (
@@ -116,29 +137,70 @@ function MyGameSection({ id, title, games, emptyText }) {
         <ul className={styles.list}>
           {games.map((game) => (
             <li key={game.id}>
-              <article className={styles.card} aria-labelledby={`my-game-title-${game.id}`}>
-                <span
-                  className={`${styles.status} ${game.status === 'FINISHED' ? styles.statusFinished : ''}`}
-                >
-                  {GAME_STATUS_LABELS[game.status] ?? game.status}
-                </span>
-                <h3 id={`my-game-title-${game.id}`}>{game.title}</h3>
-                <dl>
-                  <div><dt>경기 일시</dt><dd>{formatPlayDate(game.playDate)}</dd></div>
-                  <div><dt>장소</dt><dd>{game.location}</dd></div>
-                </dl>
-                <Link
-                  className={styles.detailLink}
-                  to={`/games/${game.id}`}
-                  aria-label={`${game.title}, 경기 상세·관리`}
-                >
-                  경기 상세·관리
-                </Link>
-              </article>
+              <GameCard game={game} />
             </li>
           ))}
         </ul>
       )}
     </section>
+  )
+}
+
+function GameCard({ game }) {
+  const titleId = `my-game-title-${game.id}`
+
+  return (
+    <article className={styles.card} aria-labelledby={titleId}>
+      <div className={styles.badgeRow}>
+        <Badge tone={STATUS_TONES[game.status] ?? 'gray'}>
+          {GAME_STATUS_LABELS[game.status] ?? game.status}
+        </Badge>
+      </div>
+      <h3 id={titleId} className={styles.cardTitle}>
+        {game.title}
+      </h3>
+      <ul className={styles.meta}>
+        <li>
+          <CalendarIcon size={16} />
+          <span>{dateTimeLabel(game.playDate)}</span>
+        </li>
+        <li>
+          <PinIcon size={16} />
+          <span>{game.location}</span>
+        </li>
+        <li>
+          <UsersIcon size={16} />
+          <span>{capacityText(game)}</span>
+        </li>
+      </ul>
+      <hr className={styles.divider} />
+      <div className={styles.footer}>
+        <p className={styles.guide}>{statusGuide(game.status)}</p>
+        {game.status === 'FINISHED' ? (
+          <Button
+            as={Link}
+            to={`/games/${game.id}/rematch`}
+            state={{ sourceGame: game }}
+            variant="secondary"
+            fit="auto"
+            aria-label={`${game.title}, 재경기 만들기`}
+          >
+            <RepeatIcon size={18} />
+            재경기 만들기
+          </Button>
+        ) : (
+          <Button
+            as={Link}
+            to={`/games/${game.id}`}
+            variant={game.status === 'RECRUITING' ? 'primary' : 'secondary'}
+            fit="auto"
+            aria-label={`${game.title}, 경기 관리`}
+          >
+            경기 관리
+            <ArrowRightIcon size={18} />
+          </Button>
+        )}
+      </div>
+    </article>
   )
 }
