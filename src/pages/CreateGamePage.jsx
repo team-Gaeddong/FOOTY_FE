@@ -1,69 +1,37 @@
 import { startTransition, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { createGame } from '../api/games.js'
-import { ApiError } from '../api/client.js'
 import { useAuth } from '../auth/useAuth.js'
+import { Badge } from '../components/Badge.jsx'
 import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
-import { PageLayout } from '../components/PageLayout.jsx'
+import { Field } from '../components/Field.jsx'
+import { ArrowLeftIcon, CheckIcon } from '../components/Icons.jsx'
+import { Stepper } from '../components/Stepper.jsx'
+import {
+  INITIAL_FORM,
+  LOCATION_MAX,
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+  MIN_TEAMS,
+  TEAM_COUNT_HINT,
+  TITLE_MAX,
+  maxPlayersHint,
+  previewOf,
+  setMaxPlayers,
+  setTeamCount,
+  submitErrorOf,
+  toCreateRequest,
+  validate,
+} from './createGameForm.js'
+import { dateTimeLabel } from './homeCalendar.js'
 import styles from './CreateGamePage.module.css'
 
-const INITIAL_FORM = {
-  title: '',
-  playDate: '',
-  location: '',
-  maxPlayers: '',
-}
-
-// BE GameService 검증(D-14): 정원 2~30명, 팀 수 2 이상·정원 이하, 일시는 현재 이후
-const MIN_PLAYERS = 2
-const MAX_PLAYERS = 30
-const INVALID_MAX_PLAYERS = `참가 정원은 ${MIN_PLAYERS}~${MAX_PLAYERS}명 사이의 정수로 입력해 주세요.`
-
-function validate(form) {
-  const errors = {}
-  const title = form.title.trim()
-  const location = form.location.trim()
-  const maxPlayers = Number(form.maxPlayers)
-
-  if (!title) errors.title = '경기 제목을 입력해 주세요.'
-  else if (title.length > 100) errors.title = '경기 제목은 100자 이하로 입력해 주세요.'
-
-  if (!form.playDate) errors.playDate = '경기 일시를 선택해 주세요.'
-
-  if (!location) errors.location = '장소를 입력해 주세요.'
-  else if (location.length > 200) errors.location = '장소는 200자 이하로 입력해 주세요.'
-
-  if (
-    !form.maxPlayers ||
-    !Number.isInteger(maxPlayers) ||
-    maxPlayers < MIN_PLAYERS ||
-    maxPlayers > MAX_PLAYERS
-  ) {
-    errors.maxPlayers = INVALID_MAX_PLAYERS
-  }
-
-  return errors
-}
-
-// 입력 칸에 붙일 수 있는 BE 에러는 그 칸에, 나머지는 폼 아래에 보여준다.
-function submitErrorOf(error) {
-  if (!(error instanceof ApiError)) return { message: '경기를 만들지 못했습니다. 다시 시도해 주세요.' }
-  if (error.status === 0) return { message: '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.' }
-  if (error.code === 'GAME_400_2') return { field: 'maxPlayers', message: INVALID_MAX_PLAYERS }
-  if (error.code === 'GAME_400_3') return { field: 'playDate', message: '경기 일시는 지금 이후로 선택해 주세요.' }
-  if (error.code === 'GAME_400_4') return { message: '팀 수는 2팀 이상, 참가 정원 이하여야 합니다.' }
-  if (error.code === 'GLOBAL_400_1') return { message: '입력값을 확인한 뒤 다시 시도해 주세요.' }
-  if (error.code === 'MEMBER_403_1') return { message: '온보딩을 마친 뒤 경기를 만들 수 있어요.' }
-  if (error.status === 401) return { message: '로그인이 필요합니다. 다시 로그인해 주세요.' }
-  return { message: '경기를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.' }
-}
-
-function displayDateTime(value) {
-  if (!value) return ''
-  const [date, time] = value.split('T')
-  return `${date.replaceAll('-', '. ')}. ${time.slice(0, 5)}`
-}
+const PREVIEW_NOTES = [
+  '만들면 파티장으로 자동 참가해요.',
+  '내 선호 포지션이 이 경기 포지션으로 들어가요.',
+  '모집 중 상태로 바로 목록에 올라가요.',
+]
 
 export function CreateGamePage() {
   const { clearSession } = useAuth()
@@ -74,12 +42,22 @@ export function CreateGamePage() {
   const [submitting, setSubmitting] = useState(false)
   const [createdGame, setCreatedGame] = useState(null)
   const pending = useRef(false)
+  const preview = previewOf(form)
+
+  // 값을 바꾸면 그 칸의 오류를 지운다. 최대 인원을 바꾸면 팀 수도 영향을 받으므로 둘의 오류를 함께 지운다.
+  function change(next, ...names) {
+    setForm(next)
+    setFieldErrors((current) => {
+      const cleared = { ...current }
+      for (const name of names) cleared[name] = undefined
+      return cleared
+    })
+    setSubmitError('')
+  }
 
   function updateField(event) {
     const { name, value } = event.target
-    setForm((current) => ({ ...current, [name]: value }))
-    setFieldErrors((current) => ({ ...current, [name]: undefined }))
-    setSubmitError('')
+    change({ ...form, [name]: value }, name)
   }
 
   async function handleSubmit(event) {
@@ -94,13 +72,7 @@ export function CreateGamePage() {
     pending.current = true
     setSubmitting(true)
     try {
-      const game = await createGame({
-        title: form.title.trim(),
-        playDate: `${form.playDate}:00`,
-        location: form.location.trim(),
-        maxPlayers: Number(form.maxPlayers),
-      })
-      setCreatedGame(game)
+      setCreatedGame(await createGame(toCreateRequest(form)))
     } catch (error) {
       if (error.code === 'MEMBER_404_1') {
         // 탈퇴했거나 없는 회원이다(BE D-16). 이동과 같은 transition에서 지워야 안내(state)가 남는다.
@@ -119,126 +91,177 @@ export function CreateGamePage() {
 
   if (createdGame) {
     return (
-      <PageLayout>
-        <Link className={styles.backLink} to="/">← 홈으로</Link>
+      <main className={styles.page}>
         <section className={styles.success} aria-labelledby="success-title">
-          <div className={styles.successIcon} aria-hidden="true">✓</div>
-          <p className={styles.eyebrow}>경기 생성 완료</p>
-          <h1 id="success-title">경기를 만들었어요!</h1>
-          <p className={styles.intro}>
-            친구들과 함께 뛸 준비가 됐어요. 파티장은 참가 선수로 자동 등록됐어요.
-          </p>
+          <span className={styles.successIcon} aria-hidden="true">
+            <CheckIcon size={24} />
+          </span>
+          <div className={styles.successText}>
+            <p className={styles.eyebrow}>경기 생성 완료</p>
+            <h1 id="success-title" className={styles.title}>
+              경기를 만들었어요!
+            </h1>
+            <p className={styles.lead}>
+              친구들과 함께 뛸 준비가 됐어요. 파티장은 참가 선수로 자동 등록됐어요.
+            </p>
+          </div>
           <div className={styles.summary}>
-            <span className={styles.badge}>모집 중</span>
-            <h2>{createdGame.title}</h2>
-            <dl>
-              <div><dt>경기 일시</dt><dd>{displayDateTime(createdGame.playDate)}</dd></div>
+            <Badge tone="green">모집 중</Badge>
+            <h2 className={styles.summaryTitle}>{createdGame.title}</h2>
+            <dl className={styles.summaryList}>
+              <div><dt>경기 일시</dt><dd>{dateTimeLabel(createdGame.playDate)}</dd></div>
               <div><dt>장소</dt><dd>{createdGame.location}</dd></div>
-              <div><dt>참가 정원</dt><dd>{createdGame.maxPlayers}명</dd></div>
+              <div><dt>최대 인원</dt><dd>{createdGame.maxPlayers}명</dd></div>
               <div><dt>팀 수</dt><dd>{createdGame.teamCount}팀</dd></div>
             </dl>
           </div>
-          <Link className={styles.primaryLink} to="/">홈으로 돌아가기</Link>
+          <Button as={Link} to="/" size="lg">
+            홈으로 돌아가기
+          </Button>
         </section>
-      </PageLayout>
+      </main>
     )
   }
 
   return (
-    <PageLayout>
-      <Link className={styles.backLink} to="/">← 홈으로</Link>
+    <main className={styles.page}>
+      <Link className={styles.back} to="/">
+        <ArrowLeftIcon size={18} />
+        경기 목록
+      </Link>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>새 경기</p>
-        <h1>경기 만들기</h1>
-        <p className={styles.intro}>함께 뛸 경기의 기본 정보를 입력해 주세요.</p>
+        <h1 className={styles.title}>경기 만들기</h1>
+        <p className={styles.lead}>날짜와 장소, 인원을 정하면 바로 모집을 시작해요.</p>
       </header>
 
-      <form className={styles.form} onSubmit={handleSubmit} noValidate>
-        <div className={styles.field}>
-          <label htmlFor="game-title">경기 제목 <span aria-hidden="true">*</span></label>
-          <input
-            id="game-title"
+      <form className={styles.layout} onSubmit={handleSubmit} noValidate>
+        <section className={styles.card} aria-label="경기 정보">
+          <Field
+            label="경기 제목"
+            aside={`${form.title.length} / ${TITLE_MAX}`}
             name="title"
-            type="text"
             value={form.title}
             onChange={updateField}
-            maxLength={100}
+            maxLength={TITLE_MAX}
             placeholder="예: 토요일 오후 풋살"
             autoComplete="off"
-            aria-invalid={Boolean(fieldErrors.title)}
-            aria-describedby={fieldErrors.title ? 'game-title-error' : undefined}
+            error={fieldErrors.title}
           />
-          {fieldErrors.title && <p id="game-title-error" className={styles.fieldError}>{fieldErrors.title}</p>}
-          <p className={styles.hint}>최대 100자</p>
-        </div>
 
-        <div className={styles.field}>
-          <label htmlFor="game-play-date">경기 일시 <span aria-hidden="true">*</span></label>
-          <input
-            id="game-play-date"
-            name="playDate"
-            type="datetime-local"
-            value={form.playDate}
-            onChange={updateField}
-            aria-invalid={Boolean(fieldErrors.playDate)}
-            aria-describedby={fieldErrors.playDate ? 'game-play-date-error' : 'game-play-date-hint'}
-          />
-          {fieldErrors.playDate && <p id="game-play-date-error" className={styles.fieldError}>{fieldErrors.playDate}</p>}
-          <p id="game-play-date-hint" className={styles.hint}>한국시간 기준으로 입력해 주세요.</p>
-        </div>
+          <div className={styles.dateRow}>
+            <Field
+              className={styles.dateField}
+              label="날짜"
+              type="date"
+              name="date"
+              value={form.date}
+              onChange={updateField}
+              error={fieldErrors.date}
+            />
+            <Field
+              className={styles.timeField}
+              label="시작 시간"
+              type="time"
+              name="time"
+              value={form.time}
+              onChange={updateField}
+              error={fieldErrors.time}
+            />
+          </div>
+          <p className={styles.note}>지금보다 뒤의 일시만 고를 수 있어요.</p>
 
-        <div className={styles.field}>
-          <label htmlFor="game-location">장소 <span aria-hidden="true">*</span></label>
-          <input
-            id="game-location"
+          <Field
+            label="장소"
+            aside={`${form.location.length} / ${LOCATION_MAX}`}
             name="location"
-            type="text"
             value={form.location}
             onChange={updateField}
-            maxLength={200}
+            maxLength={LOCATION_MAX}
             placeholder="예: 서울 월드컵 풋살장"
             autoComplete="off"
-            aria-invalid={Boolean(fieldErrors.location)}
-            aria-describedby={fieldErrors.location ? 'game-location-error' : undefined}
+            error={fieldErrors.location}
           />
-          {fieldErrors.location && <p id="game-location-error" className={styles.fieldError}>{fieldErrors.location}</p>}
-          <p className={styles.hint}>최대 200자</p>
-        </div>
 
-        <div className={styles.field}>
-          <label htmlFor="game-max-players">참가 정원 <span aria-hidden="true">*</span></label>
-          <div className={styles.numberInput}>
-            <input
-              id="game-max-players"
-              name="maxPlayers"
-              type="number"
-              inputMode="numeric"
+          <div className={styles.steppers}>
+            <Stepper
+              label="최대 인원"
+              value={form.maxPlayers}
+              unit="명"
               min={MIN_PLAYERS}
               max={MAX_PLAYERS}
-              step="1"
-              value={form.maxPlayers}
-              onChange={updateField}
-              placeholder="예: 10"
-              aria-invalid={Boolean(fieldErrors.maxPlayers)}
-              aria-describedby={fieldErrors.maxPlayers ? 'game-max-players-error' : 'game-max-players-hint'}
+              onChange={(value) => change(setMaxPlayers(form, value), 'maxPlayers', 'teamCount')}
+              hint={maxPlayersHint(form.maxPlayers)}
+              decreaseLabel="최대 인원 줄이기"
+              increaseLabel="최대 인원 늘리기"
+              disabled={submitting}
             />
-            <span aria-hidden="true">명</span>
+            <Stepper
+              label="팀 수"
+              value={form.teamCount}
+              unit="팀"
+              min={MIN_TEAMS}
+              max={form.maxPlayers}
+              onChange={(value) => change(setTeamCount(form, value), 'teamCount')}
+              hint={TEAM_COUNT_HINT}
+              decreaseLabel="팀 수 줄이기"
+              increaseLabel="팀 수 늘리기"
+              disabled={submitting}
+            />
           </div>
-          {fieldErrors.maxPlayers && <p id="game-max-players-error" className={styles.fieldError}>{fieldErrors.maxPlayers}</p>}
-          <p id="game-max-players-hint" className={styles.hint}>{MIN_PLAYERS}~{MAX_PLAYERS}명</p>
-        </div>
+          <ErrorMessage>{fieldErrors.maxPlayers ?? fieldErrors.teamCount}</ErrorMessage>
+        </section>
 
-        <div className={styles.teamCount}>
-          <span>팀 수</span>
-          <strong>2팀</strong>
-          <p>새 경기는 기본 2팀으로 생성돼요.</p>
-        </div>
+        <aside className={styles.preview} aria-labelledby="preview-title">
+          <h2 id="preview-title" className={styles.previewTitle}>
+            목록에 이렇게 보여요
+          </h2>
+          <div className={styles.previewCard}>
+            <div className={styles.previewTop}>
+              <span className={styles.previewTime}>{preview.time}</span>
+              <Badge tone="green" className={styles.previewBadge}>
+                모집 중
+              </Badge>
+            </div>
+            <div className={styles.previewInfo}>
+              <p className={preview.titleFilled ? styles.previewGame : styles.previewPlaceholder}>
+                {preview.title}
+              </p>
+              <p className={styles.previewSub}>{preview.sub}</p>
+            </div>
+          </div>
+          <p
+            className={[
+              styles.previewDate,
+              preview.dateFilled ? styles[preview.tone] : styles.previewPlaceholder,
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            {preview.dateText}
+          </p>
+          <hr className={styles.divider} />
+          <ul className={styles.notes}>
+            {PREVIEW_NOTES.map((note) => (
+              <li key={note}>
+                <CheckIcon size={16} />
+                <span>{note}</span>
+              </li>
+            ))}
+          </ul>
+        </aside>
 
-        <ErrorMessage>{submitError}</ErrorMessage>
-        <Button type="submit" disabled={submitting}>
-          {submitting ? '경기 만드는 중…' : '경기 만들기'}
-        </Button>
+        <div className={styles.actions}>
+          <ErrorMessage>{submitError}</ErrorMessage>
+          <div className={styles.buttons}>
+            <Button as={Link} to="/" variant="secondary" fit="auto" className={styles.cancel}>
+              취소
+            </Button>
+            <Button type="submit" size="lg" fit="responsive" disabled={submitting}>
+              {submitting ? '경기 만드는 중…' : '경기 만들기'}
+            </Button>
+          </div>
+        </div>
       </form>
-    </PageLayout>
+    </main>
   )
 }

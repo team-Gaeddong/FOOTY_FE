@@ -18,7 +18,7 @@ export const ROUTE_TABLE = [
   { path: '/games/mine', kind: 'tab', current: 'mine' },
   { path: '/profile', kind: 'tab', current: 'profile' },
 
-  { path: '/games/new', kind: 'sub', title: '경기 만들기', back: '/', bar: false, current: null },
+  { path: '/games/new', kind: 'sub', title: '경기 만들기', back: '/', bar: true, current: null },
   { path: '/games/:gameId', kind: 'sub', title: '경기 상세', back: '/', bar: false, current: 'games' },
   { path: '/games/:gameId/notices', kind: 'sub', title: '경기 상세', back: '/games/:gameId', bar: false, current: 'games' },
   { path: '/games/:gameId/notices/new', kind: 'sub', title: '공지 작성', back: '/games/:gameId/notices', bar: false, current: 'games' },
