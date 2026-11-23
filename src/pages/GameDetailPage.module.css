@@ -1,629 +1,73 @@
-/*
- * Figma `경기_상세_조회` 시안(PC, 콘텐츠 1200px)을 따른다. 이 화면은 FD-08(모바일 우선·최대 420px)과
- * 다르게 PC 기준으로 먼저 만들었다(decisions.md FC-10). 반응형은 나중에 붙이며, 바꿀 곳은
- * .container 여백, .hero 가로 배치, .columns·.infoGrid 열 수다.
- */
 .page {
-  min-height: 100svh;
-  background: var(--ds-surface-gray-subtler);
-  color: var(--ds-text-basic);
-  font-family: var(--ds-font);
-}
-
-.container {
   display: flex;
   flex-direction: column;
-  gap: var(--ds-gap-6);
+  gap: var(--space-4);
   width: 100%;
-  max-width: calc(var(--ds-content-max) + 2 * var(--ds-padding-8));
+  max-width: var(--content-max);
   margin: 0 auto;
-  padding: var(--ds-padding-8) var(--ds-padding-8) 80px;
+  padding: 20px var(--page-gutter) var(--space-6);
+  color: var(--text-body);
 }
 
-/* button_text 컴포넌트 */
-.backLink {
-  display: inline-flex;
+/* 모바일은 상단의 하위 바(뒤로 + 제목)가 있어 PC에서만 보인다 */
+.back {
+  display: none;
   align-items: center;
-  gap: var(--ds-gap-2);
-  min-height: var(--ds-height-6);
-  margin-left: calc(-1 * var(--ds-padding-3));
-  padding: 0 var(--ds-padding-3);
-  border-radius: var(--ds-radius-medium1);
-  color: var(--ds-text-subtle);
-  font-size: var(--ds-label-small);
-  line-height: 1.5;
-  text-decoration: none;
-}
-
-.backLink:hover {
-  background: var(--ds-button-text-fill-hover);
-}
-
-.backLink:active {
-  background: var(--ds-button-text-fill-pressed);
-}
-
-/* 오른쪽 열: 참가·파티장 카드와 그 아래 신고 진입 */
-.side {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-gap-4);
-  min-width: 0;
-}
-
-/* button_text 컴포넌트 */
-.reportLink {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-end;
-  min-height: var(--ds-height-6);
-  padding: 0 var(--ds-padding-3);
-  border-radius: var(--ds-radius-medium1);
-  color: var(--ds-text-subtle);
-  font-size: var(--ds-label-small);
-  line-height: 1.5;
-  text-decoration: none;
-}
-
-.reportLink:hover {
-  background: var(--ds-button-text-fill-hover);
-}
-
-.reportLink:active {
-  background: var(--ds-button-text-fill-pressed);
-}
-
-/* 상단 요약 */
-.hero {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--ds-gap-7);
-  padding: 48px;
-  border-radius: var(--ds-radius-xlarge3);
-  background: var(--ds-brand-dark);
-  color: var(--gray-50);
-}
-
-.heroMain {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-gap-3);
-  min-width: 0;
-}
-
-.badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ds-gap-3);
-}
-
-.badge {
-  padding: 2px var(--ds-padding-5);
-  border-radius: var(--ds-radius-max);
-  background: var(--ds-brand-dark-raised);
-  color: var(--ds-brand-lime);
-  font-size: var(--ds-body-xsmall);
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-.badgeActive {
-  background: var(--ds-brand-lime);
-  color: var(--ds-brand-dark);
-}
-
-.title {
-  overflow-wrap: anywhere;
-  font-size: 40px;
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-.meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ds-gap-4);
-  color: rgb(255 255 255 / 85%);
-  font-size: var(--ds-body-medium);
-  line-height: 1.5;
-}
-
-.metaDot {
-  color: rgb(255 255 255 / 40%);
-}
-
-.count {
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  align-items: flex-end;
-  gap: var(--ds-gap-2);
-  width: 280px;
-}
-
-.countLabel {
-  font-size: var(--ds-label-small);
-  font-weight: 700;
-}
-
-.countValue {
-  font-size: var(--ds-heading-small);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.countValue strong {
-  margin-right: var(--ds-gap-3);
-  color: var(--ds-brand-lime);
-  font-size: 64px;
-  font-weight: 800;
-}
-
-.meter {
-  width: 100%;
-  height: 8px;
-  margin-top: var(--ds-gap-4);
-  overflow: hidden;
-  border-radius: var(--ds-radius-max);
-  background: var(--ds-brand-dark-raised);
-}
-
-.meter span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--ds-brand-lime);
-}
-
-.countNote {
-  color: rgb(255 255 255 / 70%);
-  font-size: var(--ds-body-xsmall);
-}
-
-/* 본문 두 열: 경기 정보 | 참가·파티장 카드 */
-.columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 384px;
-  gap: var(--ds-gap-7);
-  align-items: start;
-}
-
-/* 왼쪽 열: 경기 정보와 그 아래 참가 선수 */
-.main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-gap-7);
-  min-width: 0;
-}
-
-.card,
-.messageCard {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-gap-6);
-  min-width: 0;
-  padding: 32px;
-  border: 1px solid var(--ds-border-gray-light);
-  border-radius: var(--ds-radius-xlarge3);
-  background: var(--ds-surface-white);
-}
-
-.cardTitle {
-  color: var(--ds-text-bolder);
-  font-size: var(--ds-heading-small);
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-.cardText {
-  margin-top: calc(-1 * var(--ds-gap-3));
-  color: var(--ds-text-subtle);
-  font-size: var(--ds-body-small);
-  line-height: 1.5;
-}
-
-.infoGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--ds-gap-7) var(--ds-gap-6);
-  margin: 0;
-}
-
-.infoItem {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-gap-2);
-  min-width: 0;
-  padding: 20px;
-  border-radius: var(--ds-radius-medium3);
-  background: var(--ds-surface-gray-subtler);
-}
-
-.infoItem dt {
-  color: var(--ds-text-subtle);
-  font-size: var(--ds-body-small);
-  line-height: 1.5;
-}
-
-.infoItem dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-  color: var(--ds-text-bolder);
-  font-size: var(--ds-body-medium);
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-gap-4);
-}
-
-/* button_primary / button_tertiary 컴포넌트 */
-.primaryButton,
-.tertiaryButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--ds-height-8);
-  padding: 0 var(--ds-padding-6);
-  border-radius: var(--ds-radius-medium3);
-  font-size: var(--ds-label-medium);
-  font-weight: 700;
-  line-height: 1.5;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.primaryButton {
-  border: 0;
-  background: var(--ds-button-primary-fill);
-  color: var(--ds-text-inverse);
-}
-
-.primaryButton:hover {
-  background: var(--ds-button-primary-fill-hover);
-}
-
-.primaryButton:active {
-  background: var(--ds-button-primary-fill-pressed);
-}
-
-.primaryButton:disabled {
-  background: var(--ds-button-disabled-fill);
-  color: var(--ds-text-disabled);
-  cursor: not-allowed;
-}
-
-.tertiaryButton {
-  border: 1px solid var(--ds-button-tertiary-border);
-  background: var(--ds-surface-white);
-  color: var(--ds-text-basic);
-}
-
-.tertiaryButton:hover {
-  background: var(--ds-button-tertiary-fill-hover);
-}
-
-.tertiaryButton:active {
-  background: var(--ds-button-tertiary-fill-pressed);
-}
-
-.primaryButton:focus-visible,
-.tertiaryButton:focus-visible,
-.backLink:focus-visible,
-.reportLink:focus-visible {
-  outline: 2px solid var(--ds-border-primary);
-  outline-offset: 2px;
-}
-
-/*
- * 참가 선수 목록. Figma에 경기 상세용 시안이 없어 `선수_실력_매기기`의 참가 선수 목록
- * (이름+배지 / 포지션 한 줄, 행 사이 구분선, 미입력 배지)을 경기 정보 카드 톤에 맞춰 옮겼다.
- */
-.cardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ds-gap-4);
-}
-
-.playerCount {
-  color: var(--ds-text-primary);
-}
-
-.players {
-  display: flex;
-  flex-direction: column;
-  margin: calc(-1 * var(--ds-gap-3)) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.player {
-  display: flex;
-  align-items: center;
-  gap: var(--ds-gap-4);
-  min-width: 0;
-  padding: var(--ds-padding-5) 0;
-  border-top: 1px solid var(--ds-surface-gray-subtler);
-}
-
-.player:first-child {
-  border-top: 0;
-}
-
-.avatar {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--ds-brand-lime);
-  color: var(--ds-brand-dark);
-  font-size: var(--ds-body-small);
-  font-weight: 700;
-}
-
-.playerInfo {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.playerName {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ds-gap-3);
-  overflow-wrap: anywhere;
-  color: var(--ds-text-bolder);
-  font-size: var(--ds-body-medium);
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-.playerPositions {
-  color: var(--ds-text-subtle);
-  font-size: var(--ds-body-xsmall);
-  line-height: 1.5;
-}
-
-.playerBadge,
-.hostBadge,
-.unratedBadge,
-.ratedBadge {
-  flex-shrink: 0;
-  padding: 0 var(--ds-padding-3);
-  border-radius: var(--ds-radius-medium1);
-  font-size: var(--ds-body-xsmall);
-  font-weight: 700;
-  line-height: 1.6;
-}
-
-.playerBadge {
-  background: var(--ds-surface-gray-subtler);
-  color: var(--ds-text-subtle);
-}
-
-.hostBadge {
-  background: var(--ds-brand-dark);
-  color: var(--ds-brand-lime);
-}
-
-.unratedBadge {
-  border-radius: var(--ds-radius-max);
-  background: var(--color-danger-bg);
-  color: var(--ds-danger);
-}
-
-.ratedBadge {
-  border-radius: var(--ds-radius-max);
-  background: var(--ds-button-secondary-fill);
-  color: var(--ds-text-primary);
-}
-
-.skill {
-  flex-shrink: 0;
-  color: var(--ds-text-bolder);
-  font-size: var(--ds-body-medium);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.skillLabel {
-  color: var(--ds-text-subtle);
-  font-size: var(--ds-body-xsmall);
-  font-weight: 400;
-}
-
-.listStatus {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--ds-gap-3);
-  padding: var(--ds-padding-8) 0;
-  color: var(--ds-text-subtle);
-  font-size: var(--ds-body-small);
-  text-align: center;
-}
-
-/* button_text 컴포넌트 */
-.textButton {
-  min-height: var(--ds-height-6);
-  padding: 0 var(--ds-padding-3);
-  border: 0;
-  border-radius: var(--ds-radius-medium1);
-  background: transparent;
-  color: var(--ds-text-primary);
-  font-size: var(--ds-label-small);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.textButton:hover {
-  background: var(--ds-button-text-fill-hover);
-}
-
-.textButton:active {
-  background: var(--ds-button-text-fill-pressed);
-}
-
-.textButton:focus-visible {
-  outline: 2px solid var(--ds-border-primary);
-  outline-offset: 2px;
-}
-
-/*
- * 경기 삭제. Figma에 시안이 없어 파티장 메뉴 맨 아래에 구분선으로 나누고,
- * 위험 동작이라 처음엔 텍스트 버튼만 보이다가 누르면 확인 단계를 연다.
- */
-.dangerZone {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-gap-3);
-  padding-top: var(--ds-gap-6);
-  border-top: 1px solid var(--ds-surface-gray-subtler);
-}
-
-.dangerTextButton {
+  gap: 6px;
   align-self: flex-start;
-  min-height: var(--ds-height-6);
-  margin-left: calc(-1 * var(--ds-padding-3));
-  padding: 0 var(--ds-padding-3);
-  border: 0;
-  border-radius: var(--ds-radius-medium1);
-  background: transparent;
-  color: var(--ds-danger);
-  font-size: var(--ds-label-small);
-  font-weight: 700;
-  cursor: pointer;
+  min-height: var(--tap-min);
+  color: var(--gray-300);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
+  text-decoration: none;
 }
 
-.dangerTextButton:hover {
-  background: var(--color-danger-bg);
+.back:hover {
+  color: var(--text-body);
 }
 
-.dangerTitle {
-  color: var(--ds-text-bolder);
-  font-size: var(--ds-body-medium);
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-.dangerText {
-  color: var(--ds-text-subtle);
-  font-size: var(--ds-body-small);
-  line-height: 1.5;
-}
-
-.dangerActions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--ds-gap-3);
-  margin-top: var(--ds-gap-3);
-}
-
-.dangerButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--ds-height-8);
-  padding: 0 var(--ds-padding-6);
-  border: 0;
-  border-radius: var(--ds-radius-medium3);
-  background: var(--ds-danger);
-  color: var(--ds-text-inverse);
-  font-size: var(--ds-label-medium);
-  font-weight: 700;
-  line-height: 1.5;
-  cursor: pointer;
-}
-
-.dangerButton:hover {
-  background: color-mix(in srgb, var(--signal-red) 85%, var(--gray-950));
-}
-
-.dangerButton:disabled,
-.dangerActions .tertiaryButton:disabled {
-  background: var(--ds-button-disabled-fill);
-  color: var(--ds-text-disabled);
-  cursor: not-allowed;
-}
-
-.dangerTextButton:focus-visible,
-.dangerButton:focus-visible {
-  outline: 2px solid var(--ds-border-primary);
+.back:focus-visible {
+  outline: 2px solid var(--brand-green);
   outline-offset: 2px;
 }
 
-/* 다른 화면에서 돌아왔을 때 완료 안내 */
 .notice {
-  padding: var(--ds-padding-5) var(--ds-padding-6);
-  border: 1px solid var(--ds-border-primary);
-  border-radius: var(--ds-radius-medium3);
-  background: var(--ds-button-secondary-fill);
-  color: var(--ds-text-primary);
-  font-size: var(--ds-body-small);
-  font-weight: 600;
+  padding: var(--space-3);
+  border-radius: var(--radius-8);
+  background: var(--badge-green-bg);
+  color: var(--badge-green-fg);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
 }
 
-/* 로딩·에러·없는 경기 */
-.messageCard {
-  align-items: center;
-  gap: var(--ds-gap-4);
-  padding: 64px 32px;
-  text-align: center;
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
 }
 
-.messageCard .tertiaryButton {
-  min-height: var(--ds-height-6);
-  font-size: var(--ds-label-small);
-  font-weight: 400;
+.code {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
 }
 
-.messageTitle {
-  color: var(--ds-text-bolder);
-  font-size: var(--ds-heading-small);
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-.messageText {
-  color: var(--ds-text-subtle);
-  font-size: var(--ds-body-small);
-}
-
-.errorText {
-  color: var(--ds-danger);
-  font-size: var(--ds-body-small);
-  line-height: 1.5;
-}
-
-.spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--ds-border-gray-light);
-  border-top-color: var(--ds-border-primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+@media (min-width: 768px) {
+  .page {
+    gap: 20px;
+    padding: var(--space-6) var(--space-6) 72px;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .spinner {
-    animation-duration: 2.4s;
+  .back {
+    display: inline-flex;
   }
 }

@@ -23,3 +23,8 @@
   font-size: 22px;
   line-height: 30px;
 }
+
+.neutral {
+  background: var(--gray-700);
+  color: var(--gray-100);
+}

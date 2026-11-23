@@ -1,0 +1,28 @@
+.chips {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.first,
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-8);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
+}
+
+.first {
+  background: var(--gray-700);
+  color: var(--text-body);
+}
+
+.chip {
+  background: transparent;
+  color: var(--text-faint);
+}
