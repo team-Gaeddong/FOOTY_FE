@@ -109,3 +109,27 @@ export function RepeatIcon(props) {
     </Icon>
   )
 }
+
+export function LockIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M6 11h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1zM8 11V7a4 4 0 0 1 8 0v4" />
+    </Icon>
+  )
+}
+
+export function MegaphoneIcon(props) {
+  return <Icon {...props}><path d="M3 11v2a1 1 0 0 0 1 1h3l8 5V5L7 10H4a1 1 0 0 0-1 1zM19 9a4 4 0 0 1 0 6" /></Icon>
+}
+
+export function BarChartIcon(props) {
+  return <Icon {...props}><path d="M6 20V10M12 20V4M18 20v-6" /></Icon>
+}
+
+export function TrashIcon(props) {
+  return <Icon {...props}><path d="M3 6h18M8 6V4h8v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14" /></Icon>
+}
+
+export function InfoIcon(props) {
+  return <Icon {...props}><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01" /></Icon>
+}
