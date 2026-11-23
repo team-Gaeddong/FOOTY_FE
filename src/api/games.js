@@ -7,19 +7,32 @@ export function createGame({ title, playDate, location, maxPlayers, teamCount })
   })
 }
 
-export function listGames({ page = 0, size = 20 } = {}) {
+// from·to는 경기 날짜(yyyy-MM-dd)이고 둘 다 그 날을 포함한다. status는 배열, role은 'host' | 'joined'(BE D-37).
+export function listGames({ page = 0, size = 20, from, to, status, role } = {}) {
   const params = new URLSearchParams({ page: String(page), size: String(size) })
+  if (from) params.set('from', from)
+  if (to) params.set('to', to)
+  if (status?.length) params.set('status', status.join(','))
+  if (role) params.set('role', role)
   return request(`/games?${params}`)
 }
 
 // 경기 목록을 size 100으로 마지막 페이지까지 한 페이지씩 돌려준다. BE에 "내 경기" 필터가 없어
 // 파티장 확인·내 경기 모으기처럼 FE가 목록을 훑을 때 쓴다. maxPages로 상한을 둘 수 있다(기본은 끝까지).
-export async function* listGamePages({ maxPages = Infinity } = {}) {
+export async function* listGamePages({ maxPages = Infinity, ...filters } = {}) {
   for (let page = 0; page < maxPages; page += 1) {
-    const data = await listGames({ page, size: 100 })
+    const data = await listGames({ page, size: 100, ...filters })
     yield data
     if (page + 1 >= data.totalPages) return
   }
+}
+
+// 날짜 범위의 경기를 마지막 쪽까지 모아 한 배열로 준다. 범위를 줘도 쪽 규칙은 그대로(size 최대 100)라
+// totalElements가 100을 넘으면 다음 쪽을 더 받는다(BE D-37).
+export async function listGamesInRange({ from, to }) {
+  const games = []
+  for await (const data of listGamePages({ from, to })) games.push(...data.games)
+  return games
 }
 
 export function rematchGame(gameId, playDate) {
