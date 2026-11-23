@@ -1,0 +1,216 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+/* 화면 내용. 안쪽 <main>(PageLayout)이 남는 높이를 채워 하단 탭이 아래에 붙게 한다. */
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.content > main {
+  flex: 1;
+  min-height: 0;
+}
+
+/* 상단 헤더: 모바일은 로고 + 프로필 아바타, PC는 주 메뉴와 경기 만들기 버튼까지 */
+.header {
+  border-bottom: 1px solid var(--line);
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  max-width: var(--content-max);
+  min-height: 56px;
+  margin: 0 auto;
+  padding: 0 var(--page-gutter);
+}
+
+.logo {
+  color: var(--brand-green);
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.menu {
+  display: none;
+}
+
+.menuLink {
+  padding: var(--space-2) 0;
+  color: var(--gray-500);
+  font-size: var(--text-18);
+  line-height: var(--leading-18);
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.menuLink[aria-current='page'] {
+  color: var(--text-body);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+.actions .create {
+  display: none;
+}
+
+.profile {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  color: var(--text-body);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.profileName {
+  display: none;
+}
+
+.avatarPlaceholder {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--gray-800);
+}
+
+/* 모바일 하위 화면: 뒤로 가기 + 제목 */
+.subBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 56px;
+  padding: 0 var(--page-gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  margin-left: -10px;
+  color: var(--text-body);
+}
+
+.subTitle {
+  color: var(--text-body);
+  font-size: var(--text-16);
+  line-height: var(--leading-16);
+  font-weight: 600;
+}
+
+/* 모바일 하단 탭 */
+.tabs {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: auto;
+  padding: var(--space-1) var(--space-2) calc(var(--space-2) + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface-deep);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: 56px;
+  color: var(--gray-400);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tab[aria-current='page'] {
+  color: var(--brand-green);
+}
+
+.logo:focus-visible,
+.menuLink:focus-visible,
+.profile:focus-visible,
+.back:focus-visible,
+.tab:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
+  border-radius: var(--radius-8);
+}
+
+/* 모바일: 최상위 화면만 로고 바 + 하단 탭. 하위 화면은 하단 탭이 없다. */
+@media (max-width: 767px) {
+  .shell[data-chrome='bar'] .header,
+  .shell[data-chrome='none'] .header {
+    display: none;
+  }
+
+  .shell:not([data-chrome='tab']) .tabs {
+    display: none;
+  }
+}
+
+/* PC: 어느 화면에서나 상단 헤더, 하단 탭과 하위 바는 없다 */
+@media (min-width: 768px) {
+  .headerInner {
+    flex-wrap: wrap;
+    gap: var(--space-3) 40px;
+    min-height: 72px;
+    padding: var(--space-2) var(--space-6);
+  }
+
+  .logo {
+    font-size: 26px;
+    line-height: 34px;
+  }
+
+  .menu {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .actions .create {
+    display: inline-flex;
+  }
+
+  .profile {
+    padding: 0 14px 0 4px;
+    border-radius: var(--radius-pill);
+    background: var(--gray-800);
+  }
+
+  .profileName {
+    display: inline;
+    max-width: 12em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .subBar,
+  .tabs {
+    display: none;
+  }
+}
