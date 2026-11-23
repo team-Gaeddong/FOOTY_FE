@@ -1,0 +1,64 @@
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.label {
+  color: var(--gray-200);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--gray-100);
+  cursor: pointer;
+}
+
+.button:not(:disabled):hover {
+  background: var(--gray-700);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.value {
+  min-width: 72px;
+  color: var(--gray-100);
+  font-size: var(--text-18);
+  line-height: var(--leading-18);
+  font-weight: 700;
+  text-align: center;
+}
+
+.hint {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
