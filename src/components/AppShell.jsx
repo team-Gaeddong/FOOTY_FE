@@ -61,7 +61,13 @@ export function AppShell() {
             </Link>
           </nav>
           <div className={styles.actions}>
-            <Button as={Link} to="/games/new" fit="auto" className={styles.create}>
+            <Button
+              as={Link}
+              to="/games/new"
+              variant={route.path === '/games/new' ? 'secondary' : 'primary'}
+              fit="auto"
+              className={styles.create}
+            >
               <PlusIcon size={18} />
               경기 만들기
             </Button>

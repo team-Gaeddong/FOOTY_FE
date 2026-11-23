@@ -77,3 +77,35 @@ export function ChevronRightIcon(props) {
 export function PlusIcon(props) {
   return <Icon {...props}><path d="M12 5v14M5 12h14" /></Icon>
 }
+
+export function PinIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
+    </Icon>
+  )
+}
+
+export function UsersIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+    </Icon>
+  )
+}
+
+export function CheckIcon(props) {
+  return <Icon {...props}><path d="M20 6L9 17l-5-5" /></Icon>
+}
+
+export function MinusIcon(props) {
+  return <Icon {...props}><path d="M5 12h14" /></Icon>
+}
+
+export function RepeatIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M17 2l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3" />
+    </Icon>
+  )
+}
