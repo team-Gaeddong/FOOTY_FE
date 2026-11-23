@@ -15,7 +15,6 @@
 // 라인업 탭(⑦)·경기 후 탭(⑬)이 생기면 해당 항목을 이 표에서 고친다.
 export const ROUTE_TABLE = [
   { path: '/', kind: 'tab', current: 'games' },
-  { path: '/games', kind: 'tab', current: 'games' },
   { path: '/games/mine', kind: 'tab', current: 'mine' },
   { path: '/profile', kind: 'tab', current: 'profile' },
 
