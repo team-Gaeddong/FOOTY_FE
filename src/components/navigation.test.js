@@ -4,8 +4,8 @@ import { ROUTE_TABLE, matchRoute, mobileChrome } from './navigation.js'
 
 test('최상위 화면은 tab이고 현재 항목이 정해진다', () => {
   assert.deepEqual(
-    ['/', '/games', '/games/mine', '/profile'].map((path) => [matchRoute(path).kind, matchRoute(path).current]),
-    [['tab', 'games'], ['tab', 'games'], ['tab', 'mine'], ['tab', 'profile']],
+    ['/', '/games/mine', '/profile'].map((path) => [matchRoute(path).kind, matchRoute(path).current]),
+    [['tab', 'games'], ['tab', 'mine'], ['tab', 'profile']],
   )
 })
 

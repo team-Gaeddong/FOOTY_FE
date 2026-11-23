@@ -53,3 +53,27 @@ export function UserIcon(props) {
     </Icon>
   )
 }
+
+export function CalendarIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+    </Icon>
+  )
+}
+
+export function ArrowLeftIcon(props) {
+  return <Icon {...props}><path d="M19 12H5M12 19l-7-7 7-7" /></Icon>
+}
+
+export function ArrowRightIcon(props) {
+  return <Icon {...props}><path d="M5 12h14M12 5l7 7-7 7" /></Icon>
+}
+
+export function ChevronRightIcon(props) {
+  return <Icon {...props}><path d="M9 18l6-6-6-6" /></Icon>
+}
+
+export function PlusIcon(props) {
+  return <Icon {...props}><path d="M12 5v14M5 12h14" /></Icon>
+}
