@@ -295,7 +295,7 @@ export function SkillLevelPage() {
       )}
 
       {canMatch && (
-        <Link className={styles.primaryLink} to={`/games/${gameId}/lineup`} state={game ? { game } : undefined}>
+        <Link className={styles.primaryLink} to={`/games/${gameId}/lineup/edit`} state={game ? { game } : undefined}>
           팀 짜기로 가기 →
         </Link>
       )}

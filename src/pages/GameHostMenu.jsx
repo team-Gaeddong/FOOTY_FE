@@ -27,8 +27,8 @@ export function GameHostMenu({ game, unrated, className = '' }) {
   const summaryState = { game: toSummary(game) }
   const actionTarget = {
     skill: { to: `/games/${game.id}/skill-levels`, state: summaryState },
-    lineup: { to: `/games/${game.id}/lineup`, state: summaryState },
-    viewLineup: { to: `/games/${game.id}/lineup`, state: summaryState },
+    lineup: { to: `/games/${game.id}/lineup/edit`, state: summaryState },
+    viewLineup: { to: `/games/${game.id}/lineup` },
     rematch: { to: `/games/${game.id}/rematch`, state: { sourceGame: toSummary(game) } },
   }[task.action]
   const showLineupButton = game.status === 'RECRUITING' && task.key !== 'lineup'
@@ -59,7 +59,7 @@ export function GameHostMenu({ game, unrated, className = '' }) {
               <SwapIcon size={18} />팀 짜기
             </Button>
           ) : (
-            <Button as={Link} to={`/games/${game.id}/lineup`} state={summaryState} variant="secondary">
+            <Button as={Link} to={`/games/${game.id}/lineup/edit`} state={summaryState} variant="secondary">
               <SwapIcon size={18} />팀 짜기
             </Button>
           )}

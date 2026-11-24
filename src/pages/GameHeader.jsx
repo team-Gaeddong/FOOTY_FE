@@ -14,8 +14,9 @@ import styles from './GameHeader.module.css'
 const STATUS_TONES = { RECRUITING: 'green', CONFIRMED: 'navy', FINISHED: 'gray' }
 
 // 경기 상세 화면들이 함께 쓰는 위쪽 틀: 경기 정보(히어로)와 탭 바. current는 지금 탭('overview' | 'lineup' | 'notices' | 'polls').
+// countNote: 참가 인원 아래 안내를 바꾸고 싶을 때(라인업 탭의 "선발 22명 · 후보 2명"). 없으면 정원 안내다.
 // 공지·투표 탭은 파티장과 참가자만 열 수 있어(BE 403) 그 밖에는 자물쇠를 보여 준다.
-export function GameHeader({ game, current = 'overview' }) {
+export function GameHeader({ game, current = 'overview', countNote }) {
   const memberTabsOpen = canOpenMemberTabs(game)
   const tabs = [
     { key: 'overview', label: '개요', to: `/games/${game.id}` },
@@ -83,7 +84,9 @@ export function GameHeader({ game, current = 'overview' }) {
           >
             <span style={{ width: `${ratio * 100}%` }} />
           </div>
-          <p className={styles.countNote}>{capacityNote(game.playerCount, game.maxPlayers)}</p>
+          <p className={styles.countNote}>
+            {countNote ?? capacityNote(game.playerCount, game.maxPlayers)}
+          </p>
         </div>
       </section>
 

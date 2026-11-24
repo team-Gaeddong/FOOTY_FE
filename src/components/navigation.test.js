@@ -60,3 +60,14 @@ test('같은 경로가 표에 두 번 들어 있지 않다', () => {
   const paths = ROUTE_TABLE.map((entry) => entry.path)
   assert.equal(new Set(paths).size, paths.length)
 })
+
+test('라인업 탭은 모바일 하위 바를 켜고, 팀 짜기는 /lineup/edit이다', () => {
+  const tab = matchRoute('/games/12/lineup')
+  assert.equal(tab.title, '경기 상세')
+  assert.equal(tab.bar, true)
+  assert.equal(tab.back, '/')
+  const edit = matchRoute('/games/12/lineup/edit')
+  assert.equal(edit.title, '팀 짜기')
+  assert.equal(edit.back, '/games/12/lineup')
+  assert.equal(edit.params.gameId, '12')
+})
