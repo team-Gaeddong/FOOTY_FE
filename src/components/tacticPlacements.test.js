@@ -6,6 +6,7 @@ import {
   autoPlace,
   changeFormation,
   freeSlotIndexes,
+  liftTarget,
   movePlayer,
   placementsFromMembers,
   toPlacementRequest,
@@ -180,4 +181,21 @@ test('자동 배치 결과는 같은 선수·같은 슬롯이 겹치지 않고 �
     assert.deepEqual([p.x, p.y], [slot.x, slot.y])
   })
   assert.deepEqual(autoPlace(squad(FULL), '5-4-1'), [])
+})
+
+test('벤치 선수는 같은 역할의 빈 슬롯에 올라가고, 없으면 첫 빈 슬롯에 올라간다', () => {
+  const fw = { gamePlayerId: 9, position: 'FW' }
+  assert.deepEqual(liftTarget(fw, [], F), { type: 'slot', index: 9 })
+  // FW 슬롯(9·10번)을 모두 쓰면 첫 빈 슬롯(0번 GK)으로
+  const taken = movePlayer(movePlayer([], 1, { type: 'slot', index: 9 }, F), 2, { type: 'slot', index: 10 }, F)
+  assert.deepEqual(liftTarget(fw, taken, F), { type: 'slot', index: 0 })
+})
+
+test('11명이 이미 올라가 있으면 올릴 곳이 없다', () => {
+  const full = Array.from({ length: MAX_PLACEMENTS }, (_, i) => ({ gamePlayerId: i + 1, slot: i, x: 50, y: 50 }))
+  assert.equal(liftTarget({ gamePlayerId: 99, position: 'MF' }, full, F), null)
+})
+
+test('슬롯이 없는 포메이션이면 경기장 가운데에 올린다', () => {
+  assert.deepEqual(liftTarget({ gamePlayerId: 1, position: 'MF' }, [], '5-3-2'), { type: 'point', x: 50, y: 50 })
 })

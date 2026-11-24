@@ -1,7 +1,7 @@
 import styles from './PlayerChip.module.css'
 import { POSITION_LABELS } from './positions.js'
 
-// 전술 배치도의 선수 칩. 이름과 배정 포지션을 보여준다.
+// 전술 배치도의 선수 칩. 경기장 위에서는 원 + 이름표, 벤치에서는 포지션 + 이름 + 후보 배지 줄이다.
 // BE에 등번호 필드가 없어 등번호는 표시하지 않는다.
 // 나머지 props(onPointerDown, onClick, style 등)는 button에 그대로 넘긴다.
 export function PlayerChip({
@@ -16,7 +16,7 @@ export function PlayerChip({
   return (
     <button
       type="button"
-      className={`${styles.chip} ${onPitch ? styles.onPitch : ''} ${className}`}
+      className={`${styles.chip} ${onPitch ? styles.onPitch : styles.onBench} ${className}`}
       data-selected={selected}
       data-dragging={dragging}
       aria-pressed={selected}

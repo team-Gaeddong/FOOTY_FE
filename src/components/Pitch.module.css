@@ -1,30 +1,62 @@
 .pitch {
   position: relative;
   width: 100%;
-  aspect-ratio: 68 / 105;
-  border-radius: var(--radius);
-  background: repeating-linear-gradient(
-    to bottom,
-    #2f9e57 0,
-    #2f9e57 10%,
-    #2b9150 10%,
-    #2b9150 20%
-  );
+  aspect-ratio: 68 / 100;
+  border-radius: var(--radius-16);
+  background: var(--badge-green-bg);
   overflow: hidden;
   user-select: none;
 }
 
-.lines {
+.lines span {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke: rgb(255 255 255 / 0.8);
-  stroke-width: 0.4;
+  box-sizing: border-box;
+  border: 2px solid rgb(237 237 237 / 0.32);
 }
 
-.spot {
-  fill: rgb(255 255 255 / 0.8);
-  stroke: none;
+.outline {
+  inset: 3% 4%;
+}
+
+.halfway {
+  top: 50%;
+  right: 4%;
+  left: 4%;
+  height: 2px;
+  margin-top: -1px;
+  border: 0;
+  background: rgb(237 237 237 / 0.32);
+}
+
+.circle {
+  top: 50%;
+  left: 50%;
+  width: 24%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-pill);
+  transform: translate(-50%, -50%);
+}
+
+.box {
+  right: 22%;
+  left: 22%;
+  height: 15%;
+}
+
+.small {
+  right: 36%;
+  left: 36%;
+  height: 6%;
+}
+
+.boxTop,
+.smallTop {
+  top: 3%;
+  border-top: 0;
+}
+
+.boxBottom,
+.smallBottom {
+  bottom: 3%;
+  border-bottom: 0;
 }

@@ -1,7 +1,11 @@
 import { useRef, useState } from 'react'
+import { Badge } from './Badge.jsx'
+import { Button } from './Button.jsx'
 import { formationSlots } from './formations.js'
+import { WandIcon } from './Icons.jsx'
 import { Pitch } from './Pitch.jsx'
 import { PlayerChip } from './PlayerChip.jsx'
+import { PositionChips } from './PositionChips.jsx'
 import { clientToPercent, pitchPosition } from './pitchCoords.js'
 import styles from './TacticBoard.module.css'
 import {
@@ -9,6 +13,7 @@ import {
   autoPlace,
   freeSlotIndexes,
   isFull,
+  liftTarget,
   movePlayer,
 } from './tacticPlacements.js'
 
@@ -28,10 +33,22 @@ function dropTargetAt(clientX, clientY, pitchRect, draggingId) {
   return point ? { type: 'point', ...point } : { type: 'out' }
 }
 
-// 포메이션 위에 팀원을 끌어다 놓는 제어형 배치판(BE D-23).
+// 포메이션 위에 팀원을 끌어다 놓는 제어형 배치판(BE D-23, 시안 Tactic). 경기장 카드와 오른쪽 열(포메이션·선택한 선수·벤치)을 그린다.
 // placements는 { gamePlayerId, slot, x, y }[]이고 바뀔 때마다 onChange로 새 배열을 넘긴다.
-// 끌어서 놓기 외에, 칩을 눌러 고른 뒤 놓을 곳을 누르는 방식도 된다(키보드·작은 화면용).
-export function TacticBoard({ members, formation, placements, onChange, editable = true }) {
+// 끌어서 놓기 외에, 칩을 눌러 고른 뒤 놓을 곳을 누르는 방식과 벤치의 "올리기" 버튼도 된다(키보드·작은 화면용).
+// teamTabs는 오른쪽 열 맨 위, footer는 맨 아래에 놓는다(모바일에서는 footer가 화면 아래에 붙는다).
+export function TacticBoard({
+  members,
+  formation,
+  formationNames,
+  placements,
+  onChange,
+  onFormationChange,
+  teamName,
+  teamTabs = null,
+  footer = null,
+  editable = true,
+}) {
   const pitchRef = useRef(null)
   const gesture = useRef(null) // { gamePlayerId, pointerId, startX, startY, offsetX, offsetY, moved }
   const suppressClick = useRef(false)
@@ -66,6 +83,17 @@ export function TacticBoard({ members, formation, placements, onChange, editable
     if (next !== placements) onChange(next)
   }
 
+  // 벤치의 "올리기": 같은 역할의 빈 자리에 바로 놓는다
+  function handleLift(member) {
+    const target = liftTarget(member, placements, formation)
+    if (!target) {
+      setNotice(FULL_MESSAGE)
+      return
+    }
+    setSelectedId(null)
+    move(member.gamePlayerId, target)
+  }
+
   function handlePointerDown(event, gamePlayerId) {
     suppressClick.current = false
     if (!editable || event.button !== 0) return
@@ -78,7 +106,7 @@ export function TacticBoard({ members, formation, placements, onChange, editable
       startY: event.clientY,
       // 경기장 위 칩은 잡은 지점과 원 중심의 차이를 유지해 놓을 때 튀지 않게 한다
       offsetX: placedIds.has(gamePlayerId) ? event.clientX - (rect.left + rect.width / 2) : 0,
-      offsetY: placedIds.has(gamePlayerId) ? event.clientY - (rect.top + 18) : 0,
+      offsetY: placedIds.has(gamePlayerId) ? event.clientY - (rect.top + 22) : 0,
       moved: false,
     }
   }
@@ -171,95 +199,151 @@ export function TacticBoard({ members, formation, placements, onChange, editable
   }
 
   const draggingMember = drag ? memberById.get(drag.gamePlayerId) : null
+  const full = isFull(placements)
+  const unplaced = bench.filter((member) => !member.isSubstitute).length
+  const substitutes = bench.length - unplaced
 
   return (
     <div className={styles.board}>
-      {editable && (
-        <div className={styles.toolbar}>
-          <button
-            type="button"
-            className={styles.autoPlace}
-            onClick={handleAutoPlace}
-            disabled={!canAutoPlace}
-          >
-            자동 배치
-          </button>
-          <span className={styles.toolbarHint}>포지션에 맞춰 선발 선수를 놓아요</span>
+      <section className={styles.pitchCard} aria-label="경기장">
+        <div className={styles.pitchArea} onClick={handlePitchClick}>
+          <Pitch ref={pitchRef} label={`${teamName} 전술 배치도, ${placements.length}/${MAX_PLACEMENTS}명 배치`}>
+            {editable &&
+              freeSlots.map((index) => (
+                <button
+                  key={`slot-${index}`}
+                  type="button"
+                  className={styles.slot}
+                  style={pitchPosition(slots[index])}
+                  data-drop-slot={index}
+                  data-active={selectedId !== null}
+                  aria-label={`빈 ${slots[index].role} 자리`}
+                  tabIndex={selectedId === null ? -1 : 0}
+                  onClick={() => handleSlotClick(index)}
+                >
+                  {slots[index].role}
+                </button>
+              ))}
+            {placements.map((placement) => {
+              const member = memberById.get(placement.gamePlayerId)
+              if (!member) return null
+              return (
+                <PlayerChip
+                  key={placement.gamePlayerId}
+                  player={member}
+                  onPitch
+                  style={pitchPosition(placement)}
+                  data-drop-player={placement.gamePlayerId}
+                  {...chipProps(placement.gamePlayerId)}
+                />
+              )
+            })}
+          </Pitch>
         </div>
-      )}
-      <div className={styles.pitchArea} onClick={handlePitchClick}>
-        <Pitch ref={pitchRef} label={`경기장, ${placements.length}/${MAX_PLACEMENTS}명 배치`}>
-          {editable &&
-            freeSlots.map((index) => (
+        {!editable && <p className={styles.count} aria-live="polite">{placements.length}명 배치됨</p>}
+      </section>
+
+      <div className={styles.side}>
+        {teamTabs}
+
+        <section className={styles.panel} aria-labelledby="tactic-formation-title">
+          <h2 id="tactic-formation-title" className={styles.panelTitle}>포메이션</h2>
+          <div className={styles.formations}>
+            {formationNames.map((name) => (
               <button
-                key={`slot-${index}`}
+                key={name}
                 type="button"
-                className={styles.slot}
-                style={pitchPosition(slots[index])}
-                data-drop-slot={index}
-                data-active={selectedId !== null}
-                aria-label={`빈 ${slots[index].role} 자리`}
-                tabIndex={selectedId === null ? -1 : 0}
-                onClick={() => handleSlotClick(index)}
+                className={styles.formation}
+                aria-pressed={formation === name}
+                disabled={!editable}
+                onClick={() => onFormationChange(name)}
               >
-                {slots[index].role}
+                {name}
               </button>
             ))}
-          {placements.map((placement) => {
-            const member = memberById.get(placement.gamePlayerId)
-            if (!member) return null
-            return (
-              <PlayerChip
-                key={placement.gamePlayerId}
-                player={member}
-                onPitch
-                style={pitchPosition(placement)}
-                data-drop-player={placement.gamePlayerId}
-                {...chipProps(placement.gamePlayerId)}
-              />
-            )
-          })}
-        </Pitch>
-      </div>
-
-      <p className={styles.help} aria-live="polite">
-        {notice ||
-          (selected
-            ? `${selected.name} 선수를 놓을 자리나 바꿀 선수를 눌러 주세요.`
-            : editable
-              ? '선수를 끌어 경기장에 놓거나, 눌러서 고른 뒤 자리를 눌러 주세요.'
-              : `${placements.length}명 배치됨`)}
-      </p>
-
-      <section className={styles.bench} data-drop-bench="" aria-labelledby="tactic-bench-title">
-        <div className={styles.benchHeader}>
-          <h3 id="tactic-bench-title">배치 안 된 선수 {bench.length}명</h3>
-          {editable && selected && placedIds.has(selectedId) && (
-            <button
-              type="button"
-              className={styles.unplace}
-              onClick={() => {
-                move(selectedId, { type: 'out' })
-                setSelectedId(null)
-              }}
-            >
-              경기장에서 빼기
-            </button>
+          </div>
+          {editable && (
+            <>
+              <Button variant="secondary" onClick={handleAutoPlace} disabled={!canAutoPlace}>
+                <WandIcon size={18} />
+                자동 배치
+              </Button>
+              <p className={styles.note}>
+                선발 선수를 배정 포지션과 같은 역할의 자리에 놓아요. 후보는 놓지 않아요.
+              </p>
+            </>
           )}
-        </div>
-        {bench.length === 0 ? (
-          <p className={styles.empty}>모든 선수를 배치했어요.</p>
-        ) : (
-          <ul className={styles.benchList}>
-            {bench.map((member) => (
-              <li key={member.gamePlayerId}>
-                <PlayerChip player={member} {...chipProps(member.gamePlayerId)} />
-              </li>
-            ))}
-          </ul>
+        </section>
+
+        {editable && (
+          <section className={styles.panel} aria-labelledby="tactic-selected-title">
+            <h2 id="tactic-selected-title" className={styles.panelTitle}>선택한 선수</h2>
+            {selected && (
+              <div className={styles.selected}>
+                <PositionChips positions={[selected.position]} />
+                <span className={styles.selectedName}>{selected.name}</span>
+                <Badge tone="green">선택됨</Badge>
+              </div>
+            )}
+            <p className={styles.text} aria-live="polite">
+              {notice ||
+                (selected
+                  ? placedIds.has(selectedId)
+                    ? '경기장의 다른 자리를 누르거나 끌어서 옮겨요. 벤치로 내리면 배치가 해제돼요.'
+                    : `${selected.name} 선수를 놓을 자리나 바꿀 선수를 눌러 주세요.`
+                  : '선수를 끌어 경기장에 놓거나, 눌러서 고른 뒤 자리를 눌러 주세요.')}
+            </p>
+            {selected && placedIds.has(selectedId) && (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  move(selectedId, { type: 'out' })
+                  setSelectedId(null)
+                }}
+              >
+                벤치로 내리기
+              </Button>
+            )}
+          </section>
         )}
-        {editable && <p className={styles.hint}>경기장 밖으로 끌어 놓으면 배치가 풀려요.</p>}
-      </section>
+
+        <section className={styles.panel} data-drop-bench="" aria-labelledby="tactic-bench-title">
+          <div className={styles.panelHead}>
+            <h2 id="tactic-bench-title" className={styles.panelTitle}>벤치</h2>
+            <span className={styles.count}>미배치 {unplaced} · 후보 {substitutes}</span>
+          </div>
+          {bench.length === 0 ? (
+            <p className={styles.text}>모든 선수를 배치했어요.</p>
+          ) : (
+            <ul className={styles.benchList}>
+              {bench.map((member) => (
+                <li key={member.gamePlayerId} className={styles.benchRow}>
+                  <PlayerChip player={member} {...chipProps(member.gamePlayerId)} />
+                  {editable && (
+                    <Button
+                      variant="secondary"
+                      fit="auto"
+                      className={styles.lift}
+                      aria-label={`${member.name} 선수를 경기장에 올리기`}
+                      disabled={full}
+                      onClick={() => handleLift(member)}
+                    >
+                      올리기
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          {editable && (
+            <p className={styles.note}>
+              경기장에는 최대 {MAX_PLACEMENTS}명까지 올릴 수 있어요. 지금 {placements.length} / {MAX_PLACEMENTS}명.
+            </p>
+          )}
+        </section>
+
+        {footer && <div className={styles.footer}>{footer}</div>}
+      </div>
 
       {draggingMember && (
         <div className={styles.ghost} style={{ left: drag.x, top: drag.y }} aria-hidden="true">
