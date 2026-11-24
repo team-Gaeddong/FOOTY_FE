@@ -74,6 +74,10 @@ export function ChevronRightIcon(props) {
   return <Icon {...props}><path d="M9 18l6-6-6-6" /></Icon>
 }
 
+export function ChevronDownIcon(props) {
+  return <Icon {...props}><path d="M6 9l6 6 6-6" /></Icon>
+}
+
 export function PlusIcon(props) {
   return <Icon {...props}><path d="M12 5v14M5 12h14" /></Icon>
 }
