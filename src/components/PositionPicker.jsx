@@ -8,6 +8,7 @@ const DEFAULT_HINT = '누른 순서대로 우선순위가 정해져요. 1~4개'
 // value는 고른 포지션 배열이고 순서가 곧 우선순위다. 누를 때마다 onChange로 새 배열을 넘긴다.
 // 회원 선호 포지션(온보딩), 경기별 선수 포지션, 비회원 선수 등록이 같은 규칙을 쓴다.
 // columns: 한 줄에 놓을 타일 수(기본 4, 좁은 카드는 2). showOrder: 아래 "현재 순서" 줄을 보일지(기본 true)
+// hint: 타일 아래 안내. null이면 숨긴다.
 export function PositionPicker({
   value,
   onChange,
@@ -23,7 +24,7 @@ export function PositionPicker({
   return (
     <fieldset
       className={styles.picker}
-      aria-describedby={hintId}
+      aria-describedby={hint === null ? undefined : hintId}
       data-invalid={invalid}
       disabled={disabled}
     >
@@ -46,9 +47,11 @@ export function PositionPicker({
           )
         })}
       </div>
-      <p id={hintId} className={styles.hint}>
-        {hint}
-      </p>
+      {hint !== null && (
+        <p id={hintId} className={styles.hint}>
+          {hint}
+        </p>
+      )}
       {showOrder && (
         <div className={styles.order} aria-live="polite">
           <span className={styles.orderLabel}>현재 순서</span>

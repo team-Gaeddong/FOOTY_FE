@@ -133,3 +133,7 @@ export function TrashIcon(props) {
 export function InfoIcon(props) {
   return <Icon {...props}><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01" /></Icon>
 }
+
+export function PencilIcon(props) {
+  return <Icon {...props}><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></Icon>
+}
