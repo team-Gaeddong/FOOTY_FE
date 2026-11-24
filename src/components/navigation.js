@@ -29,7 +29,7 @@ export const ROUTE_TABLE = [
   { path: '/games/:gameId/lineup', kind: 'sub', title: '경기 상세', back: '/', bar: true, current: 'games' },
   { path: '/games/:gameId/lineup/edit', kind: 'sub', title: '팀 짜기', back: '/games/:gameId/lineup', bar: false, current: 'games' },
   { path: '/games/:gameId/players', kind: 'sub', title: '선수 관리', back: '/games/:gameId', bar: true, current: 'games' },
-  { path: '/games/:gameId/teams/:teamId/tactic', kind: 'sub', title: '전술 배치도', back: '/games/:gameId/lineup', bar: false, current: 'games' },
+  { path: '/games/:gameId/teams/:teamId/tactic', kind: 'sub', title: '전술 배치도', back: '/games/:gameId/lineup', bar: true, current: 'games' },
   { path: '/withdraw', kind: 'sub', title: '회원 탈퇴', back: '/profile', bar: true, current: null },
 
   // 새 시안 범위 밖(다른 팀원 담당)이라 모바일에서는 자체 화면 그대로 둔다

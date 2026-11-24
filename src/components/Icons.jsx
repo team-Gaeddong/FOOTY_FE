@@ -141,3 +141,7 @@ export function PencilIcon(props) {
 export function DownloadIcon(props) {
   return <Icon {...props}><path d="M12 3v12M7 10l5 5 5-5M4 21h16" /></Icon>
 }
+
+export function WandIcon(props) {
+  return <Icon {...props}><path d="M15 4V2M15 10V8M11 6h2M17 6h2M3 21l12-12M12.5 6.5l2 2" /></Icon>
+}

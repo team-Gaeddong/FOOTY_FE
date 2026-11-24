@@ -79,3 +79,9 @@ test('라인업 탭은 모바일 하위 바를 켜고, 팀 짜기는 /lineup/edi
   assert.equal(edit.back, '/games/12/lineup')
   assert.equal(edit.params.gameId, '12')
 })
+
+test('전술 배치도는 모바일 하위 바(뒤로 + 제목)를 켠다', () => {
+  const route = matchRoute('/games/12/teams/3/tactic')
+  assert.equal(route.title, '전술 배치도')
+  assert.equal(route.bar, true)
+})
