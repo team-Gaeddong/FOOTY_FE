@@ -1,0 +1,94 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+}
+
+.numbers {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.side,
+.diff {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.diff {
+  align-items: center;
+  margin: 0 auto;
+}
+
+.sideEnd {
+  align-items: flex-end;
+}
+
+.label {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.first,
+.second {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 700;
+}
+
+.first {
+  color: var(--brand-green);
+}
+
+.second {
+  color: var(--signal-blue-light);
+}
+
+.diffValue {
+  color: var(--text-body);
+  font-size: var(--text-18);
+  line-height: var(--leading-18);
+  font-weight: 700;
+}
+
+.bar {
+  display: flex;
+  gap: var(--space-1);
+  height: 10px;
+}
+
+.barFirst,
+.barSecond {
+  display: block;
+  border-radius: var(--radius-pill);
+}
+
+.barFirst {
+  background: var(--brand-green);
+}
+
+.barSecond {
+  flex-grow: 1;
+  background: var(--signal-blue);
+}
+
+.note {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: var(--space-5);
+    gap: var(--space-3);
+  }
+}

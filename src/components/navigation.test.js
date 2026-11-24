@@ -76,7 +76,8 @@ test('라인업 탭은 모바일 하위 바를 켜고, 팀 짜기는 /lineup/edi
   assert.equal(tab.back, '/')
   const edit = matchRoute('/games/12/lineup/edit')
   assert.equal(edit.title, '팀 짜기')
-  assert.equal(edit.back, '/games/12/lineup')
+  assert.equal(edit.back, '/games/12')
+  assert.equal(edit.bar, true)
   assert.equal(edit.params.gameId, '12')
 })
 
