@@ -134,3 +134,54 @@ export function saveErrorOf(error) {
   if (status === 401) return { message: '로그인이 필요합니다. 다시 로그인해 주세요.' }
   return { message: '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' }
 }
+
+// ── 팀 짜기 화면(시안 Lineup)에서 쓰는 계산 ──
+
+// 팀의 선발·후보 수("선발 11 · 후보 1")
+export function squadCounts(members) {
+  const substitutes = members.filter((member) => member.isSubstitute).length
+  return { starters: members.length - substitutes, substitutes }
+}
+
+// 두 팀의 예상 실력 합계와 차이, 막대에서 A팀이 차지하는 비율(%). 실력을 모르는 선수가 있거나 팀이 둘이 아니면 null이다.
+// teams는 옮긴 결과를 반영한 팀 목록(applyMoves)이다. 저장하기 전에는 화면의 예상이고, 저장하면 BE 값으로 바뀐다.
+export function teamBalance(teams) {
+  if (teams.length !== 2) return null
+  const [a, b] = teams.map((team) => previewTotalSkill(team.members) ?? team.totalSkill)
+  if (typeof a !== 'number' || typeof b !== 'number') return null
+  const total = a + b
+  return { a, b, diff: Math.abs(a - b), aPercent: total > 0 ? Math.round((a / total) * 100) : 50 }
+}
+
+const FALLBACK = {
+  load: '팀 구성을 불러오지 못했습니다.',
+  create: '팀을 짜지 못했습니다.',
+  confirm: '팀을 확정하지 못했습니다.',
+}
+
+// 팀 짜기·확정·불러오기 실패 안내. action은 'load' | 'create' | 'confirm'이고 분기는 status·code로 한다(FD-04).
+export function actionErrorMessage(error, action) {
+  const fallback = FALLBACK[action] ?? FALLBACK.create
+  const status = typeof error?.status === 'number' ? error.status : null
+  const code = typeof error?.code === 'string' ? error.code : null
+  if (status === null) return `${fallback} 다시 시도해 주세요.`
+  if (status === 0) return NETWORK_ERROR
+  if (code === 'GAME_403_1') return action === 'confirm' ? '파티장만 팀을 확정할 수 있어요.' : '파티장만 팀을 짤 수 있어요.'
+  if (code === 'GAME_404_1') return '경기가 없거나 삭제됐어요. 목록에서 다시 확인해 주세요.'
+  if (code === 'GAME_409_1') return '모집 중인 경기에서만 할 수 있어요.'
+  if (code === 'LINEUP_409_1') return '이미 팀을 짠 경기예요. 화면을 새로 열어 주세요.'
+  if (code === 'LINEUP_409_2') return '실력 점수가 없는 선수가 있어요. 모든 선수의 실력을 매긴 뒤 다시 시도해 주세요.'
+  if (code === 'LINEUP_409_3') return '팀을 짜려면 참가 선수가 2명 이상이어야 해요.'
+  if (code === 'LINEUP_404_2') return '팀 구성을 찾을 수 없어요. 화면을 새로 열어 다시 확인해 주세요.'
+  if (code === 'MEMBER_403_1') return '온보딩을 마친 뒤 할 수 있어요.'
+  if (status === 401) return '로그인이 필요합니다. 다시 로그인해 주세요.'
+  return `${fallback} 잠시 후 다시 시도해 주세요.`
+}
+
+// 팀을 짜기 전에 막아야 하는지. 선수가 2명 미만이거나 실력을 안 매긴 선수가 있으면 BE가 409로 거절한다(LINEUP_409_3·409_2).
+// unrated는 실력을 안 매긴 선수 수(모르면 null)이고, 모르면 막지 않고 BE 응답에 맡긴다.
+export function createBlocker({ playerCount, unrated }) {
+  if (playerCount < 2) return 'few'
+  if (unrated !== null && unrated > 0) return 'unrated'
+  return null
+}
