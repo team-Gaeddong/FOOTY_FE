@@ -2,14 +2,18 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
   NO_MOVES,
+  actionErrorMessage,
   applyMoves,
   buildTeamsRequest,
   canEditLineup,
   countChanges,
+  createBlocker,
   findEmptyTeams,
   movePlayer,
   previewTotalSkill,
   saveErrorOf,
+  squadCounts,
+  teamBalance,
   toTeamLabel,
 } from './lineupEdit.js'
 
@@ -212,4 +216,45 @@ test('네트워크 오류·로그인 필요·온보딩 미완료·기타 오류'
 test('회원을 찾을 수 없으면 로그인 화면으로 보낸다', () => {
   assert.equal(saveErrorOf(apiError(404, 'MEMBER_404_1')).logout, true)
   assert.equal(saveErrorOf(apiError(403, 'GAME_403_1')).logout, undefined)
+})
+
+test('선발·후보 수를 센다', () => {
+  assert.deepEqual(squadCounts([member(1, 5), member(2, 6, true), member(3, 7)]), { starters: 2, substitutes: 1 })
+  assert.deepEqual(squadCounts([]), { starters: 0, substitutes: 0 })
+})
+
+test('두 팀의 예상 합계·차이·A팀 비율을 구한다(후보는 뺀다)', () => {
+  const balance = teamBalance([
+    { teamId: 1, totalSkill: 0, members: [member(1, 9), member(2, 6), member(3, 5, true)] },
+    { teamId: 2, totalSkill: 0, members: [member(4, 7), member(5, 7)] },
+  ])
+  assert.deepEqual(balance, { a: 15, b: 14, diff: 1, aPercent: 52 })
+})
+
+test('실력을 모르는 선수가 있으면 BE 합계로 대신하고, 그것도 없으면 균형을 그리지 않는다', () => {
+  const unknown = [
+    { teamId: 1, totalSkill: 40, members: [member(1, null)] },
+    { teamId: 2, totalSkill: 38, members: [member(2, 5)] },
+  ]
+  assert.deepEqual(teamBalance(unknown), { a: 40, b: 5, diff: 35, aPercent: 89 })
+  assert.equal(teamBalance([{ teamId: 1, totalSkill: null, members: [member(1, null)] }, { teamId: 2, totalSkill: null, members: [member(2, null)] }]), null)
+  assert.equal(teamBalance([{ teamId: 1, totalSkill: 3, members: [] }]), null)
+})
+
+test('팀 짜기·확정·불러오기 실패 안내는 code로 고르고 BE message를 쓰지 않는다', () => {
+  assert.match(actionErrorMessage({ status: 0 }, 'create'), /서버에 연결할 수 없습니다/)
+  assert.match(actionErrorMessage({ status: 409, code: 'LINEUP_409_2' }, 'create'), /실력 점수가 없는 선수/)
+  assert.match(actionErrorMessage({ status: 409, code: 'LINEUP_409_3' }, 'create'), /2명 이상/)
+  assert.match(actionErrorMessage({ status: 403, code: 'GAME_403_1' }, 'confirm'), /팀을 확정할 수 있어요/)
+  assert.match(actionErrorMessage({ status: 403, code: 'GAME_403_1' }, 'create'), /팀을 짤 수 있어요/)
+  assert.match(actionErrorMessage({ status: 500, message: '서버 문구' }, 'load'), /불러오지 못했습니다/)
+  assert.doesNotMatch(actionErrorMessage({ status: 500, message: '서버 문구' }, 'confirm'), /서버 문구/)
+  assert.match(actionErrorMessage(new Error('boom'), 'confirm'), /확정하지 못했습니다/)
+})
+
+test('선수가 2명 미만이거나 실력이 비었으면 팀 짜기를 막는다', () => {
+  assert.equal(createBlocker({ playerCount: 1, unrated: 0 }), 'few')
+  assert.equal(createBlocker({ playerCount: 10, unrated: 3 }), 'unrated')
+  assert.equal(createBlocker({ playerCount: 10, unrated: 0 }), null)
+  assert.equal(createBlocker({ playerCount: 10, unrated: null }), null)
 })
