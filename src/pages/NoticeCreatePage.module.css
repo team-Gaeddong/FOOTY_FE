@@ -1,182 +1,176 @@
-.backLink {
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--content-form);
+  margin: 0 auto;
+  padding: 20px var(--page-gutter) var(--space-6);
+  color: var(--text-body);
+}
+
+/* 모바일은 상단의 하위 바(뒤로 + "공지 작성")가 있어 PC에서만 보인다 */
+.back {
+  display: none;
+  align-items: center;
+  gap: 6px;
   align-self: flex-start;
-  color: var(--color-text-muted);
-  font-size: 14px;
-  font-weight: 600;
+  min-height: var(--tap-min);
+  color: var(--gray-300);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
   text-decoration: none;
 }
 
-.backLink:hover {
-  color: var(--color-primary);
+.back:hover {
+  color: var(--text-body);
 }
 
-.backLink:focus-visible,
-.primaryLink:focus-visible,
-.secondaryLink:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 3px;
+.back:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 6px;
 }
 
 .eyebrow {
-  color: var(--color-primary);
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.header h1,
-.successCard h1 {
-  font-size: 30px;
-  line-height: 1.25;
-}
-
-.intro,
-.messageCard > p {
-  color: var(--color-text-muted);
-  font-size: 14px;
-}
-
-.form,
-.successCard,
-.messageCard {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-.field label {
-  font-weight: 700;
-}
-
-.field label span {
-  color: var(--color-primary);
-}
-
-.field input,
-.field textarea {
-  width: 100%;
-  min-width: 0;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  color: var(--color-text);
-}
-
-.field input {
-  min-height: 48px;
-}
-
-.field textarea {
-  min-height: 180px;
-  resize: vertical;
-}
-
-.field input:focus-visible,
-.field textarea:focus-visible {
-  border-color: var(--color-primary);
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-
-.field input[aria-invalid='true'],
-.field textarea[aria-invalid='true'] {
-  border-color: var(--color-danger);
-}
-
-.field input::placeholder,
-.field textarea::placeholder {
-  color: var(--color-text-muted);
-  opacity: 0.8;
-}
-
-.hint {
-  align-self: flex-end;
-  color: var(--color-text-muted);
-  font-size: 12px;
-}
-
-.successCard {
-  gap: var(--space-3);
-}
-
-.successIcon {
-  display: grid;
-  width: 48px;
-  height: 48px;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.noticePreview {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  border-radius: var(--radius);
-  background: var(--color-bg);
-}
-
-.createdAt {
-  color: var(--color-text-muted);
-  font-size: 12px;
-}
-
-.noticePreview h2 {
-  font-size: 18px;
-}
-
-.contentPreview {
-  white-space: pre-wrap;
+  color: var(--brand-green);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
 
-.primaryLink,
-.secondaryLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
+.title {
+  color: var(--text-body);
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  font-weight: 700;
+}
+
+.lead {
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+}
+
+.info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius);
-  font-weight: 600;
-  text-decoration: none;
+  border-radius: var(--radius-12);
+  color: var(--text-sub);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
 }
 
-.primaryLink {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+.info svg {
+  margin-top: 1px;
+  color: var(--text-faint);
 }
 
-.primaryLink:hover {
-  background: var(--color-primary-hover);
+/* 올리기 줄. 모바일은 화면 아래에 붙인다 */
+.actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin: 0 calc(-1 * var(--page-gutter)) calc(-1 * var(--space-6));
+  padding: var(--space-3) var(--page-gutter) calc(var(--space-4) + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface-deep);
 }
 
-.secondaryLink {
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
+.cancel {
+  display: none;
 }
 
-.messageCard h1 {
-  font-size: 22px;
+@media (min-width: 768px) {
+  .page {
+    gap: 20px;
+    padding: var(--space-6) var(--space-6) 72px;
+  }
+
+  .back {
+    display: inline-flex;
+  }
+
+  /* 뒤로 링크 바로 아래에 붙는 머리글(시안) */
+  .back + .header {
+    margin-top: -16px;
+  }
+
+  .lead {
+    font-size: var(--text-16);
+    line-height: var(--leading-16);
+  }
+
+  /* PC는 입력칸과 버튼이 한 카드 안에 있다(시안) */
+  .form {
+    gap: 20px;
+    padding: var(--space-6);
+    border-radius: var(--radius-12);
+    background: var(--surface-card);
+  }
+
+  .card {
+    padding: 0;
+    background: none;
+  }
+
+  .actions {
+    position: static;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+
+  .actions .cancel {
+    display: inline-flex;
+    border-color: transparent;
+    background: transparent;
+    color: var(--gray-300);
+  }
+
+  .actions .cancel:hover {
+    color: var(--text-body);
+  }
 }
