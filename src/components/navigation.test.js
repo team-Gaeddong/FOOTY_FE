@@ -88,3 +88,9 @@ test('투표 탭 두 경로와 투표 만들기는 모바일 하위 바를 켠�
   assert.equal(matchRoute('/games/12/polls').back, '/')
   assert.equal(matchRoute('/games/12/polls/new').title, '투표 만들기')
 })
+
+test('전술 배치도는 모바일 하위 바(뒤로 + 제목)를 켠다', () => {
+  const route = matchRoute('/games/12/teams/3/tactic')
+  assert.equal(route.title, '전술 배치도')
+  assert.equal(route.bar, true)
+})

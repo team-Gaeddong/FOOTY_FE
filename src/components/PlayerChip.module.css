@@ -1,15 +1,12 @@
 .chip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: var(--space-2);
-  max-width: 100%;
-  min-height: 44px;
-  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-1);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-body);
+  font-family: inherit;
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -17,17 +14,12 @@
 }
 
 .chip:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--brand-green);
   outline-offset: 2px;
 }
 
 .chip:disabled {
   cursor: default;
-}
-
-.chip[data-selected='true'] {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary);
 }
 
 .chip[data-dragging='true'] {
@@ -36,73 +28,99 @@
 
 .position {
   display: inline-flex;
-  flex: none;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font-size: 12px;
-  font-weight: 800;
+  box-sizing: border-box;
 }
 
 .name {
   overflow: hidden;
-  font-size: 14px;
-  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.substitute {
-  flex: none;
-  padding: 0 var(--space-1);
-  border-radius: 4px;
-  background: var(--color-bg);
-  color: var(--color-text-muted);
-  font-size: 11px;
-}
-
-/* 경기장 위: 원 아래에 이름을 놓는 세로형 */
+/* 경기장 위: 원 아래에 이름표를 놓는 세로형(시안) */
 .onPitch {
   position: absolute;
   flex-direction: column;
-  gap: 2px;
-  width: 64px;
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: none;
+  gap: var(--space-1);
+  max-width: 88px;
   transform: translate(-50%, -50%);
 }
 
 .onPitch .position {
-  width: 36px;
-  height: 36px;
-  border: 2px solid #fff;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--gray-100);
+  border-radius: var(--radius-pill);
+  background: var(--gray-950);
+  color: var(--gray-100);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
 }
 
 .onPitch .name {
   max-width: 100%;
-  padding: 0 var(--space-1);
-  border-radius: 4px;
-  background: rgb(0 0 0 / 0.55);
-  color: #fff;
-  font-size: 11px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: rgb(23 23 23 / 0.85);
+  color: var(--gray-100);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
 }
 
 .onPitch .substitute {
   display: none;
 }
 
-.onPitch[data-selected='true'] {
-  box-shadow: none;
+.onPitch[data-selected='true'] .position {
+  border-color: var(--brand-green);
+  background: var(--brand-green);
+  color: var(--on-brand);
 }
 
-.onPitch[data-selected='true'] .position {
-  border-color: #ffd54f;
-  box-shadow: 0 0 0 3px #ffd54f;
+/* 벤치: 줄 하나(시안). 줄 바탕은 목록(li)이 그린다 */
+.onBench {
+  flex: 1;
+  gap: var(--space-2);
+  min-height: 56px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-12);
+  text-align: left;
+}
+
+.onBench .position {
+  padding: 2px 6px;
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-8);
+  background: var(--gray-700);
+  color: var(--gray-100);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
+}
+
+.onBench .name {
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
+}
+
+.onBench .substitute {
+  flex-shrink: 0;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-8);
+  background: var(--gray-700);
+  color: var(--gray-200);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
+}
+
+.onBench[data-selected='true'] {
+  outline: 2px solid var(--brand-green);
+  outline-offset: -2px;
 }

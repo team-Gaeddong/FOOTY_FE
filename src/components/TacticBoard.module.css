@@ -1,51 +1,29 @@
+/* 모바일은 한 줄로 쌓고(footer가 화면 아래에 붙는다), PC는 경기장 카드 + 오른쪽 열(시안 Tactic) */
 .board {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 }
 
+.side {
+  display: contents;
+}
+
+.pitchCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-12);
+  background: var(--surface-deep);
+}
+
 .pitchArea {
   width: 100%;
-}
-
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-3);
-}
-
-.autoPlace {
-  min-height: 44px;
-  padding: 0 var(--space-4);
-  border: 1px solid var(--color-primary);
-  border-radius: 8px;
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.autoPlace:hover:not(:disabled) {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-}
-
-.autoPlace:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.autoPlace:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.toolbarHint {
-  color: var(--color-text-muted);
-  font-size: 13px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .slot {
@@ -53,82 +31,169 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
   padding: 0;
-  border: 2px dashed rgb(255 255 255 / 0.85);
-  border-radius: 50%;
-  background: rgb(255 255 255 / 0.15);
-  color: #fff;
-  font: inherit;
-  font-size: 11px;
-  font-weight: 700;
+  border: 2px dashed rgb(237 237 237 / 0.5);
+  border-radius: var(--radius-pill);
+  background: rgb(237 237 237 / 0.08);
+  color: var(--gray-100);
+  font-family: inherit;
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
   transform: translate(-50%, -50%);
   cursor: default;
 }
 
 .slot[data-active='true'] {
-  background: rgb(255 255 255 / 0.35);
+  background: rgb(237 237 237 / 0.22);
   cursor: pointer;
 }
 
 .slot:focus-visible {
-  outline: 2px solid #ffd54f;
+  outline: 2px solid var(--brand-green);
   outline-offset: 2px;
 }
 
-.help,
-.hint,
-.empty {
-  color: var(--color-text-muted);
-  font-size: 14px;
-}
-
-.bench {
+.panel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  gap: var(--space-3);
+  min-width: 0;
+  padding: 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
 }
 
-.benchHeader {
+.panelHead {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.panelTitle {
+  color: var(--text-body);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+}
+
+.count {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+/* 경기장 카드 아래(읽기 전용)의 숫자는 왼쪽부터 */
+.pitchCard .count {
+  margin-left: 0;
+}
+
+.text {
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.note {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.formations {
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.benchHeader h3 {
-  margin: 0;
-  font-size: 15px;
+.formation {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-pill);
+  background: var(--surface-page);
+  color: var(--text-sub);
+  font-family: inherit;
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
+  cursor: pointer;
 }
 
-.unplace {
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--color-danger);
-  border-radius: 8px;
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
+.formation[aria-pressed='true'] {
+  border-color: var(--brand-green);
+  background: var(--badge-green-bg);
+  color: var(--badge-green-fg);
+}
+
+.formation:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
+}
+
+.formation:disabled {
+  cursor: default;
+}
+
+.formation:disabled:not([aria-pressed='true']) {
+  opacity: 0.6;
+}
+
+.selected {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.selectedName {
+  min-width: 0;
+  color: var(--text-body);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .benchList {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.benchList li {
+.benchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   min-width: 0;
-  max-width: 100%;
+  border-radius: var(--radius-12);
+  background: var(--surface-page);
+}
+
+.benchRow > :first-child {
+  min-width: 0;
+}
+
+.lift {
+  flex-shrink: 0;
+  margin-right: var(--space-3);
+  padding: 0 14px;
+}
+
+/* 저장 줄 묶음. 모바일에서는 래퍼 없이 보드의 한 줄씩이 되어, 안의 저장 줄이 화면 아래에 붙을 수 있다 */
+.footer {
+  display: contents;
 }
 
 .ghost {
@@ -137,8 +202,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  transform: translate(-50%, -20px);
+  gap: var(--space-1);
+  transform: translate(-50%, -22px);
   pointer-events: none;
 }
 
@@ -146,22 +211,53 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font-size: 12px;
-  font-weight: 800;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--brand-green);
+  border-radius: var(--radius-pill);
+  background: var(--brand-green);
+  color: var(--on-brand);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.35);
 }
 
 .ghostName {
-  padding: 0 var(--space-1);
-  border-radius: 4px;
-  background: rgb(0 0 0 / 0.65);
-  color: #fff;
-  font-size: 12px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: rgb(23 23 23 / 0.85);
+  color: var(--gray-100);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
   white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .board {
+    flex-flow: row wrap;
+    align-items: flex-start;
+    gap: var(--space-5);
+  }
+
+  .pitchCard {
+    flex: 999 1 560px;
+    padding: var(--space-6);
+  }
+
+  .side {
+    display: flex;
+    flex: 1 1 360px;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
 }

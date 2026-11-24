@@ -1,13 +1,13 @@
 import { startTransition, useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
-import { ApiError } from '../api/client.js'
+import { getGame } from '../api/games.js'
 import { getLatestLineup } from '../api/lineups.js'
 import { getTactic, updateTactic } from '../api/tactics.js'
 import { useAuth } from '../auth/useAuth.js'
 import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
-import { LoadingScreen } from '../components/LoadingScreen.jsx'
-import { PageLayout } from '../components/PageLayout.jsx'
+import { ArrowLeftIcon, DownloadIcon, PinIcon } from '../components/Icons.jsx'
+import { StateCard } from '../components/StateCard.jsx'
 import { TacticBoard } from '../components/TacticBoard.jsx'
 import { DEFAULT_FORMATION, FORMATION_NAMES } from '../components/formations.js'
 import {
@@ -21,53 +21,12 @@ import {
   placementsFromMembers,
   toPlacementRequest,
 } from '../components/tacticPlacements.js'
-import { checkHost } from './checkHost.js'
+import { parseGameId } from './gameDetail.js'
+import { dateTimeLabel } from './homeCalendar.js'
+import { imageErrorMessage, loadErrorMessage, saveErrorOf } from './tacticMessages.js'
 import styles from './TacticPage.module.css'
 
 const LEAVE_CONFIRM = '저장하지 않은 배치가 있어요. 저장하지 않고 나갈까요?'
-const NETWORK_ERROR = '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
-
-function parseId(value) {
-  if (!/^\d+$/.test(value ?? '')) return null
-  const id = Number(value)
-  return Number.isSafeInteger(id) && id > 0 ? id : null
-}
-
-function loadErrorMessage(error) {
-  if (!(error instanceof ApiError)) return '전술 배치도를 불러오지 못했습니다.'
-  if (error.status === 0) return NETWORK_ERROR
-  if (error.code === 'GAME_404_1') return '경기가 없거나 삭제됐어요.'
-  if (error.code === 'LINEUP_404_1') return '이 경기에 없는 팀이에요.'
-  if (error.code === 'MEMBER_403_1') return '온보딩을 마친 뒤 볼 수 있어요.'
-  if (error.status === 401) return '로그인이 필요합니다. 다시 로그인해 주세요.'
-  return '전술 배치도를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
-}
-
-// lock: 다시 저장해도 안 되는 경우라 편집을 막는다
-function saveErrorOf(error) {
-  if (!(error instanceof ApiError)) return { message: '저장하지 못했습니다. 다시 시도해 주세요.' }
-  if (error.status === 0) return { message: NETWORK_ERROR }
-  if (error.code === 'GAME_403_1') return { message: '파티장만 전술을 저장할 수 있어요.', lock: true }
-  if (error.code === 'LINEUP_409_4') return { message: '확정된 팀이라 전술을 바꿀 수 없어요.', lock: true }
-  if (error.code === 'LINEUP_400_1') return { message: '같은 선수가 두 번 배치됐어요. 새로고침한 뒤 다시 배치해 주세요.' }
-  if (error.code === 'LINEUP_400_2') return { message: '팀 구성이 바뀌었어요. 새로고침한 뒤 다시 배치해 주세요.' }
-  if (error.code === 'GLOBAL_400_1') return { message: '배치 값이 올바르지 않아요. 11명 이하인지 확인해 주세요.' }
-  if (error.code === 'GAME_404_1' || error.code === 'LINEUP_404_1') {
-    return { message: '경기나 팀이 없어져 저장할 수 없어요.', lock: true }
-  }
-  if (error.status === 401) return { message: '로그인이 필요합니다. 다시 로그인해 주세요.' }
-  return { message: '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' }
-}
-
-function imageErrorMessage(error) {
-  if (!(error instanceof ApiError)) return '이미지를 만들지 못했어요. 다시 시도해 주세요.'
-  if (error.status === 0) return NETWORK_ERROR
-  if (error.code === 'GAME_404_1' || error.code === 'LINEUP_404_1') {
-    return '경기나 팀이 없어져 이미지를 만들 수 없어요.'
-  }
-  if (error.status === 401) return '로그인이 필요합니다. 다시 로그인해 주세요.'
-  return '팀 배치를 불러오지 못해 이미지를 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
-}
 
 function draftFrom(tactic) {
   const formation = tactic.formation ?? DEFAULT_FORMATION
@@ -82,7 +41,7 @@ function sameDraft(a, b) {
   )
 }
 
-// 팀 하나의 포메이션과 선수 배치를 보고 고친다(BE D-23). 저장은 파티장만 된다.
+// 팀 하나의 포메이션과 선수 배치를 보고 고친다(BE D-23, 시안 Tactic). 저장은 파티장만 된다.
 // 파티장이 아니면 처음부터 읽기 전용으로 보여주고, 최종 권한은 BE 응답(403·409)으로 판단한다.
 // 팀 짜기 화면에서 들어오면 팀 목록을 이동 state로 받고, 새로고침 등으로 없으면 최근 라인업에서 가져온다(BE D-24).
 export function TacticPage() {
@@ -90,11 +49,10 @@ export function TacticPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { clearSession } = useAuth()
-  const gameId = parseId(params.gameId)
-  const teamId = parseId(params.teamId)
+  const gameId = parseGameId(params.gameId)
+  const teamId = parseGameId(params.teamId)
   const stateTeams = location.state?.gameId === gameId ? location.state.teams : null
-  const gameTitle = location.state?.gameId === gameId ? location.state.gameTitle : null
-  const knownHostId = location.state?.gameId === gameId ? (location.state.hostId ?? null) : null
+  const stateTitle = location.state?.gameId === gameId ? location.state.gameTitle : null
 
   const [retryCount, setRetryCount] = useState(0)
   const requestKey = `${gameId}:${teamId}:${retryCount}`
@@ -103,7 +61,7 @@ export function TacticPage() {
   const [saving, setSaving] = useState(false)
   // 팀을 바꾸면(requestKey가 바뀌면) 이전 팀의 저장 결과는 보이지 않도록 key를 붙인다
   const [saveResult, setSaveResult] = useState(null) // { key, saved } | { key, error: { message, lock } }
-  const [hostResult, setHostResult] = useState(null) // { key: gameId, isHost: true | false | null }
+  const [gameResult, setGameResult] = useState(null) // { key: gameId, game | null }
   const [lineupTeams, setLineupTeams] = useState(null) // { key: gameId, teams }
   const [imageResult, setImageResult] = useState(null) // { key, status: 'saving' | 'saved' } | { key, error }
   const pending = useRef(false)
@@ -116,12 +74,15 @@ export function TacticPage() {
   const dirty = Boolean(saved && editing && !sameDraft(saved, editing))
   const currentSave = saveResult?.key === requestKey ? saveResult : null
   const saveError = currentSave?.error ?? null
-  const isHost = hostResult?.key === gameId ? hostResult.isHost : undefined
+  // true·false는 경기 정보로 안 것이고, null은 경기 정보를 못 받은 것(BE 응답에 맡긴다), undefined는 아직 모름
+  const game = gameResult?.key === gameId ? gameResult.game : null
+  const isHost = gameResult?.key === gameId ? (gameResult.game ? gameResult.game.isHost === true : null) : undefined
   const locked = Boolean(saveError?.lock)
   const readOnly = locked || isHost === false
   const unsaved = dirty && !readOnly
   const currentImage = imageResult?.key === requestKey ? imageResult : null
   const savingImage = currentImage?.status === 'saving'
+  const gameTitle = game?.title ?? stateTitle
 
   useEffect(() => {
     if (gameId === null || teamId === null) return
@@ -146,22 +107,23 @@ export function TacticPage() {
     }
   }, [gameId, teamId, requestKey, navigate, clearSession])
 
+  // 파티장 여부·제목·일시. 못 받으면 null로 두고 저장 권한은 BE 응답에 맡긴다.
   useEffect(() => {
     if (gameId === null) return
     let active = true
 
-    checkHost(gameId, knownHostId)
-      .then((value) => {
-        if (active) setHostResult({ key: gameId, isHost: value })
+    getGame(gameId)
+      .then((data) => {
+        if (active) setGameResult({ key: gameId, game: data })
       })
       .catch(() => {
-        if (active) setHostResult({ key: gameId, isHost: null })
+        if (active) setGameResult({ key: gameId, game: null })
       })
 
     return () => {
       active = false
     }
-  }, [gameId, knownHostId])
+  }, [gameId])
 
   // 팀 탭용. LINEUP_404_2(아직 팀을 짜지 않음)를 포함해 실패하면 탭만 숨기고 배치도는 그대로 보여준다.
   useEffect(() => {
@@ -220,10 +182,10 @@ export function TacticPage() {
         startTransition(() => clearSession())
         return
       }
-      const saveError = saveErrorOf(error)
+      const failure = saveErrorOf(error)
       // 저장할 수 없게 됐으면 저장되지 않은 배치 대신 저장된 배치를 보여준다
-      if (saveError.lock) setDraft(null)
-      setSaveResult({ key: requestKey, error: saveError })
+      if (failure.lock) setDraft(null)
+      setSaveResult({ key: requestKey, error: failure })
     } finally {
       pending.current = false
       setSaving(false)
@@ -259,146 +221,160 @@ export function TacticPage() {
     }
   }
 
-  const backLink = (
-    <Link className={styles.backLink} to="/games" onClick={confirmLeave}>← 경기 목록</Link>
+  const backTo = `/games/${gameId}/lineup`
+  const backLink = gameId !== null && (
+    <Link className={styles.back} to={backTo} onClick={confirmLeave}>
+      <ArrowLeftIcon size={18} />
+      {gameTitle ?? '경기 상세'}
+    </Link>
   )
 
+  let eyebrow = null
+  if (game) eyebrow = `${game.title} · ${dateTimeLabel(game.playDate)}`
+  else if (stateTitle) eyebrow = stateTitle
+  else if (gameId !== null) eyebrow = `경기 #${gameId}`
+
+  const tactic = current?.data ?? null
+  const multiTeam = teams?.length > 1
+  let lead = '포메이션을 고르고 선수를 자리에 놓아요. 팀을 확정하기 전까지 바꿀 수 있어요.'
+  if (isHost === false) lead = '파티장만 배치를 바꿀 수 있어요. 저장된 배치를 보여드려요.'
+  else if (readOnly) lead = '저장된 배치를 보여드려요.'
+
+  const teamTabs = multiTeam && (
+    <section className={styles.card} aria-labelledby="tactic-team-title">
+      <h2 id="tactic-team-title" className={styles.cardTitle}>팀</h2>
+      <nav className={styles.segmented} aria-label="팀 선택">
+        {teams.map((team) => (
+          <Link
+            key={team.teamId}
+            className={styles.segment}
+            to={`/games/${gameId}/teams/${team.teamId}/tactic`}
+            state={location.state}
+            aria-current={team.teamId === teamId ? 'page' : undefined}
+            onClick={confirmLeave}
+          >
+            {team.name}
+          </Link>
+        ))}
+      </nav>
+    </section>
+  )
+
+  let body
   if (gameId === null || teamId === null) {
-    return (
-      <PageLayout>
-        {backLink}
-        <section className={styles.panel}>
-          <h1>주소가 올바르지 않아요</h1>
-          <p>경기 목록에서 다시 선택해 주세요.</p>
-        </section>
-      </PageLayout>
-    )
-  }
-
-  if (!current || isHost === undefined) return <LoadingScreen />
-
-  if (current.error) {
-    return (
-      <PageLayout>
-        {backLink}
-        <section className={styles.panel}>
-          <h1>전술 배치도</h1>
-          <ErrorMessage>{loadErrorMessage(current.error)}</ErrorMessage>
-          <Button variant="secondary" onClick={() => setRetryCount((count) => count + 1)}>
-            다시 불러오기
+    body = (
+      <StateCard
+        icon={<PinIcon size={22} />}
+        title="주소가 올바르지 않아요"
+        actions={
+          <Button as={Link} to="/" variant="secondary" fit="auto">
+            경기 목록으로
           </Button>
-        </section>
-      </PageLayout>
+        }
+      >
+        경기 목록에서 다시 선택해 주세요.
+      </StateCard>
     )
-  }
-
-  const tactic = current.data
-  const formationOptions = FORMATION_NAMES.includes(editing.formation)
-    ? FORMATION_NAMES
-    : [...FORMATION_NAMES, editing.formation]
-
-  return (
-    <PageLayout>
-      {backLink}
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>{gameTitle ?? `경기 #${gameId}`}</p>
-        <h1>{tactic.name} 전술 배치도</h1>
-      </header>
-
-      {teams?.length > 1 && (
-        <nav className={styles.teamTabs} aria-label="팀 선택">
-          {teams.map((team) => (
-            <Link
-              key={team.teamId}
-              className={styles.teamTab}
-              to={`/games/${gameId}/teams/${team.teamId}/tactic`}
-              state={location.state}
-              aria-current={team.teamId === teamId ? 'page' : undefined}
-              onClick={confirmLeave}
-            >
-              {team.name}
-            </Link>
-          ))}
-        </nav>
-      )}
-
-      {tactic.members.length === 0 ? (
-        <section className={styles.panel}>
-          <p>이 팀에 배정된 선수가 없어요.</p>
-        </section>
-      ) : (
+  } else if (!current || isHost === undefined) {
+    body = (
+      <p className={styles.message} role="status">
+        전술 배치도를 불러오는 중…
+      </p>
+    )
+  } else if (current.error) {
+    body = (
+      <div className={styles.message}>
+        <ErrorMessage>{loadErrorMessage(current.error)}</ErrorMessage>
+        <Button variant="secondary" fit="auto" onClick={() => setRetryCount((count) => count + 1)}>
+          다시 불러오기
+        </Button>
+      </div>
+    )
+  } else if (tactic.members.length === 0) {
+    body = (
+      <div className={styles.stack}>
+        {teamTabs}
+        <StateCard icon={<PinIcon size={22} />} title="배정된 선수가 없어요">
+          이 팀에 배정된 선수가 없어서 배치할 수 없어요.
+        </StateCard>
+      </div>
+    )
+  } else {
+    const formationNames = FORMATION_NAMES.includes(editing.formation)
+      ? FORMATION_NAMES
+      : [...FORMATION_NAMES, editing.formation]
+    const showImage = isHost === true
+    const savedNow = currentSave?.saved && !dirty
+    const footer =
+      !readOnly || showImage || saveError ? (
         <>
-          <fieldset className={styles.formations} disabled={readOnly}>
-            <legend>포메이션</legend>
-            <div className={styles.formationOptions}>
-              {formationOptions.map((name) => (
-                <button
-                  key={name}
-                  type="button"
-                  className={styles.formation}
-                  aria-pressed={editing.formation === name}
-                  onClick={() =>
-                    updateDraft({
-                      formation: name,
-                      placements: changeFormation(editing.placements, name),
-                    })
-                  }
-                >
-                  {name}
-                </button>
-              ))}
-            </div>
-          </fieldset>
-
-          <TacticBoard
-            members={tactic.members}
-            formation={editing.formation}
-            placements={editing.placements}
-            onChange={(placements) => updateDraft({ placements })}
-            editable={!readOnly}
-          />
-
-          {isHost === false && !locked && (
-            <p className={styles.readOnly} role="status">
-              파티장만 배치를 바꿀 수 있어요. 저장된 배치를 보여드려요.
-            </p>
-          )}
-          <ErrorMessage>{saveError?.message}</ErrorMessage>
-          {currentSave?.saved && !dirty && (
-            <p className={styles.saved} role="status">저장했어요.</p>
-          )}
-          {!readOnly && (
-            <div className={styles.actions}>
-              <Button variant="secondary" onClick={() => updateDraft(saved)} disabled={!dirty || saving}>
-                되돌리기
-              </Button>
-              <Button onClick={handleSave} disabled={saving || (!dirty && tactic.formation !== null)}>
-                {saving ? '저장 중…' : '저장하기'}
-              </Button>
+          {(!readOnly || saveError || savedNow) && (
+            <div className={styles.saveBar}>
+              <ErrorMessage>{saveError?.message}</ErrorMessage>
+              {savedNow && <p className={styles.saved} role="status">저장했어요.</p>}
+              {!readOnly && (
+                <div className={styles.actions}>
+                  {dirty && (
+                    <Button variant="secondary" fit="auto" onClick={() => updateDraft(saved)} disabled={saving}>
+                      되돌리기
+                    </Button>
+                  )}
+                  <Button size="lg" onClick={handleSave} disabled={saving || (!dirty && tactic.formation !== null)}>
+                    {saving ? '저장 중…' : '배치 저장'}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
-          {!readOnly && (
-            <p className={styles.note}>자리를 옮겨도 선수의 배정 포지션은 바뀌지 않아요.</p>
+          {showImage && (
+            <div className={styles.imageBlock}>
+              <Button variant="secondary" onClick={handleSaveImage} disabled={savingImage || unsaved}>
+                <DownloadIcon size={18} />
+                {savingImage ? '이미지 만드는 중…' : '이미지 저장 (PNG)'}
+              </Button>
+              <p className={styles.note}>
+                {unsaved
+                  ? '배치를 저장한 뒤 이미지로 받을 수 있어요.'
+                  : `${multiTeam ? '모든 팀' : '이 팀'}의 저장된 배치를 PNG 한 장으로 내려받아요.`}
+              </p>
+              <ErrorMessage>{currentImage?.error}</ErrorMessage>
+              {currentImage?.status === 'saved' && (
+                <p className={styles.saved} role="status">이미지를 내려받았어요.</p>
+              )}
+            </div>
           )}
         </>
-      )}
+      ) : null
 
-      {isHost === true && (
-        <section className={styles.imageSave} aria-label="전술 배치도 이미지 저장">
-          <Button variant="secondary" onClick={handleSaveImage} disabled={savingImage || unsaved}>
-            {savingImage ? '이미지 만드는 중…' : '이미지로 저장'}
-          </Button>
-          <p className={styles.note}>
-            {unsaved
-              ? '배치를 저장한 뒤 이미지로 받을 수 있어요.'
-              : `${teams?.length > 1 ? '모든 팀' : '이 팀'}의 저장된 배치를 PNG 한 장으로 내려받아요.`}
-          </p>
-          <ErrorMessage>{currentImage?.error}</ErrorMessage>
-          {currentImage?.status === 'saved' && (
-            <p className={styles.saved} role="status">이미지를 내려받았어요.</p>
-          )}
-        </section>
-      )}
-    </PageLayout>
+    body = (
+      <TacticBoard
+        members={tactic.members}
+        formation={editing.formation}
+        formationNames={formationNames}
+        placements={editing.placements}
+        onChange={(placements) => updateDraft({ placements })}
+        onFormationChange={(name) =>
+          updateDraft({ formation: name, placements: changeFormation(editing.placements, name) })
+        }
+        teamName={tactic.name}
+        teamTabs={teamTabs}
+        footer={footer}
+        editable={!readOnly}
+      />
+    )
+  }
+
+  return (
+    <main className={styles.page}>
+      {backLink}
+      <header className={styles.header}>
+        {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
+        <h1 className={styles.title}>
+          {tactic && !multiTeam ? `${tactic.name} 전술 배치도` : '전술 배치도'}
+        </h1>
+        {gameId !== null && teamId !== null && tactic && <p className={styles.lead}>{lead}</p>}
+      </header>
+      {body}
+    </main>
   )
 }
