@@ -79,3 +79,11 @@ test('라인업 탭은 모바일 하위 바를 켜고, 팀 짜기는 /lineup/edi
   assert.equal(edit.back, '/games/12/lineup')
   assert.equal(edit.params.gameId, '12')
 })
+
+test('투표 탭 두 경로와 투표 만들기는 모바일 하위 바를 켠다', () => {
+  for (const path of ['/games/12/polls', '/games/12/polls/7', '/games/12/polls/new']) {
+    assert.equal(mobileChrome(matchRoute(path)), 'bar', path)
+  }
+  assert.equal(matchRoute('/games/12/polls').back, '/')
+  assert.equal(matchRoute('/games/12/polls/new').title, '투표 만들기')
+})

@@ -19,7 +19,7 @@ import { MyGamesPage } from './pages/MyGamesPage.jsx'
 import { OnboardingPage } from './pages/OnboardingPage.jsx'
 import { PlayersPage } from './pages/PlayersPage.jsx'
 import { PollCreatePage } from './pages/PollCreatePage.jsx'
-import { PollDetailPage, PollListPage } from './pages/PollPage.jsx'
+import { PollsPage } from './pages/PollsPage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
 import { RematchGamePage } from './pages/RematchGamePage.jsx'
 import { ReportPage } from './pages/ReportPage.jsx'
@@ -59,13 +59,13 @@ function App() {
               <Route path="/games/:gameId" element={<GameDetailLayout />}>
               <Route index element={<GameDetailPage />} />
               <Route path="lineup" element={<GameLineupPage />} />
+              <Route path="polls" element={<PollsPage />} />
+              <Route path="polls/:pollId" element={<PollsPage />} />
             </Route>
               <Route path="/games/:gameId/notices/new" element={<NoticeCreatePage />} />
               <Route path="/games/:gameId/notices" element={<NoticeListPage />} />
               <Route path="/games/:gameId/notices/:noticeId" element={<NoticeDetailPage />} />
               <Route path="/games/:gameId/polls/new" element={<PollCreatePage />} />
-              <Route path="/games/:gameId/polls" element={<PollListPage />} />
-              <Route path="/games/:gameId/polls/:pollId" element={<PollDetailPage />} />
               <Route path="/games/:gameId/balance-review" element={<BalanceReviewPage />} />
               <Route path="/games/:gameId/balance-summary" element={<BalanceSummaryPage />} />
               <Route path="/games/:gameId/mvp-vote" element={<MvpVotePage />} />

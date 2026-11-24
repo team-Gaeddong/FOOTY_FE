@@ -1,0 +1,326 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--content-form);
+  margin: 0 auto;
+  padding: 20px var(--page-gutter) var(--space-6);
+  color: var(--text-body);
+}
+
+/* 모바일은 상단의 하위 바(뒤로 + "투표 만들기")가 있어 PC에서만 보인다 */
+.back {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  min-height: var(--tap-min);
+  color: var(--gray-300);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--text-body);
+}
+
+.back:focus-visible,
+.remove:focus-visible,
+.optionInput:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eyebrow {
+  color: var(--brand-green);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.title {
+  color: var(--text-body);
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  font-weight: 700;
+}
+
+.lead {
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.optional {
+  margin-left: var(--space-1);
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.legend {
+  color: var(--gray-200);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+}
+
+.aside {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.optionInput {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--field-h);
+  box-sizing: border-box;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-12);
+  background: var(--surface-field);
+  color: var(--text-body);
+  font-family: inherit;
+  font-size: var(--text-16);
+  line-height: var(--leading-16);
+}
+
+.optionInput::placeholder {
+  color: var(--text-faint);
+}
+
+.optionInput[aria-invalid='true'] {
+  border-color: var(--signal-red);
+}
+
+.remove {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--gray-300);
+  cursor: pointer;
+}
+
+.remove:hover:not(:disabled) {
+  color: var(--text-body);
+  background: var(--gray-700);
+}
+
+.remove:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.add {
+  align-self: flex-start;
+}
+
+.hint {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.error {
+  color: var(--signal-red);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 14px var(--space-4);
+  border-radius: var(--radius-12);
+  background: var(--surface-page);
+}
+
+.switchText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.switchTitle {
+  color: var(--gray-200);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+}
+
+.dateRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.dateField {
+  flex: 1 1 200px;
+}
+
+.timeField {
+  flex: 1 1 140px;
+}
+
+.info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-sub);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.info svg {
+  margin-top: 1px;
+  color: var(--text-faint);
+}
+
+/* 만들기 줄. 모바일은 화면 아래에 붙인다 */
+.actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin: 0 calc(-1 * var(--page-gutter)) calc(-1 * var(--space-6));
+  padding: var(--space-3) var(--page-gutter) calc(var(--space-4) + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface-deep);
+}
+
+.cancel {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .page {
+    gap: 20px;
+    padding: var(--space-6) var(--space-6) 72px;
+  }
+
+  .back {
+    display: inline-flex;
+  }
+
+  /* 뒤로 링크 바로 아래에 붙는 머리글(시안) */
+  .back + .header {
+    margin-top: -16px;
+  }
+
+  .lead {
+    font-size: var(--text-16);
+    line-height: var(--leading-16);
+  }
+
+  /* PC는 입력칸과 버튼이 한 카드 안에 있다(시안) */
+  .form {
+    gap: 20px;
+    padding: var(--space-6);
+    border-radius: var(--radius-12);
+    background: var(--surface-card);
+  }
+
+  .card {
+    padding: 0;
+    background: none;
+  }
+
+  .actions {
+    position: static;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+
+  .actions .cancel {
+    display: inline-flex;
+    border-color: transparent;
+    background: transparent;
+    color: var(--gray-300);
+  }
+
+  .actions .cancel:hover {
+    color: var(--text-body);
+  }
+}
