@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { listGamesInRange } from '../api/games.js'
-import { useAuth } from '../auth/useAuth.js'
 import { Badge } from '../components/Badge.jsx'
 import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
@@ -41,8 +40,6 @@ const NOTICE_MESSAGES = {
 // 경기 목록(홈). 오늘부터 7일의 날짜 줄과 고른 날의 경기를 보여 준다.
 export function HomePage() {
   const location = useLocation()
-  const { signOut } = useAuth()
-  const [signingOut, setSigningOut] = useState(false)
   const [today] = useState(() => todayString())
   const [windowStart, setWindowStart] = useState(today)
   const [selected, setSelected] = useState(today)
@@ -67,11 +64,6 @@ export function HomePage() {
       active = false
     }
   }, [windowStart, requestKey])
-
-  async function handleSignOut() {
-    setSigningOut(true)
-    await signOut()
-  }
 
   function moveWindow(offset) {
     const nextStart = addDays(windowStart, offset * DAYS_PER_VIEW)
@@ -213,21 +205,6 @@ export function HomePage() {
           </ul>
         )}
       </section>
-
-      {/* 프로필(⑭)이 로그아웃·회원 탈퇴를 받을 때까지 홈에 임시로 둔다. */}
-      <footer className={styles.footer}>
-        <button
-          type="button"
-          className={styles.footerLink}
-          onClick={handleSignOut}
-          disabled={signingOut}
-        >
-          {signingOut ? '로그아웃 중…' : '로그아웃'}
-        </button>
-        <Link to="/withdraw" className={styles.footerLink}>
-          회원 탈퇴
-        </Link>
-      </footer>
     </main>
   )
 }
