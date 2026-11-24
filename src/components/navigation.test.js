@@ -48,7 +48,7 @@ test('하위 바는 bar가 켜진 화면에서만 보인다', () => {
   assert.equal(mobileChrome(matchRoute('/games/12/notices')), 'bar')
   assert.equal(mobileChrome(matchRoute('/games/12/notices/7')), 'bar')
   assert.equal(mobileChrome(matchRoute('/games/12/notices/new')), 'bar')
-  assert.equal(mobileChrome(matchRoute('/games/12/polls')), 'none')
+  assert.equal(mobileChrome(matchRoute('/games/12/polls')), 'bar')
   assert.equal(mobileChrome(matchRoute('/games/mine')), 'tab')
 })
 
@@ -82,6 +82,14 @@ test('라인업 탭은 모바일 하위 바를 켜고, 팀 짜기는 /lineup/edi
   assert.equal(edit.back, '/games/12')
   assert.equal(edit.bar, true)
   assert.equal(edit.params.gameId, '12')
+})
+
+test('투표 탭 두 경로와 투표 만들기는 모바일 하위 바를 켠다', () => {
+  for (const path of ['/games/12/polls', '/games/12/polls/7', '/games/12/polls/new']) {
+    assert.equal(mobileChrome(matchRoute(path)), 'bar', path)
+  }
+  assert.equal(matchRoute('/games/12/polls').back, '/')
+  assert.equal(matchRoute('/games/12/polls/new').title, '투표 만들기')
 })
 
 test('전술 배치도는 모바일 하위 바(뒤로 + 제목)를 켠다', () => {
