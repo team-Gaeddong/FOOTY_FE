@@ -1,0 +1,217 @@
+.item {
+  border-bottom: 1px solid var(--line);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  min-height: 64px;
+  padding: var(--space-2) 0;
+}
+
+.who {
+  display: flex;
+  flex: 1 1 150px;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.whoText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nameLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.name {
+  color: var(--text-body);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.positionLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.noPositions {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+}
+
+.pencil {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--gray-400);
+  cursor: pointer;
+}
+
+.pencil:hover {
+  background: var(--gray-700);
+  color: var(--text-body);
+}
+
+.pencil:focus-visible,
+.scoreButton:focus-visible,
+.stepButton:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
+}
+
+.score {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* 모바일은 값 자리에 빨간 "–"가 보여 배지는 PC에서만 */
+.unratedBadge {
+  display: none;
+}
+
+/* 모바일은 −/+ 스테퍼, PC는 1~10 버튼 */
+.scoreButtons {
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.scoreButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--gray-300);
+  font-family: inherit;
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.scoreButton:not(:disabled):hover {
+  background: var(--gray-800);
+}
+
+.scoreButton[aria-pressed='true'] {
+  border-color: var(--brand-green);
+  background: var(--brand-green);
+  color: var(--on-brand);
+}
+
+.scoreButton:disabled,
+.stepButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.stepButton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--gray-100);
+  cursor: pointer;
+}
+
+.stepValue,
+.stepValueEmpty {
+  min-width: 28px;
+  font-size: var(--text-18);
+  line-height: var(--leading-18);
+  font-weight: 700;
+  text-align: center;
+}
+
+.stepValue {
+  color: var(--text-body);
+}
+
+.stepValueEmpty {
+  color: var(--signal-red);
+}
+
+/* 포지션 인라인 편집기 */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-12);
+  background: var(--surface-field);
+}
+
+.editor legend {
+  color: var(--gray-200);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+}
+
+.editorActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.editorActions .cancel {
+  border-color: transparent;
+  color: var(--gray-300);
+}
+
+@media (min-width: 768px) {
+  .who {
+    flex-basis: 200px;
+  }
+
+  .unratedBadge {
+    display: inline-flex;
+  }
+
+  .scoreButtons {
+    display: flex;
+  }
+
+  .stepper {
+    display: none;
+  }
+}

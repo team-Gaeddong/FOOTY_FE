@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router'
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router'
 import { AuthProvider } from './auth/AuthProvider.jsx'
 import { RequireAuth } from './auth/RequireAuth.jsx'
 import { AppShell } from './components/AppShell.jsx'
@@ -17,13 +17,12 @@ import { NoticeDetailPage, NoticeListPage } from './pages/NoticePage.jsx'
 import { MvpVotePage } from './pages/MvpVotePage.jsx'
 import { MyGamesPage } from './pages/MyGamesPage.jsx'
 import { OnboardingPage } from './pages/OnboardingPage.jsx'
-import { PlayerPositionPage } from './pages/PlayerPositionPage.jsx'
+import { PlayersPage } from './pages/PlayersPage.jsx'
 import { PollCreatePage } from './pages/PollCreatePage.jsx'
 import { PollDetailPage, PollListPage } from './pages/PollPage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
 import { RematchGamePage } from './pages/RematchGamePage.jsx'
 import { ReportPage } from './pages/ReportPage.jsx'
-import { SkillLevelPage } from './pages/SkillLevelPage.jsx'
 import { TacticPage } from './pages/TacticPage.jsx'
 import { TeamMatchPage } from './pages/TeamMatchPage.jsx'
 import { WithdrawPage } from './pages/WithdrawPage.jsx'
@@ -32,6 +31,13 @@ import { WithdrawPage } from './pages/WithdrawPage.jsx'
 function GamesRedirect() {
   const { state } = useLocation()
   return <Navigate to="/" replace state={state} />
+}
+
+// 선수 관리가 옛 "실력 매기기"(/skill-levels)와 "포지션 설정"(/positions)을 합쳤다. 옛 경로는 새 경로로 보낸다.
+function PlayersRedirect() {
+  const { gameId } = useParams()
+  const { state } = useLocation()
+  return <Navigate to={`/games/${gameId}/players`} replace state={state} />
 }
 
 // FD-03: react-router. /login/callback은 BE OAUTH_REDIRECT_URI와 맞춘다.
@@ -64,8 +70,9 @@ function App() {
               <Route path="/games/:gameId/balance-summary" element={<BalanceSummaryPage />} />
               <Route path="/games/:gameId/mvp-vote" element={<MvpVotePage />} />
               <Route path="/games/:gameId/rematch" element={<RematchGamePage />} />
-              <Route path="/games/:gameId/skill-levels" element={<SkillLevelPage />} />
-              <Route path="/games/:gameId/positions" element={<PlayerPositionPage />} />
+              <Route path="/games/:gameId/players" element={<PlayersPage />} />
+              <Route path="/games/:gameId/skill-levels" element={<PlayersRedirect />} />
+              <Route path="/games/:gameId/positions" element={<PlayersRedirect />} />
               <Route path="/games/:gameId/lineup/edit" element={<TeamMatchPage />} />
               <Route path="/games/:gameId/teams/:teamId/tactic" element={<TacticPage />} />
               <Route path="/games/:gameId/report" element={<ReportPage />} />

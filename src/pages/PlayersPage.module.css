@@ -1,0 +1,262 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 20px var(--page-gutter) var(--space-6);
+  color: var(--text-body);
+}
+
+/* 모바일은 상단의 하위 바(뒤로 + "선수 관리")가 있어 PC에서만 보인다 */
+.back {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  min-height: var(--tap-min);
+  color: var(--gray-300);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--text-body);
+}
+
+.back:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eyebrow {
+  color: var(--brand-green);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.title {
+  color: var(--text-body);
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  font-weight: 700;
+}
+
+.lead {
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+/* 실력 입력 현황 */
+.progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  padding: var(--space-4) 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+}
+
+.progressMain {
+  display: flex;
+  flex: 1 1 240px;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.progressHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+}
+
+.progressLabel {
+  color: var(--text-body);
+}
+
+.progressCount {
+  color: var(--brand-green);
+}
+
+.meter {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--gray-700);
+  overflow: hidden;
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--brand-green);
+}
+
+.progressNote {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--gray-300);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+/* 참가 선수 */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.cardTitle {
+  color: var(--text-body);
+  font-size: var(--text-18);
+  line-height: var(--leading-18);
+  font-weight: 700;
+}
+
+.cardCount {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.saved {
+  color: var(--badge-green-fg);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.nextStep {
+  align-self: flex-start;
+  margin-top: var(--space-2);
+}
+
+/* 저장 줄. 모바일은 화면 아래에 붙인다 */
+.saveBar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  margin: 0 calc(-1 * var(--page-gutter)) calc(-1 * var(--space-6));
+  padding: var(--space-3) var(--page-gutter) calc(var(--space-4) + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface-deep);
+}
+
+.saveBar > button {
+  flex: 1;
+}
+
+.saveCount {
+  display: none;
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.labelWide {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .page {
+    gap: var(--space-5);
+    padding: var(--space-6) var(--space-6) 72px;
+  }
+
+  .back {
+    display: inline-flex;
+  }
+
+  /* 뒤로 링크 바로 아래에 붙는 머리글(시안) */
+  .back + .header {
+    margin-top: -16px;
+  }
+
+  .lead {
+    font-size: var(--text-16);
+    line-height: var(--leading-16);
+  }
+
+  .card {
+    padding: var(--space-5);
+  }
+
+  .saveBar {
+    position: static;
+    margin: 0;
+    padding: 0;
+    border-top: 0;
+    background: transparent;
+  }
+
+  .saveBar > button {
+    flex: 0 0 auto;
+  }
+
+  .saveCount {
+    display: inline;
+  }
+
+  .labelWide {
+    display: inline;
+  }
+
+  .labelCompact {
+    display: none;
+  }
+}
