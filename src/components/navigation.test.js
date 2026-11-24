@@ -60,3 +60,11 @@ test('같은 경로가 표에 두 번 들어 있지 않다', () => {
   const paths = ROUTE_TABLE.map((entry) => entry.path)
   assert.equal(new Set(paths).size, paths.length)
 })
+
+test('선수 관리는 모바일 하위 바를 켜고, 옛 실력·포지션 경로는 표에 없다', () => {
+  const players = matchRoute('/games/12/players')
+  assert.equal(players.title, '선수 관리')
+  assert.equal(players.bar, true)
+  assert.equal(players.back, '/games/12')
+  assert.equal(ROUTE_TABLE.some((route) => route.path.endsWith('/skill-levels') || route.path.endsWith('/positions')), false)
+})

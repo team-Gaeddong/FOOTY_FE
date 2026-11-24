@@ -26,7 +26,7 @@ export function GameHostMenu({ game, unrated, className = '' }) {
   const task = nextTask(info)
   const summaryState = { game: toSummary(game) }
   const actionTarget = {
-    skill: { to: `/games/${game.id}/skill-levels`, state: summaryState },
+    skill: { to: `/games/${game.id}/players` },
     lineup: { to: `/games/${game.id}/lineup`, state: summaryState },
     viewLineup: { to: `/games/${game.id}/lineup`, state: summaryState },
     rematch: { to: `/games/${game.id}/rematch`, state: { sourceGame: toSummary(game) } },
@@ -85,12 +85,10 @@ export function GameHostMenu({ game, unrated, className = '' }) {
           <BarChartIcon size={18} />투표 만들기
         </Button>
       </div>
-      {/* 선수 관리(⑧)가 실력·포지션을 합칠 때까지 포지션 설정 화면으로 가는 길을 임시로 둔다 */}
-      {game.status === 'RECRUITING' && (
-        <Link className={styles.textLink} to={`/games/${game.id}/positions`}>
-          선수 포지션 설정
-        </Link>
-      )}
+      {/* 실력·포지션을 고치는 선수 관리. 다음 할 일이 바뀐 뒤에도 고칠 수 있게 늘 보여 준다 */}
+      <Link className={styles.textLink} to={`/games/${game.id}/players`}>
+        선수 관리
+      </Link>
 
       {canDeleteGame(game) && (
         <>
