@@ -1,33 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { ApiError } from '../api/client.js'
-import { getMyProfile } from '../api/member.js'
+import { getMyProfile, updatePositions } from '../api/member.js'
 import { useAuth } from '../auth/useAuth.js'
-import { POSITION_LABELS } from '../components/positions.js'
-import { PageLayout } from '../components/PageLayout.jsx'
+import { Avatar } from '../components/Avatar.jsx'
+import { Button } from '../components/Button.jsx'
+import { LogoutIcon } from '../components/Icons.jsx'
+import { ErrorMessage } from '../components/ErrorMessage.jsx'
+import { PositionChips } from '../components/PositionChips.jsx'
+import { PositionPicker } from '../components/PositionPicker.jsx'
+import { isValidPositions } from '../components/positions.js'
+import { samePositions } from './playerPositions.js'
+import { formatRating, profileLoadMessage, savePositionsMessage, sortedPositions } from './profile.js'
 import styles from './ProfilePage.module.css'
 
-// BE rating은 BigDecimal(소수 둘째 자리)이라 JSON 숫자로 온다.
-function formatRating(rating) {
-  const value = Number(rating)
-  if (!Number.isFinite(value)) return '-'
-  return value.toLocaleString('ko-KR', { maximumFractionDigits: 2 })
-}
-
-function errorMessage(error) {
-  if (!(error instanceof ApiError)) return '프로필을 불러오지 못했습니다.'
-  if (error.status === 0) return '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
-  // 토큰의 onboarded와 DB가 어긋난 경우. BE는 DB 기준으로 막는다(BE D-05e).
-  // 온보딩 화면은 토큰 기준으로 홈으로 돌려보내므로 이동하지 않고 안내만 한다.
-  if (error.code === 'MEMBER_403_1') return '온보딩을 마친 뒤 프로필을 볼 수 있어요.'
-  return '프로필을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
-}
-
-// 내 프로필 조회(GET /members/me). 디자인은 Figma 디자인시스템 토큰(--ds-*)을 따른다(FD-09).
+// 내 프로필(/profile, 시안 Profile): 회원 정보, 평점, 선호 포지션 수정, 로그아웃·회원 탈퇴.
+// 평점 계산 방식은 BE D-38이 미결정이라 rating 값만 그대로 보여 준다.
 export function ProfilePage() {
   const [retryCount, setRetryCount] = useState(0)
-  const [result, setResult] = useState(null)
-  const currentResult = result?.key === retryCount ? result : null
+  const [result, setResult] = useState(null) // { key, profile } | { key, error }
+  const current = result?.key === retryCount ? result : null
 
   useEffect(() => {
     let active = true
@@ -43,31 +34,24 @@ export function ProfilePage() {
     }
   }, [retryCount])
 
-  return (
-    <PageLayout>
-      <div className={styles.page}>
-        <nav>
-          <Link className={styles.backLink} to="/">
-            <span aria-hidden="true">←</span> 홈으로
-          </Link>
-        </nav>
-        <h1 className={styles.title}>내 프로필</h1>
+  let body
+  if (!current) {
+    body = (
+      <p className={styles.message} role="status">
+        프로필을 불러오는 중…
+      </p>
+    )
+  } else if (current.error) {
+    body = <ProfileError error={current.error} onRetry={() => setRetryCount((count) => count + 1)} />
+  } else {
+    body = <ProfileContent profile={current.profile} />
+  }
 
-        {!currentResult ? (
-          <div className={styles.status} role="status">
-            <span className={styles.spinner} aria-hidden="true" />
-            <p>프로필을 불러오는 중…</p>
-          </div>
-        ) : currentResult.error ? (
-          <ProfileError
-            error={currentResult.error}
-            onRetry={() => setRetryCount((count) => count + 1)}
-          />
-        ) : (
-          <ProfileContent profile={currentResult.profile} />
-        )}
-      </div>
-    </PageLayout>
+  return (
+    <main className={styles.page}>
+      <h1 className={styles.title}>내 프로필</h1>
+      {body}
+    </main>
   )
 }
 
@@ -77,73 +61,151 @@ function ProfileError({ error, onRetry }) {
   // 탈퇴했거나 없는 회원이면 이 기기의 토큰을 지우고 다시 로그인하게 한다.
   if (error.code === 'MEMBER_404_1') {
     return (
-      <section className={styles.panel}>
-        <p className={styles.errorText} role="alert">
-          회원 정보를 찾을 수 없습니다. 다시 로그인해 주세요.
-        </p>
-        <button type="button" className={styles.primaryButton} onClick={clearSession}>
+      <div className={styles.message}>
+        <ErrorMessage>회원 정보를 찾을 수 없습니다. 다시 로그인해 주세요.</ErrorMessage>
+        <Button fit="auto" onClick={clearSession}>
           다시 로그인
-        </button>
-      </section>
+        </Button>
+      </div>
     )
   }
 
   return (
-    <section className={styles.panel}>
-      <p className={styles.errorText} role="alert">
-        {errorMessage(error)}
-      </p>
-      <button type="button" className={styles.tertiaryButton} onClick={onRetry}>
+    <div className={styles.message}>
+      <ErrorMessage>{profileLoadMessage(error)}</ErrorMessage>
+      <Button variant="secondary" fit="auto" onClick={onRetry}>
         다시 시도
-      </button>
-    </section>
+      </Button>
+    </div>
   )
 }
 
 function ProfileContent({ profile }) {
+  const { signOut } = useAuth()
+  const [signingOut, setSigningOut] = useState(false)
   const nickname = profile.nickname ?? ''
-  const initial = [...nickname.trim()][0] ?? '?'
+
+  async function handleSignOut() {
+    setSigningOut(true)
+    await signOut()
+  }
 
   return (
-    <>
-      <section className={styles.card} aria-label="회원 정보">
-        <div className={styles.identity}>
-          <span className={styles.avatar} aria-hidden="true">
-            {initial}
-          </span>
-          <div className={styles.names}>
-            <p className={styles.nickname}>{nickname}</p>
-            <p className={styles.email}>{profile.email}</p>
+    <div className={styles.layout}>
+      <div className={styles.side}>
+        <section className={styles.card} aria-label="회원 정보">
+          <div className={styles.identity}>
+            <Avatar name={nickname} size="lg" />
+            <div className={styles.names}>
+              <h2 className={styles.nickname}>{nickname}</h2>
+              <p className={styles.email}>{profile.email}</p>
+            </div>
           </div>
-        </div>
-        <dl className={styles.stats}>
-          <div className={styles.stat}>
-            <dt>실력 점수</dt>
-            <dd>{formatRating(profile.rating)}</dd>
-          </div>
-        </dl>
-      </section>
+          <hr className={styles.divider} />
+          <dl className={styles.stats}>
+            <div className={styles.stat}>
+              <dt>평점</dt>
+              <dd>{formatRating(profile.rating)}</dd>
+            </div>
+            <div className={styles.stat}>
+              <dt>로그인</dt>
+              <dd>Google 계정</dd>
+            </div>
+          </dl>
+          <p className={styles.note}>닉네임은 아직 바꿀 수 없어요.</p>
+        </section>
 
-      <section className={styles.card} aria-labelledby="profile-positions">
-        <h2 id="profile-positions" className={styles.sectionTitle}>
-          선호 포지션
-        </h2>
-        {profile.positions.length === 0 ? (
-          <p className={styles.empty}>아직 선호 포지션을 고르지 않았어요.</p>
+        <section className={styles.accountCard} aria-labelledby="account-title">
+          <h2 id="account-title" className={styles.cardTitle}>
+            계정
+          </h2>
+          <Button variant="secondary" onClick={handleSignOut} disabled={signingOut}>
+            <LogoutIcon size={18} />
+            {signingOut ? '로그아웃 중…' : '로그아웃'}
+          </Button>
+          <Button as={Link} to="/withdraw" variant="subtle" className={styles.withdraw}>
+            회원 탈퇴
+          </Button>
+        </section>
+      </div>
+
+      <PositionsCard profile={profile} />
+    </div>
+  )
+}
+
+// 선호 포지션을 고쳐 저장한다(PUT /members/me/positions, BE D-13). 순서가 곧 우선순위이고 1~4개다.
+function PositionsCard({ profile }) {
+  const { clearSession } = useAuth()
+  const [saved, setSaved] = useState(() => sortedPositions(profile))
+  const [draft, setDraft] = useState(saved)
+  const [saving, setSaving] = useState(false)
+  const [result, setResult] = useState(null) // { message } | { error }
+  const pending = useRef(false)
+  const valid = isValidPositions(draft)
+  const changed = !samePositions(draft, saved)
+
+  async function handleSave() {
+    if (pending.current || !valid || !changed) return
+    pending.current = true
+    setSaving(true)
+    setResult(null)
+    try {
+      await updatePositions(draft)
+      setSaved(draft)
+      setResult({ message: '선호 포지션을 저장했어요.' })
+    } catch (error) {
+      if (error.code === 'MEMBER_404_1') {
+        clearSession()
+        return
+      }
+      setResult({ error: savePositionsMessage(error) })
+    } finally {
+      pending.current = false
+      setSaving(false)
+    }
+  }
+
+  return (
+    <section className={styles.positions} aria-labelledby="positions-title">
+      <h2 id="positions-title" className={styles.sectionTitle}>
+        선호 포지션
+      </h2>
+      <p className={styles.description}>
+        누른 순서가 우선순위예요. 1~4개를 고를 수 있고, 경기에 참가할 때 기본값으로 들어가요.
+      </p>
+      <PositionPicker
+        value={draft}
+        onChange={(next) => {
+          setDraft(next)
+          setResult(null)
+        }}
+        legend="선호 포지션"
+        hint={null}
+        hideLegend
+        columns="responsive"
+        showOrder={false}
+        disabled={saving}
+        invalid={draft.length === 0}
+      />
+      <div className={styles.orderRow}>
+        <span className={styles.orderLabel}>현재 순서</span>
+        {draft.length === 0 ? (
+          <span className={styles.orderEmpty}>아직 고르지 않았어요</span>
         ) : (
-          <ol className={styles.tags}>
-            {profile.positions.map(({ position, priority }) => (
-              <li
-                key={position}
-                className={`${styles.tag} ${priority === 1 ? styles.tagFirst : ''}`}
-              >
-                <span className={styles.priority}>{priority}순위</span>
-                {POSITION_LABELS[position] ?? position}
-              </li>
-            ))}
-          </ol>
+          <PositionChips positions={draft} />
         )}
-      </section>
-    </>
+        <Button fit="auto" className={styles.save} onClick={handleSave} disabled={saving || !valid || !changed}>
+          {saving ? '저장하는 중…' : '포지션 저장'}
+        </Button>
+      </div>
+      {draft.length === 0 && <ErrorMessage>선호 포지션을 1~4개 골라 주세요.</ErrorMessage>}
+      {result?.message && (
+        <p className={styles.saved} role="status">
+          {result.message}
+        </p>
+      )}
+      <ErrorMessage>{result?.error}</ErrorMessage>
+    </section>
   )
 }

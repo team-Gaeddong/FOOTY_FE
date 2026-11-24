@@ -13,8 +13,8 @@ export function parsePollId(value) {
 }
 
 // 만들기 폼 검사. 문제가 없으면 null, 있으면 { field, message }.
-// 마감 일시가 지났는지는 FD-12(시간대) 미결정이라 보지 않고 BE(POLL_400_2)에 맡긴다.
-export function validatePollForm({ title, options }) {
+// 마감은 날짜와 시간을 함께 넣거나 둘 다 비워 둔다. 마감 일시가 지났는지는 FD-12(시간대) 미결정이라 보지 않고 BE(POLL_400_2)에 맡긴다.
+export function validatePollForm({ title, options, date = '', time = '' }) {
   const trimmedTitle = title.trim()
   if (!trimmedTitle) return { field: 'title', message: '제목을 입력해 주세요.' }
   if (trimmedTitle.length > TITLE_MAX) return { field: 'title', message: `제목은 ${TITLE_MAX}자 이하로 입력해 주세요.` }
@@ -28,16 +28,17 @@ export function validatePollForm({ title, options }) {
     return { field: 'options', message: `선택지는 ${OPTIONS_MIN}~${OPTIONS_MAX}개로 만들어 주세요.` }
   }
   if (new Set(trimmed).size !== trimmed.length) return { field: 'options', message: '같은 선택지가 있어요.' }
+  if (Boolean(date) !== Boolean(time)) return { field: 'deadline', message: '마감 날짜와 시간을 함께 넣거나 둘 다 비워 주세요.' }
   return null
 }
 
-// BE 요청 본문. datetime-local 값("2026-11-25T20:00")에 초를 붙인다(경기 생성과 같은 방식).
-export function toCreatePollBody({ title, options, allowMultiple, deadline }) {
+// BE 요청 본문. 마감은 날짜("2026-11-25")와 시간("20:00")을 합쳐 초를 붙인다(경기 생성과 같은 방식).
+export function toCreatePollBody({ title, options, allowMultiple, date = '', time = '' }) {
   return {
     title: title.trim(),
     options: options.map((option) => option.trim()),
     allowMultiple,
-    deadline: deadline ? `${deadline}:00` : null,
+    deadline: date && time ? `${date}T${time}:00` : null,
   }
 }
 
@@ -57,16 +58,36 @@ export function sameSelection(a, b) {
   return a.length === b.length && a.every((id) => b.includes(id))
 }
 
-// BE LocalDateTime(시간대 없음)을 Date로 바꾸지 않고 그대로 보여준다(FD-12 미결정).
-export function formatPollDateTime(value) {
-  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value ?? '')
+const DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/
+
+// BE LocalDateTime(시간대 없음)을 Date로 바꾸지 않고 "11월 28일 18:00"으로 보여준다(FD-12 미결정, 시안 Polls).
+// 올해가 아니면 앞에 연도를 붙인다. 형식이 다르면 받은 값을 그대로 둔다.
+export function formatPollTime(value, now = new Date()) {
+  const match = DATE_TIME.exec(value ?? '')
   if (!match) return value ?? ''
-  return `${match[1]}. ${match[2]}. ${match[3]}. ${match[4]}:${match[5]}`
+  const [, year, month, day, hour, minute] = match
+  const prefix = Number(year) === now.getFullYear() ? '' : `${year}년 `
+  return `${prefix}${Number(month)}월 ${Number(day)}일 ${hour}:${minute}`
 }
 
-export function deadlineText(poll) {
-  if (!poll.deadline) return '마감 없음'
-  return poll.isClosed ? `${formatPollDateTime(poll.deadline)} 마감됨` : `${formatPollDateTime(poll.deadline)}까지`
+// 카드·상세의 한 줄 요약: "하나만 선택 · 11월 28일 18:00 마감 · 15명 참여"
+export function pollMeta(poll, now = new Date()) {
+  const kind = poll.allowMultiple ? '여러 개 선택' : '하나만 선택'
+  const deadline = poll.deadline ? `${formatPollTime(poll.deadline, now)} 마감` : '마감 없음'
+  return `${kind} · ${deadline} · ${poll.voterCount}명 참여`
+}
+
+// 보여 줄 투표를 고른다. pollId가 없으면 가장 최근 투표(목록 맨 앞), 있는데 목록에 없으면 missing이다.
+export function pickPoll(polls, pollId) {
+  if (pollId === null || pollId === undefined) return { poll: polls[0] ?? null, missing: false }
+  const poll = polls.find((item) => item.id === pollId) ?? null
+  return { poll, missing: poll === null }
+}
+
+// 응답을 저장한 뒤 목록 카드의 참여 인원·투표 여부를 상세 응답에 맞춘다.
+export function applyAnswerToList(polls, poll) {
+  const hasVoted = poll.options.some((option) => option.isSelected)
+  return polls.map((item) => (item.id === poll.id ? { ...item, voterCount: poll.voterCount, hasVoted } : item))
 }
 
 // 투표 API 공통 실패 안내. error는 ApiError(status, code) 또는 그 밖의 오류다.

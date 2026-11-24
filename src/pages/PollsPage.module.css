@@ -1,0 +1,148 @@
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.code {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.count {
+  flex: 1 1 160px;
+  color: var(--text-body);
+  font-size: var(--text-18);
+  line-height: var(--leading-18);
+  font-weight: 700;
+}
+
+/* 모바일: 고른 투표의 상세가 위, 나머지 투표 카드가 아래. PC(1024px 이상): 목록 + 상세 두 열 */
+.split {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list > li[data-selected='true'] {
+  display: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) 20px;
+  border: 1px solid var(--surface-card);
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+  color: var(--text-body);
+  text-decoration: none;
+}
+
+.card:hover {
+  border-color: var(--gray-700);
+}
+
+.card[aria-current='true'] {
+  border-color: var(--brand-green);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
+}
+
+.cardTitle {
+  font-size: var(--text-16);
+  line-height: var(--leading-16);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.cardMeta {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.detail {
+  order: -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+  scroll-margin-top: var(--space-4);
+}
+
+.text {
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+@media (min-width: 768px) {
+  .section {
+    gap: var(--space-4);
+  }
+}
+
+@media (min-width: 1024px) {
+  .split {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-5);
+  }
+
+  .list {
+    flex: 1 1 320px;
+    gap: var(--space-2);
+    max-width: 400px;
+  }
+
+  .list > li[data-selected='true'] {
+    display: block;
+  }
+
+  .detail {
+    order: 0;
+    flex: 999 1 480px;
+    padding: var(--space-6);
+  }
+}

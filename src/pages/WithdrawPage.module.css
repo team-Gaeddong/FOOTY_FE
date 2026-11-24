@@ -1,40 +1,128 @@
-.header {
+.page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--content-medium);
+  /* 내용이 짧아도 버튼 줄이 화면 아래에 닿도록, 모바일 상단 바(56px)를 뺀 화면 높이를 최소로 둔다 */
+  min-height: calc(100dvh - 56px);
+  margin: 0 auto;
+  padding: 20px var(--page-gutter) var(--space-6);
+  color: var(--text-body);
+}
+
+.panel {
+  display: contents;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-pill);
+  background: var(--badge-red-bg);
+  color: var(--signal-red);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .title {
-  font-size: 24px;
+  color: var(--text-body);
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
   font-weight: 700;
 }
 
-.description {
-  color: var(--color-text-muted);
+.lead {
+  color: var(--text-faint);
+  font-size: var(--text-16);
+  line-height: var(--leading-16);
 }
 
-.confirm {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  cursor: pointer;
-}
-
-.confirm input {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--color-danger);
-}
-
-.actions {
+.facts {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 10px;
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-12);
+  background: var(--surface-page);
+  list-style: none;
 }
 
-.cancel {
-  align-self: center;
-  padding: var(--space-2);
-  color: var(--color-text-muted);
-  font-size: 14px;
+.fact {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--gray-200);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  overflow-wrap: anywhere;
+}
+
+.fact svg {
+  margin-top: 2px;
+  color: var(--text-faint);
+}
+
+/* 모바일은 버튼 줄이 화면 아래에 붙고 "탈퇴하기"가 위다(시안) */
+.actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-2);
+  margin: auto calc(-1 * var(--page-gutter)) calc(-1 * var(--space-6));
+  padding: var(--space-3) var(--page-gutter) calc(var(--space-4) + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface-deep);
+}
+
+@media (min-width: 768px) {
+  .page {
+    min-height: 0;
+    padding: var(--space-6) var(--space-6) 72px;
+  }
+
+  /* PC는 안내와 버튼이 한 카드 안에 있다(시안) */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 40px;
+    border-radius: var(--radius-12);
+    background: var(--surface-card);
+  }
+
+  .card {
+    padding: 0;
+    background: none;
+  }
+
+  .actions {
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
 }

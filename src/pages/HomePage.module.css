@@ -132,8 +132,7 @@
 
 .arrow:focus-visible,
 .day:focus-visible,
-.row:focus-visible,
-.footerLink:focus-visible {
+.row:focus-visible {
   outline: 2px solid var(--brand-green);
   outline-offset: 2px;
 }
@@ -326,32 +325,6 @@
 .chevron {
   display: none;
   color: var(--gray-500);
-}
-
-/* 임시: 프로필(⑭)이 로그아웃·회원 탈퇴를 받으면 지운다 */
-.footer {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-4);
-  margin-top: var(--space-4);
-}
-
-.footerLink {
-  min-height: var(--tap-min);
-  padding: 0 var(--space-2);
-  border: 0;
-  background: transparent;
-  color: var(--text-faint);
-  font-family: inherit;
-  font-size: var(--text-14);
-  line-height: var(--tap-min);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.footerLink:disabled {
-  color: var(--text-disabled);
-  cursor: default;
 }
 
 @media (min-width: 768px) {

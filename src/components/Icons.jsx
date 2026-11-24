@@ -74,6 +74,10 @@ export function ChevronRightIcon(props) {
   return <Icon {...props}><path d="M9 18l6-6-6-6" /></Icon>
 }
 
+export function XIcon(props) {
+  return <Icon {...props}><path d="M18 6L6 18M6 6l12 12" /></Icon>
+}
+
 export function ChevronDownIcon(props) {
   return <Icon {...props}><path d="M6 9l6 6 6-6" /></Icon>
 }
@@ -152,6 +156,10 @@ export function ScaleIcon(props) {
 
 export function FlagIcon(props) {
   return <Icon {...props}><path d="M4 22V4M4 4h13l-2 4 2 4H4" /></Icon>
+}
+
+export function AlertTriangleIcon(props) {
+  return <Icon {...props}><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /></Icon>
 }
 
 export function WandIcon(props) {
