@@ -1,18 +1,33 @@
-import { startTransition, useState } from 'react'
+import { startTransition, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { withdraw } from '../api/member.js'
+import { getMyProfile, withdraw } from '../api/member.js'
 import { useAuth } from '../auth/useAuth.js'
 import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
-import { PageLayout } from '../components/PageLayout.jsx'
+import { AlertTriangleIcon, CheckIcon } from '../components/Icons.jsx'
+import { withdrawErrorMessage, withdrawFacts } from './profile.js'
 import styles from './WithdrawPage.module.css'
 
+// 회원 탈퇴 확인(/withdraw, 시안 Withdraw). 이 화면이 확인 단계라서 되돌릴 수 없음·복구 방법을 안내하고, 탈퇴하기를 눌러야 요청을 보낸다.
+// 닉네임 안내를 위해 프로필을 받지만 못 받아도 나머지 안내와 탈퇴는 그대로 된다.
 export function WithdrawPage() {
   const { clearSession } = useAuth()
   const navigate = useNavigate()
-  const [confirmed, setConfirmed] = useState(false)
+  const [nickname, setNickname] = useState(null)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    getMyProfile()
+      .then((profile) => {
+        if (active) setNickname(profile.nickname ?? null)
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
 
   function leave() {
     navigate('/login', { replace: true, state: { notice: 'withdrawn' } })
@@ -34,42 +49,43 @@ export function WithdrawPage() {
         leave()
         return
       }
-      if (e.status === 0) setError('서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.')
-      else setError('탈퇴하지 못했습니다. 다시 시도해 주세요.')
+      setError(withdrawErrorMessage(e))
       setSubmitting(false)
     }
   }
 
   return (
-    <PageLayout>
-      <header className={styles.header}>
-        <h1 className={styles.title}>회원 탈퇴</h1>
-        <p className={styles.description}>
-          탈퇴하면 이 기기와 다른 기기에서 모두 로그아웃됩니다. 같은 Google
-          계정으로 다시 로그인하면 계정이 복구됩니다.
-        </p>
-      </header>
-      <label className={styles.confirm}>
-        <input
-          type="checkbox"
-          checked={confirmed}
-          onChange={(event) => setConfirmed(event.target.checked)}
-        />
-        안내를 확인했고 탈퇴합니다.
-      </label>
-      <ErrorMessage>{error}</ErrorMessage>
-      <div className={styles.actions}>
-        <Button
-          variant="danger"
-          onClick={handleWithdraw}
-          disabled={!confirmed || submitting}
-        >
-          {submitting ? '탈퇴 중…' : '탈퇴하기'}
-        </Button>
-        <Link to="/" className={styles.cancel}>
-          취소
-        </Link>
+    <main className={styles.page}>
+      <div className={styles.panel}>
+        <section className={styles.card} aria-labelledby="withdraw-title">
+          <span className={styles.icon} aria-hidden="true">
+            <AlertTriangleIcon size={24} />
+          </span>
+          <div className={styles.heading}>
+            <h1 id="withdraw-title" className={styles.title}>
+              정말 탈퇴할까요?
+            </h1>
+            <p className={styles.lead}>탈퇴하기 전에 아래 내용을 확인해 주세요.</p>
+          </div>
+          <ul className={styles.facts}>
+            {withdrawFacts(nickname).map((fact) => (
+              <li key={fact} className={styles.fact}>
+                <CheckIcon size={16} />
+                <span>{fact}</span>
+              </li>
+            ))}
+          </ul>
+          <ErrorMessage>{error}</ErrorMessage>
+        </section>
+        <div className={styles.actions}>
+          <Button as={Link} to="/profile" variant="secondary" size="lg" fit="responsive" className={styles.keep}>
+            계속 이용하기
+          </Button>
+          <Button variant="danger" size="lg" fit="responsive" className={styles.confirm} onClick={handleWithdraw} disabled={submitting}>
+            {submitting ? '탈퇴 중…' : '탈퇴하기'}
+          </Button>
+        </div>
       </div>
-    </PageLayout>
+    </main>
   )
 }
