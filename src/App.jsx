@@ -7,6 +7,7 @@ import { BalanceSummaryPage } from './pages/BalanceSummaryPage.jsx'
 import { CreateGamePage } from './pages/CreateGamePage.jsx'
 import { GameDetailLayout } from './pages/GameDetailLayout.jsx'
 import { GameDetailPage } from './pages/GameDetailPage.jsx'
+import { GameAfterPage } from './pages/GameAfterPage.jsx'
 import { GameLineupPage } from './pages/GameLineupPage.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { LoginCallbackPage } from './pages/LoginCallbackPage.jsx'
@@ -63,6 +64,7 @@ function App() {
               <Route path="notices/:noticeId" element={<NoticesPage />} />
               <Route path="polls" element={<PollsPage />} />
               <Route path="polls/:pollId" element={<PollsPage />} />
+              <Route path="after" element={<GameAfterPage />} />
             </Route>
               <Route path="/games/:gameId/notices/new" element={<NoticeCreatePage />} />
               <Route path="/games/:gameId/polls/new" element={<PollCreatePage />} />

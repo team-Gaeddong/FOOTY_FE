@@ -48,6 +48,7 @@
 | `GET /games/{gameId}/polls/{pollId}` | Bearer + 온보딩, 파티장·경기 참가 회원 | — | 200 `PollResponse` | `POLL_403_1`, `GAME_404_1`, `POLL_404_1`(없음·다른 경기), 인증·온보딩 에러 | BE #78 |
 | `PUT /games/{gameId}/polls/{pollId}/answers` | Bearer + 온보딩, 파티장·경기 참가 회원 | `{ optionIds }` | 200 `PollResponse` | `GLOBAL_400_1`, `POLL_400_3`(단일 선택에 여러 개), `POLL_400_4`(같은 선택지 중복), `POLL_403_1`, `GAME_404_1`, `MEMBER_404_1`, `POLL_404_1`, `POLL_404_2`(이 투표의 선택지가 아님), `POLL_409_1`(마감), `POLL_409_2`(동시 응답), 인증·온보딩 에러 | BE #78 |
 | `POST /games/{gameId}/balance-reviews` | Bearer + 온보딩, 경기 참가 회원 | `CreateBalanceReviewRequest` | 201 `CreateBalanceReviewResponse` | `GLOBAL_400_1`(점수 범위·의견 길이·없는 사유 값), `BALANCE_400_1`(사유 중복), `BALANCE_403_1`(참가하지 않은 회원), `GAME_404_1`, `MEMBER_404_1`, `BALANCE_409_1`(종료 전 경기), `BALANCE_409_2`(이미 작성), 인증·온보딩 에러 | BE #61, D-28 |
+| `GET /games/{gameId}/balance-reviews/me` | Bearer + 온보딩, 로그인 회원 누구나(본인 것만) | — | 200 `MyBalanceReviewResponse` | `GAME_404_1`, 인증·온보딩 에러 | BE #87, PR #89, D-39 |
 | `GET /games/{gameId}/balance-reviews/summary` | Bearer + 온보딩, 파티장·경기 참가자 | — | 200 `BalanceSummaryResponse` | `BALANCE_403_2`(파티장·참가자 아님), `GAME_404_1`, `LINEUP_404_2`(전원 작성 후 라인업 없음), 인증·온보딩 에러 | BE #64, D-29 |
 | `POST /games/{gameId}/mvp-votes` | Bearer + 온보딩, 경기 참가 회원·종료 경기 | `{ gamePlayerId }` | 201 `CreateMvpVoteResponse` | `GLOBAL_400_1`, `MVP_400_1`(본인 선택), `MVP_403_1`(비참가자), `GAME_404_1`, `GAME_404_2`(경기 선수가 아님), `MVP_409_1`(종료 전), `MVP_409_2`(이미 투표), 인증·온보딩 에러 | BE #70, PR #72 |
 | `GET /games/{gameId}/mvp-votes/me` | Bearer + 온보딩 | — | 200 `MyMvpVoteResponse` | `GAME_404_1`, 인증·온보딩 에러 | BE #70, PR #72 |
@@ -142,7 +143,9 @@
 | `reasons` | string[] | 선택(생략하면 빈 목록), 중복 불가(`BALANCE_400_1`). 값: `OUR_TEAM_TOO_WEAK`(우리 팀이 너무 못한다)·`OPPONENT_TOO_STRONG`(상대 팀이 너무 잘한다)·`SKILL_GAP`(개인 실력 차이가 컸다)·`POSITION_MISMATCH`(포지션 배치가 안 맞았다)·`HEADCOUNT_MISMATCH`(인원이 안 맞았다)·`WELL_BALANCED`(팽팽하고 재밌었다) |
 | `comment` | string | 선택, 500자 이하(`GLOBAL_400_1`). 공백만이면 `null`로 저장 |
 
-`CreateBalanceReviewResponse`: `id`, `gameId`, `score`, `reasons`, `comment`, `createdAt`(`LocalDateTime`). 확인 순서는 참가 여부(`BALANCE_403_1`) → 경기 종료(`BALANCE_409_1`) → 중복 작성(`BALANCE_409_2`)이다. 작성 여부를 미리 조회하는 API는 없다.
+`CreateBalanceReviewResponse`: `id`, `gameId`, `score`, `reasons`, `comment`, `createdAt`(`LocalDateTime`). 확인 순서는 참가 여부(`BALANCE_403_1`) → 경기 종료(`BALANCE_409_1`) → 중복 작성(`BALANCE_409_2`)이다. 작성 여부는 `GET /games/{gameId}/balance-reviews/me`(BE D-39)로 미리 조회한다.
+
+`MyBalanceReviewResponse` (`GET /games/{gameId}/balance-reviews/me`, BE D-39): `{ gameId, reviewed, review }`. 작성했으면 `review`는 `CreateBalanceReviewResponse`와 같은 `{ id, gameId, score, reasons, comment, createdAt }`(사유는 고른 순서), 작성 전이면 `reviewed=false`·`review=null`이다. **참가하지 않은 회원이나 종료 전 경기도 오류가 아니라 미작성**으로 응답하고(작성 가능 여부는 알려 주지 않는다), 없거나 삭제된 경기만 404 `GAME_404_1`이다.
 
 `BalanceSummaryResponse` (`GET /games/{gameId}/balance-reviews/summary`, BE D-29)
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
 import { listGamePlayers } from '../api/games.js'
 import { getMyProfile } from '../api/member.js'
 import { Button } from '../components/Button.jsx'
@@ -9,7 +8,7 @@ import { GameHostMenu } from './GameHostMenu.jsx'
 import { GameJoinCard } from './GameJoinCard.jsx'
 import { GamePlayersCard } from './GamePlayersCard.jsx'
 import { GameProgress } from './GameProgress.jsx'
-import { countUnratedPlayers, formatCreatedDateFull, toSummary } from './gameDetail.js'
+import { countUnratedPlayers, formatCreatedDateFull } from './gameDetail.js'
 import { dateTimeLabel } from './homeCalendar.js'
 import styles from './GameOverview.module.css'
 
@@ -83,7 +82,6 @@ export function GameOverview({ game, onUpdated }) {
           ) : (
             <ClosedCard />
           )}
-          {game.status === 'FINISHED' && (game.isHost || game.isJoined) && <AfterGameCard game={game} />}
         </div>
         <InfoCard game={game} className={styles.info} />
         <GamePlayersCard
@@ -167,37 +165,5 @@ function ClosedCard() {
     >
       팀이 확정됐거나 종료돼 더 참가할 수 없어요.
     </StateCard>
-  )
-}
-
-// 임시: 경기 후 탭(⑬)이 생기기 전까지 종료된 경기의 평가·결과·MVP 화면으로 가는 길을 개요에 둔다.
-function AfterGameCard({ game }) {
-  return (
-    <section className={styles.card} aria-labelledby="after-title">
-      <h2 id="after-title" className={styles.cardTitle}>
-        경기 후
-      </h2>
-      <p className={styles.afterText}>경기가 끝났어요. 팀 밸런스는 어땠나요?</p>
-      <div className={styles.afterButtons}>
-        <Button
-          as={Link}
-          to={`/games/${game.id}/balance-review`}
-          state={{ game: toSummary(game) }}
-        >
-          밸런스 평가하기
-        </Button>
-        <Button
-          as={Link}
-          to={`/games/${game.id}/balance-summary`}
-          state={{ game: toSummary(game) }}
-          variant="secondary"
-        >
-          밸런스 결과 보기
-        </Button>
-        <Button as={Link} to={`/games/${game.id}/mvp-vote`} variant="secondary">
-          오늘의 MVP 투표
-        </Button>
-      </div>
-    </section>
   )
 }

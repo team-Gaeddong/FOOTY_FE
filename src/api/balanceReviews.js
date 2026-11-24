@@ -13,3 +13,9 @@ export function createBalanceReview(gameId, { score, reasons, comment }) {
 export function getBalanceSummary(gameId) {
   return request(`/games/${gameId}/balance-reviews/summary`)
 }
+
+// 내 밸런스 평가 여부(BE D-39). 로그인한 회원 누구나 본인 것만 조회한다. { gameId, reviewed, review }.
+// 참가하지 않은 회원이나 종료 전 경기도 오류가 아니라 reviewed=false다. 없는 경기는 404 GAME_404_1.
+export function getMyBalanceReview(gameId) {
+  return request(`/games/${gameId}/balance-reviews/me`)
+}

@@ -150,6 +150,14 @@ export function DownloadIcon(props) {
   return <Icon {...props}><path d="M12 3v12M7 10l5 5 5-5M4 21h16" /></Icon>
 }
 
+export function ScaleIcon(props) {
+  return <Icon {...props}><path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3 3 0 0 0 6 0L5 7zM19 7l-3 7a3 3 0 0 0 6 0l-3-7" /></Icon>
+}
+
+export function FlagIcon(props) {
+  return <Icon {...props}><path d="M4 22V4M4 4h13l-2 4 2 4H4" /></Icon>
+}
+
 export function AlertTriangleIcon(props) {
   return <Icon {...props}><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /></Icon>
 }
