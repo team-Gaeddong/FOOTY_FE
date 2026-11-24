@@ -4,6 +4,8 @@
   gap: var(--space-4);
   width: 100%;
   max-width: var(--content-max);
+  /* 선수가 적어도 저장 줄이 화면 아래에 닿도록, 모바일 상단 바(56px)를 뺀 화면 높이를 최소로 둔다 */
+  min-height: calc(100dvh - 56px);
   margin: 0 auto;
   padding: 20px var(--page-gutter) var(--space-6);
   color: var(--text-body);
@@ -191,7 +193,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-4);
-  margin: 0 calc(-1 * var(--page-gutter)) calc(-1 * var(--space-6));
+  margin: auto calc(-1 * var(--page-gutter)) calc(-1 * var(--space-6));
   padding: var(--space-3) var(--page-gutter) calc(var(--space-4) + var(--safe-bottom));
   border-top: 1px solid var(--line);
   background: var(--surface-deep);
@@ -214,6 +216,7 @@
 
 @media (min-width: 768px) {
   .page {
+    min-height: 0;
     gap: var(--space-5);
     padding: var(--space-6) var(--space-6) 72px;
   }
