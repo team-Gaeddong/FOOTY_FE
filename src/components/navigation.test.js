@@ -48,7 +48,7 @@ test('하위 바는 bar가 켜진 화면에서만 보인다', () => {
   assert.equal(mobileChrome(matchRoute('/games/12/notices')), 'bar')
   assert.equal(mobileChrome(matchRoute('/games/12/notices/7')), 'bar')
   assert.equal(mobileChrome(matchRoute('/games/12/notices/new')), 'bar')
-  assert.equal(mobileChrome(matchRoute('/games/12/polls')), 'none')
+  assert.equal(mobileChrome(matchRoute('/games/12/polls')), 'bar')
   assert.equal(mobileChrome(matchRoute('/games/mine')), 'tab')
 })
 
