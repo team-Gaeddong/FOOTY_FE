@@ -12,6 +12,7 @@ import styles from './GameDetailLayout.module.css'
 // 다른 화면이 넘겨준 완료 안내(location.state.notice)
 const NOTICE_MESSAGES = {
   'balance-reviewed': '밸런스 평가를 제출했어요.',
+  'notice-created': '공지를 올렸어요.',
 }
 
 function loadErrorMessage(error) {

@@ -16,8 +16,8 @@ test('/games/mine과 /games/new가 /games/:gameId에 먼저 걸리지 않는다'
 })
 
 test('경로의 값으로 돌아갈 경로를 채운다', () => {
-  assert.equal(matchRoute('/games/12/notices').back, '/games/12')
-  assert.equal(matchRoute('/games/12/notices/7').back, '/games/12/notices')
+  assert.equal(matchRoute('/games/12/notices').back, '/')
+  assert.equal(matchRoute('/games/12/notices/new').back, '/games/12/notices')
   assert.equal(matchRoute('/games/12/teams/3/tactic').back, '/games/12/lineup')
   assert.equal(matchRoute('/games/12/polls/new').back, '/games/12/polls')
   assert.deepEqual(matchRoute('/games/12/teams/3/tactic').params, { gameId: '12', teamId: '3' })
@@ -45,7 +45,10 @@ test('새 시안 범위 밖 화면과 알 수 없는 경로는 모바일에서 �
 
 test('하위 바는 bar가 켜진 화면에서만 보인다', () => {
   assert.equal(mobileChrome(matchRoute('/withdraw')), 'bar')
-  assert.equal(mobileChrome(matchRoute('/games/12/notices')), 'none')
+  assert.equal(mobileChrome(matchRoute('/games/12/notices')), 'bar')
+  assert.equal(mobileChrome(matchRoute('/games/12/notices/7')), 'bar')
+  assert.equal(mobileChrome(matchRoute('/games/12/notices/new')), 'bar')
+  assert.equal(mobileChrome(matchRoute('/games/12/polls')), 'none')
   assert.equal(mobileChrome(matchRoute('/games/mine')), 'tab')
 })
 
