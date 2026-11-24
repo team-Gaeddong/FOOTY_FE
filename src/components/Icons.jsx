@@ -145,3 +145,7 @@ export function DownloadIcon(props) {
 export function AlertTriangleIcon(props) {
   return <Icon {...props}><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /></Icon>
 }
+
+export function WandIcon(props) {
+  return <Icon {...props}><path d="M15 4V2M15 10V8M11 6h2M17 6h2M3 21l12-12M12.5 6.5l2 2" /></Icon>
+}
