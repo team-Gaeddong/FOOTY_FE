@@ -154,6 +154,18 @@ export function autoPlace(members, formation) {
   )
 }
 
+// 벤치의 "올리기" 버튼이 놓을 곳. 선수의 배정 포지션과 같은 역할의 빈 슬롯을 먼저 고르고, 없으면 첫 빈 슬롯,
+// 슬롯이 하나도 없는 포메이션이면 경기장 가운데다. 이미 11명이면 놓을 수 없어 null이다.
+export function liftTarget(member, placements, formation) {
+  if (isFull(placements)) return null
+  const slots = formationSlots(formation)
+  if (slots.length === 0) return { type: 'point', x: 50, y: 50 }
+  const free = freeSlotIndexes(placements, formation)
+  if (free.length === 0) return null
+  const index = free.find((i) => slots[i].role === member.position) ?? free[0]
+  return { type: 'slot', index }
+}
+
 // PUT /games/{gameId}/teams/{teamId}/tactic 의 placements 형식
 export function toPlacementRequest(placements) {
   return placements.map(({ gamePlayerId, x, y }) => ({

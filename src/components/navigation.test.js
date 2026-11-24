@@ -87,3 +87,9 @@ test('경기 후 탭은 모바일 하위 바(뒤로 + 제목)를 켠다', () => 
   assert.equal(route.back, '/')
   assert.equal(mobileChrome(route), 'bar')
 })
+
+test('전술 배치도는 모바일 하위 바(뒤로 + 제목)를 켠다', () => {
+  const route = matchRoute('/games/12/teams/3/tactic')
+  assert.equal(route.title, '전술 배치도')
+  assert.equal(route.bar, true)
+})

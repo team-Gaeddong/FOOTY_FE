@@ -149,3 +149,7 @@ export function ScaleIcon(props) {
 export function FlagIcon(props) {
   return <Icon {...props}><path d="M4 22V4M4 4h13l-2 4 2 4H4" /></Icon>
 }
+
+export function WandIcon(props) {
+  return <Icon {...props}><path d="M15 4V2M15 10V8M11 6h2M17 6h2M3 21l12-12M12.5 6.5l2 2" /></Icon>
+}
