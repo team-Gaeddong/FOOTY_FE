@@ -115,9 +115,14 @@ export function CreateGamePage() {
               <div><dt>팀 수</dt><dd>{createdGame.teamCount}팀</dd></div>
             </dl>
           </div>
-          <Button as={Link} to="/" size="lg">
-            홈으로 돌아가기
-          </Button>
+          <div className={styles.successActions}>
+            <Button as={Link} to={`/games/${createdGame.id}`} size="lg">
+              만든 경기 보기
+            </Button>
+            <Button as={Link} to="/" variant="secondary" size="lg">
+              홈으로 돌아가기
+            </Button>
+          </div>
         </section>
       </main>
     )

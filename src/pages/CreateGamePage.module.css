@@ -295,6 +295,14 @@
   font-weight: 600;
 }
 
+/* 만든 경기 보기 · 홈으로 돌아가기 */
+.successActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
 .summary {
   display: flex;
   flex-direction: column;
