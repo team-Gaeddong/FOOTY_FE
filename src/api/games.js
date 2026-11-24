@@ -7,6 +7,12 @@ export function createGame({ title, playDate, location, maxPlayers, teamCount })
   })
 }
 
+// BE D-34: 파티장만, 팀이 확정된(CONFIRMED) 경기만 종료한다. 되돌릴 수 없다. 성공 200은 종료 후의 경기 상세(GET /games/{id}와 같은 형식).
+// 실패 code는 GAME_403_1(파티장 아님), GAME_404_1, GAME_409_4(팀 확정 경기가 아님·이미 종료)다.
+export function finishGame(gameId) {
+  return request(`/games/${gameId}/finish`, { method: 'PATCH' })
+}
+
 // from·to는 경기 날짜(yyyy-MM-dd)이고 둘 다 그 날을 포함한다. status는 배열, role은 'host' | 'joined'(BE D-37).
 export function listGames({ page = 0, size = 20, from, to, status, role } = {}) {
   const params = new URLSearchParams({ page: String(page), size: String(size) })

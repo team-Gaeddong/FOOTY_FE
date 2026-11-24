@@ -137,3 +137,7 @@ export function InfoIcon(props) {
 export function PencilIcon(props) {
   return <Icon {...props}><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></Icon>
 }
+
+export function DownloadIcon(props) {
+  return <Icon {...props}><path d="M12 3v12M7 10l5 5 5-5M4 21h16" /></Icon>
+}

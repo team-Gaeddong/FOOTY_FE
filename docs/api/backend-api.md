@@ -53,6 +53,7 @@
 | `GET /games/{gameId}/mvp-votes/me` | Bearer + 온보딩 | — | 200 `MyMvpVoteResponse` | `GAME_404_1`, 인증·온보딩 에러 | BE #70, PR #72 |
 | `GET /games/{gameId}/mvp-votes/result` | Bearer + 온보딩, 해당 경기 투표 회원 | — | 200 `MvpResultResponse` | `MVP_403_2`(투표하지 않은 회원), `GAME_404_1`, 인증·온보딩 에러 | BE #70, PR #72 |
 | `GET /games/{gameId}` | Bearer + 온보딩 | — | 200 `GameDetailResponse` | `GAME_404_1`(없음·삭제), 인증·온보딩 에러 | #54 |
+| `PATCH /games/{gameId}/finish` | Bearer + 온보딩, 파티장 | — | 200 `GameDetailResponse`(종료 후) | `GAME_403_1`(파티장 아님), `GAME_404_1`, `GAME_409_4`(팀 확정 경기가 아님·이미 종료), 인증·온보딩 에러 | BE #71, D-34 |
 | `DELETE /games/{gameId}` | Bearer + 온보딩, 파티장·종료 전 경기 | — | 204 | `GAME_403_1`(파티장 아님), `GAME_404_1`(없음·이미 삭제), `GAME_409_5`(종료된 경기), 인증·온보딩 에러 | #74, PR #76 |
 | `GET /games/{gameId}/players` | Bearer + 온보딩 | — | 200 `ListGamePlayersResponse` | `GAME_404_1`, 인증·온보딩 에러 | |
 | `POST /games/{gameId}/players` | Bearer + 온보딩, 회원 본인 | `JoinGameRequest` | 201 `JoinGameResponse` | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `MEMBER_404_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `GAME_409_3`(이미 참가), 인증·온보딩 에러 | #32, #36 |

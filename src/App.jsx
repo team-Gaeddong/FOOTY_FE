@@ -5,7 +5,9 @@ import { AppShell } from './components/AppShell.jsx'
 import { BalanceReviewPage } from './pages/BalanceReviewPage.jsx'
 import { BalanceSummaryPage } from './pages/BalanceSummaryPage.jsx'
 import { CreateGamePage } from './pages/CreateGamePage.jsx'
+import { GameDetailLayout } from './pages/GameDetailLayout.jsx'
 import { GameDetailPage } from './pages/GameDetailPage.jsx'
+import { GameLineupPage } from './pages/GameLineupPage.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { LoginCallbackPage } from './pages/LoginCallbackPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
@@ -54,7 +56,10 @@ function App() {
               <Route path="/games/new" element={<CreateGamePage />} />
               <Route path="/games/mine" element={<MyGamesPage />} />
               <Route path="/games" element={<GamesRedirect />} />
-              <Route path="/games/:gameId" element={<GameDetailPage />} />
+              <Route path="/games/:gameId" element={<GameDetailLayout />}>
+              <Route index element={<GameDetailPage />} />
+              <Route path="lineup" element={<GameLineupPage />} />
+            </Route>
               <Route path="/games/:gameId/notices/new" element={<NoticeCreatePage />} />
               <Route path="/games/:gameId/notices" element={<NoticeListPage />} />
               <Route path="/games/:gameId/notices/:noticeId" element={<NoticeDetailPage />} />
@@ -68,7 +73,7 @@ function App() {
               <Route path="/games/:gameId/players" element={<PlayersPage />} />
               <Route path="/games/:gameId/skill-levels" element={<PlayersRedirect />} />
               <Route path="/games/:gameId/positions" element={<PlayersRedirect />} />
-              <Route path="/games/:gameId/lineup" element={<TeamMatchPage />} />
+              <Route path="/games/:gameId/lineup/edit" element={<TeamMatchPage />} />
               <Route path="/games/:gameId/teams/:teamId/tactic" element={<TacticPage />} />
               <Route path="/games/:gameId/report" element={<ReportPage />} />
               <Route path="/withdraw" element={<WithdrawPage />} />

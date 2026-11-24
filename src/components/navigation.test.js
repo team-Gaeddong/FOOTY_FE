@@ -68,3 +68,14 @@ test('선수 관리는 모바일 하위 바를 켜고, 옛 실력·포지션 경
   assert.equal(players.back, '/games/12')
   assert.equal(ROUTE_TABLE.some((route) => route.path.endsWith('/skill-levels') || route.path.endsWith('/positions')), false)
 })
+
+test('라인업 탭은 모바일 하위 바를 켜고, 팀 짜기는 /lineup/edit이다', () => {
+  const tab = matchRoute('/games/12/lineup')
+  assert.equal(tab.title, '경기 상세')
+  assert.equal(tab.bar, true)
+  assert.equal(tab.back, '/')
+  const edit = matchRoute('/games/12/lineup/edit')
+  assert.equal(edit.title, '팀 짜기')
+  assert.equal(edit.back, '/games/12/lineup')
+  assert.equal(edit.params.gameId, '12')
+})
