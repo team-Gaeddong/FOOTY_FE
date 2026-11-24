@@ -7,6 +7,7 @@ import { BalanceSummaryPage } from './pages/BalanceSummaryPage.jsx'
 import { CreateGamePage } from './pages/CreateGamePage.jsx'
 import { GameDetailLayout } from './pages/GameDetailLayout.jsx'
 import { GameDetailPage } from './pages/GameDetailPage.jsx'
+import { GameAfterPage } from './pages/GameAfterPage.jsx'
 import { GameLineupPage } from './pages/GameLineupPage.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { LoginCallbackPage } from './pages/LoginCallbackPage.jsx'
@@ -59,6 +60,7 @@ function App() {
               <Route path="/games/:gameId" element={<GameDetailLayout />}>
               <Route index element={<GameDetailPage />} />
               <Route path="lineup" element={<GameLineupPage />} />
+              <Route path="after" element={<GameAfterPage />} />
             </Route>
               <Route path="/games/:gameId/notices/new" element={<NoticeCreatePage />} />
               <Route path="/games/:gameId/notices" element={<NoticeListPage />} />

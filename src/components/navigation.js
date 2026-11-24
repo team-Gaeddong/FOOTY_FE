@@ -12,7 +12,6 @@
 // title·back: 하위 바의 제목과 돌아갈 경로(경로 안의 :param은 현재 값으로 채운다)
 //
 // 정적 경로가 :param 경로보다 앞에 와야 한다(/games/mine이 /games/:gameId에 먼저 걸리면 안 된다).
-// 라인업 탭(⑦)·경기 후 탭(⑬)이 생기면 해당 항목을 이 표에서 고친다.
 export const ROUTE_TABLE = [
   { path: '/', kind: 'tab', current: 'games' },
   { path: '/games/mine', kind: 'tab', current: 'mine' },
@@ -27,6 +26,7 @@ export const ROUTE_TABLE = [
   { path: '/games/:gameId/polls/new', kind: 'sub', title: '투표 만들기', back: '/games/:gameId/polls', bar: false, current: 'games' },
   { path: '/games/:gameId/polls/:pollId', kind: 'sub', title: '경기 상세', back: '/games/:gameId/polls', bar: false, current: 'games' },
   { path: '/games/:gameId/lineup', kind: 'sub', title: '경기 상세', back: '/', bar: true, current: 'games' },
+  { path: '/games/:gameId/after', kind: 'sub', title: '경기 상세', back: '/', bar: true, current: 'games' },
   { path: '/games/:gameId/lineup/edit', kind: 'sub', title: '팀 짜기', back: '/games/:gameId/lineup', bar: false, current: 'games' },
   { path: '/games/:gameId/players', kind: 'sub', title: '선수 관리', back: '/games/:gameId', bar: true, current: 'games' },
   { path: '/games/:gameId/teams/:teamId/tactic', kind: 'sub', title: '전술 배치도', back: '/games/:gameId/lineup', bar: false, current: 'games' },

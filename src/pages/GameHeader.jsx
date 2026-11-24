@@ -8,12 +8,13 @@ import {
   fillRatio,
   toSummary,
 } from './gameDetail.js'
+import { isAfterOpen } from './afterTab.js'
 import { dateTimeLabel } from './homeCalendar.js'
 import styles from './GameHeader.module.css'
 
 const STATUS_TONES = { RECRUITING: 'green', CONFIRMED: 'navy', FINISHED: 'gray' }
 
-// 경기 상세 화면들이 함께 쓰는 위쪽 틀: 경기 정보(히어로)와 탭 바. current는 지금 탭('overview' | 'lineup' | 'notices' | 'polls').
+// 경기 상세 화면들이 함께 쓰는 위쪽 틀: 경기 정보(히어로)와 탭 바. current는 지금 탭('overview' | 'lineup' | 'notices' | 'polls' | 'after').
 // countNote: 참가 인원 아래 안내를 바꾸고 싶을 때(라인업 탭의 "선발 22명 · 후보 2명"). 없으면 정원 안내다.
 // 공지·투표 탭은 파티장과 참가자만 열 수 있어(BE 403) 그 밖에는 자물쇠를 보여 준다.
 export function GameHeader({ game, current = 'overview', countNote }) {
@@ -35,6 +36,10 @@ export function GameHeader({ game, current = 'overview', countNote }) {
       state: { gameTitle: game.title, isHost: game.isHost },
       locked: !memberTabsOpen,
     },
+    // 경기 후 탭은 종료된 경기에서만 보인다(밸런스 평가·MVP 투표·신고·재경기로 가는 링크 모음)
+    ...(isAfterOpen(game)
+      ? [{ key: 'after', label: '경기 후', to: `/games/${game.id}/after`, locked: !memberTabsOpen }]
+      : []),
   ]
   const ratio = fillRatio(game.playerCount, game.maxPlayers)
 

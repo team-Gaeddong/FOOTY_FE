@@ -79,3 +79,10 @@ test('라인업 탭은 모바일 하위 바를 켜고, 팀 짜기는 /lineup/edi
   assert.equal(edit.back, '/games/12/lineup')
   assert.equal(edit.params.gameId, '12')
 })
+
+test('경기 후 탭은 모바일 하위 바(뒤로 + 제목)를 켠다', () => {
+  const route = matchRoute('/games/12/after')
+  assert.equal(route.title, '경기 상세')
+  assert.equal(route.back, '/')
+  assert.equal(mobileChrome(route), 'bar')
+})
