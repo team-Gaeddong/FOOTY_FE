@@ -7,8 +7,8 @@ const DEFAULT_HINT = '누른 순서대로 우선순위가 정해져요. 1~4개'
 // 포지션을 우선순위와 함께 고르는 제어형 컴포넌트(BE D-13).
 // value는 고른 포지션 배열이고 순서가 곧 우선순위다. 누를 때마다 onChange로 새 배열을 넘긴다.
 // 회원 선호 포지션(온보딩), 경기별 선수 포지션, 비회원 선수 등록이 같은 규칙을 쓴다.
-// columns: 한 줄에 놓을 타일 수(기본 4, 좁은 카드는 2). showOrder: 아래 "현재 순서" 줄을 보일지(기본 true)
-// hint: 타일 아래 안내. null이면 숨긴다.
+// columns: 한 줄에 놓을 타일 수(기본 4, 좁은 카드는 2, 'responsive'는 모바일 2 · 768px 이상 4). showOrder: 아래 "현재 순서" 줄을 보일지(기본 true)
+// hint: 타일 아래 안내. null이면 숨긴다. hideLegend: 제목이 따로 있을 때 legend를 화면에서만 숨기고 화면 읽기용으로 남긴다.
 export function PositionPicker({
   value,
   onChange,
@@ -16,6 +16,7 @@ export function PositionPicker({
   hint = DEFAULT_HINT,
   columns = 4,
   showOrder = true,
+  hideLegend = false,
   invalid = false,
   disabled = false,
 }) {
@@ -28,8 +29,8 @@ export function PositionPicker({
       data-invalid={invalid}
       disabled={disabled}
     >
-      <legend className={styles.legend}>{legend}</legend>
-      <div className={`${styles.positions} ${columns === 2 ? styles.twoColumns : ''}`}>
+      <legend className={hideLegend ? styles.srOnly : styles.legend}>{legend}</legend>
+      <div className={`${styles.positions} ${columns === 2 ? styles.twoColumns : ''} ${columns === 'responsive' ? styles.responsive : ''}`}>
         {POSITIONS.map(({ value: position, label }) => {
           const rank = value.indexOf(position) + 1
           return (

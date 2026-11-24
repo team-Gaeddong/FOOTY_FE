@@ -141,3 +141,7 @@ export function PencilIcon(props) {
 export function DownloadIcon(props) {
   return <Icon {...props}><path d="M12 3v12M7 10l5 5 5-5M4 21h16" /></Icon>
 }
+
+export function AlertTriangleIcon(props) {
+  return <Icon {...props}><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /></Icon>
+}
