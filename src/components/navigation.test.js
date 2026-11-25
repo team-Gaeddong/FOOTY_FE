@@ -37,7 +37,7 @@ test('PC 주 메뉴의 현재 항목: 경기 하위 화면은 경기, 내 경기
 })
 
 test('새 시안 범위 밖 화면과 알 수 없는 경로는 모바일에서 상단·하단이 없다', () => {
-  for (const path of ['/games/1/mvp-vote', '/games/1/report', '/games/1/rematch', '/games/1/balance-review', '/games/1/balance-summary', '/nope']) {
+  for (const path of ['/games/1/mvp-vote', '/games/1/report', '/games/1/rematch', '/nope']) {
     assert.equal(mobileChrome(matchRoute(path)), 'none', path)
   }
   assert.equal(matchRoute('/nope').back, null)
@@ -50,6 +50,17 @@ test('하위 바는 bar가 켜진 화면에서만 보인다', () => {
   assert.equal(mobileChrome(matchRoute('/games/12/notices/new')), 'bar')
   assert.equal(mobileChrome(matchRoute('/games/12/polls')), 'bar')
   assert.equal(mobileChrome(matchRoute('/games/mine')), 'tab')
+})
+
+test('밸런스 평가·결과는 하위 바로 경기 후 탭에 돌아간다', () => {
+  const review = matchRoute('/games/12/balance-review')
+  assert.equal(mobileChrome(review), 'bar')
+  assert.equal(review.title, '밸런스 평가')
+  assert.equal(review.back, '/games/12/after')
+  const summary = matchRoute('/games/12/balance-summary')
+  assert.equal(mobileChrome(summary), 'bar')
+  assert.equal(summary.title, '밸런스 결과')
+  assert.equal(summary.back, '/games/12/after')
 })
 
 test('하위 화면에는 제목과 돌아갈 경로가 모두 있다', () => {
