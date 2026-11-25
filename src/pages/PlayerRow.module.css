@@ -181,9 +181,16 @@
 }
 
 .editor legend {
+  margin-bottom: 10px;
   color: var(--gray-200);
   font-size: var(--text-12);
   line-height: var(--leading-12);
+}
+
+/* 편집기 면(gray-900) 위의 포지션 칸과 저장 버튼은 카드 면(gray-800)이다(시안) */
+.editor fieldset button[aria-pressed='false'],
+.editorActions .save {
+  background: var(--surface-card);
 }
 
 .editorActions {

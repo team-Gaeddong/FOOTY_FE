@@ -21,9 +21,20 @@ export function squadSummary(lineup) {
 }
 
 // 참가 인원 아래 안내("선발 22명 · 후보 2명")
+// 후보가 없으면 "후보 없음"(시안 DetailAfter)
 export function lineupNote(lineup) {
   const { starters, substitutes } = squadSummary(lineup)
-  return `선발 ${starters}명 · 후보 ${substitutes}명`
+  return squadNote(starters, substitutes)
+}
+
+function squadNote(starters, substitutes) {
+  return `선발 ${starters}명 · ${substitutes > 0 ? `후보 ${substitutes}명` : '후보 없음'}`
+}
+
+// 라인업을 따로 불러오지 않는 화면(경기 후 탭)용. 팀 짜기는 실력 순으로 앞의 maxPlayers명을 선발로 둔다(BE D-22).
+export function squadNoteFromCounts(playerCount, maxPlayers) {
+  const starters = Math.min(playerCount, maxPlayers)
+  return squadNote(starters, Math.max(0, playerCount - starters))
 }
 
 // 팀 목록의 선수 줄. 서버가 준 순서를 지키되 후보는 뒤로 보낸다. 실력은 파티장에게만 내려온다(없으면 null).

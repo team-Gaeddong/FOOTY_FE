@@ -347,7 +347,7 @@ export function TeamMatchPage() {
         <ErrorMessage>{failure?.message}</ErrorMessage>
         {outcome?.savedCount && !unsaved && (
           <p className={styles.saved} role="status">
-            {outcome.savedCount}명을 옮겨 팀 구성을 저장했어요.
+            {`${outcome.savedCount}명을 옮겨 팀 구성을 저장했어요.`}
           </p>
         )}
 
