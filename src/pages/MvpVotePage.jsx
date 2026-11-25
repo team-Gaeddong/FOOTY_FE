@@ -4,9 +4,8 @@ import { createMvpVote, getMvpVoteResult, getMyMvpVote } from '../api/mvpVotes.j
 import { ApiError } from '../api/client.js'
 import { getGame, listGamePlayers } from '../api/games.js'
 import { getMyProfile } from '../api/member.js'
-import { Button } from '../components/Button.jsx'
-import { PageLayout } from '../components/PageLayout.jsx'
-import { parseGameId } from './gameDetail.js'
+import { POSITION_LABELS } from '../components/positions.js'
+import { formatPlayDate, parseGameId } from './gameDetail.js'
 import styles from './MvpVotePage.module.css'
 
 const BLOCKED_MESSAGES = {
@@ -27,6 +26,34 @@ function requestErrorMessage(error) {
   if (error.code === 'MVP_409_1') return '경기가 끝난 뒤 MVP를 투표할 수 있어요.'
   if (error.code === 'MVP_409_2') return '이미 투표했어요. 화면을 새로고침해 주세요.'
   return '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'
+}
+
+function MvpFrame({ gameId, game, profile, title, intro, children }) {
+  const backPath = gameId ? `/games/${gameId}` : '/games'
+  return (
+    <div className={styles.screen}>
+      <header className={styles.desktopNav}>
+        <div className={styles.navInner}>
+          <Link className={styles.logo} to="/games">FOOTY</Link>
+          <nav className={styles.navLinks} aria-label="주 메뉴"><Link to="/games">경기</Link><Link to="/games/mine">내 경기</Link></nav>
+          <div className={styles.navActions}>
+            <Link className={styles.createLink} to="/games/new">＋ 경기 만들기</Link>
+            <Link className={styles.profileLink} to="/profile"><span>{profile?.nickname?.slice(0, 1) ?? '나'}</span>{profile?.nickname ?? '내 프로필'}</Link>
+          </div>
+        </div>
+      </header>
+      <header className={styles.mobileNav}><Link to={backPath} aria-label="뒤로 가기">←</Link><strong>{title}</strong></header>
+      <main className={styles.main}>
+        <Link className={styles.backLink} to={backPath}>← {game?.title ?? '경기 상세'}</Link>
+        <div className={styles.pageHeading}>
+          {game && <p className={styles.gameLine}>{game.title} · {formatPlayDate(game.playDate)}</p>}
+          <h1>{title}</h1>
+          {intro && <p>{intro}</p>}
+        </div>
+        {children}
+      </main>
+    </div>
+  )
 }
 
 export function MvpVotePage() {
@@ -98,43 +125,35 @@ export function MvpVotePage() {
 
   if (!data) {
     return (
-      <PageLayout>
-        <Link className={styles.backLink} to={gameId ? `/games/${gameId}` : '/games'}>← 경기 상세</Link>
+      <MvpFrame gameId={gameId} title="MVP 투표">
         <section className={styles.messageCard} role="status">
           <span className={styles.spinner} aria-hidden="true" />
           <p>경기와 참가자를 불러오는 중…</p>
         </section>
-      </PageLayout>
+      </MvpFrame>
     )
   }
 
   if (data.error) {
     const [title, description] = BLOCKED_MESSAGES[data.error.code] ?? ['화면을 불러오지 못했어요', requestErrorMessage(data.error)]
     return (
-      <PageLayout>
-        <Link className={styles.backLink} to="/games">← 경기 목록</Link>
+      <MvpFrame gameId={gameId} title="MVP 투표">
         <section className={styles.messageCard} role="alert">
-          <h1>{title}</h1>
+          <h2>{title}</h2>
           <p>{description}</p>
-          <Button variant="secondary" onClick={() => setRetry((count) => count + 1)}>다시 시도</Button>
+          <button className={styles.secondaryButton} type="button" onClick={() => setRetry((count) => count + 1)}>다시 시도</button>
         </section>
-      </PageLayout>
+      </MvpFrame>
     )
   }
 
   const { game, players, profile, myVote, result, blockedCode } = data
   const blocked = BLOCKED_MESSAGES[blockedCode]
-  const candidates = players.filter((player) => player.memberId !== profile.memberId)
+  const ownPlayer = players.find((player) => player.memberId === profile.memberId)
   const myCandidate = players.find((player) => player.id === myVote.gamePlayerId)
 
   return (
-    <PageLayout>
-      <Link className={styles.backLink} to={`/games/${gameId}`}>← 경기 상세</Link>
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>{game.title}</p>
-        <h1>오늘의 MVP 투표</h1>
-        <p className={styles.intro}>오늘 경기에서 가장 활약한 선수를 선택해 주세요.</p>
-      </header>
+    <MvpFrame gameId={gameId} game={game} profile={profile} title={myVote.voted ? 'MVP 결과' : 'MVP 투표'} intro={myVote.voted ? '투표를 마친 사람에게만 보이는 현재 집계예요.' : '오늘 가장 빛난 선수 한 명을 골라 주세요.'}>
 
       {blocked ? (
         <section className={styles.messageCard} role="status">
@@ -153,47 +172,50 @@ export function MvpVotePage() {
           <p>이 경기에 참가한 회원에게 투표 권한이 있어요.</p>
         </section>
       ) : myVote.voted ? (
-        <Results result={result} myCandidate={myCandidate} />
+        <Results result={result} myCandidate={myCandidate} players={players} ownPlayer={ownPlayer} />
       ) : (
         <form className={styles.form} onSubmit={handleVote}>
+          <p className={styles.infoBar}><span aria-hidden="true">ⓘ</span>한 사람이 한 표만 던질 수 있고, 투표한 뒤에는 바꿀 수 없어요. 누가 누구를 골랐는지는 공개되지 않아요.</p>
           <fieldset className={styles.fieldset} disabled={submitting}>
-            <legend>후보 선수 <span>한 명 선택</span></legend>
-            {candidates.length === 0 ? (
+            <legend className={styles.srOnly}>MVP 후보 선수</legend>
+            {!players.some((player) => player.id !== ownPlayer?.id) ? (
               <p className={styles.empty}>투표할 수 있는 선수가 없어요.</p>
             ) : (
               <div className={styles.candidates}>
-                {candidates.map((player) => (
-                  <label key={player.id} className={`${styles.candidate} ${selectedId === player.id ? styles.selected : ''}`}>
+                {players.map((player) => (
+                  <label key={player.id} className={`${styles.candidate} ${selectedId === player.id ? styles.selected : ''} ${player.id === ownPlayer?.id ? styles.ownCandidate : ''}`}>
                     <input
                       type="radio"
                       name="mvp-candidate"
                       value={player.id}
                       checked={selectedId === player.id}
+                      disabled={player.id === ownPlayer?.id}
                       onChange={() => {
                         setSelectedId(player.id)
                         setError('')
                       }}
                     />
-                    <span className={styles.avatar} aria-hidden="true">{player.name.slice(0, 1)}</span>
-                    <span className={styles.playerName}>{player.name}</span>
-                    <span className={styles.radioMark} aria-hidden="true" />
+                    <span className={`${styles.avatar} ${player.id === ownPlayer?.id ? styles.ownAvatar : ''}`} aria-hidden="true">{player.name.slice(0, 1)}</span>
+                    <span className={styles.playerInfo}><strong>{player.name}</strong><small>{POSITION_LABELS[player.positions?.[0]] ?? '선수'}</small></span>
+                    {player.id === ownPlayer?.id ? <span className={styles.ownLabel}>본인</span> : <span className={styles.radioMark} aria-hidden="true">{selectedId === player.id ? '✓' : ''}</span>}
                   </label>
                 ))}
               </div>
             )}
           </fieldset>
-          <p className={styles.voteNote}>한 번 제출하면 투표를 바꿀 수 없어요.</p>
           {error && <p className={styles.error} role="alert">{error}</p>}
-          <Button type="submit" disabled={selectedId === null || submitting || candidates.length === 0}>
-            {submitting ? '투표하는 중…' : 'MVP 투표하기'}
-          </Button>
+          <div className={styles.voteFooter}>
+            <span>{selectedId === null ? '선수를 한 명 선택해 주세요' : `${players.find((player) => player.id === selectedId)?.name ?? '선수'}에게 투표`}</span>
+            <button className={styles.primaryButton} type="submit" disabled={selectedId === null || submitting}>{submitting ? '투표하는 중…' : '투표하기'}</button>
+          </div>
         </form>
       )}
-    </PageLayout>
+    </MvpFrame>
   )
 }
 
-function Results({ result, myCandidate }) {
+function Results({ result, myCandidate, players, ownPlayer }) {
+  const [showAll, setShowAll] = useState(false)
   if (!result) {
     return (
       <section className={styles.messageCard} role="status">
@@ -204,31 +226,57 @@ function Results({ result, myCandidate }) {
   }
 
   const highestVote = Math.max(0, ...result.candidates.map((candidate) => candidate.voteCount))
+  const winners = result.candidates.filter((candidate) => result.mvpGamePlayerIds.includes(candidate.gamePlayerId))
+  const topCandidate = winners[0]
+  const votedCandidates = result.candidates.filter((candidate) => candidate.voteCount > 0)
+  const visibleCandidates = showAll ? result.candidates : votedCandidates.slice(0, 6)
+  const zeroCount = result.candidates.length - votedCandidates.length
+  const remainingVotes = Math.max(0, result.requiredCount - result.votedCount)
+  const voteProgress = result.requiredCount > 0 ? Math.min(100, result.votedCount / result.requiredCount * 100) : 0
   return (
     <section className={styles.results} aria-labelledby="result-title">
-      <div className={styles.resultHeader}>
-        <div>
-          <p className={styles.eyebrow}>투표 완료</p>
-          <h2 id="result-title">MVP 투표 결과</h2>
+      <h2 id="result-title" className={styles.srOnly}>MVP 결과 상세</h2>
+      {topCandidate && (
+        <div className={styles.winnerCard}>
+          <span className={styles.trophy} aria-hidden="true">🏆</span>
+          <div className={styles.winnerDetails}>
+            <p>현재 {winners.length > 1 ? '공동 MVP' : 'MVP'}</p>
+            <h3>{topCandidate.name}{winners.length > 1 ? ` 외 ${winners.length - 1}명` : ''}</h3>
+            <span>{POSITION_LABELS[players.find((player) => player.id === topCandidate.gamePlayerId)?.positions?.[0]] ?? '선수'} · {topCandidate.voteCount}표</span>
+          </div>
+          <div className={styles.votingProgress}>
+            <p><span>투표 현황</span><strong>{result.votedCount} / {result.requiredCount}명</strong></p>
+            <div className={styles.progressTrack} role="progressbar" aria-valuemin={0} aria-valuemax={result.requiredCount} aria-valuenow={result.votedCount} aria-label="투표 현황"><span style={{ width: `${voteProgress}%` }} /></div>
+            {myCandidate && <p className={styles.myVote}>내 투표 <strong>✓ {myCandidate.name}</strong></p>}
+          </div>
         </div>
-        <strong className={styles.voteCount}>{result.votedCount}<span> / {result.requiredCount}명</span></strong>
+      )}
+      <div className={styles.rankCard}>
+        <div className={styles.rankHeading}><h3>득표 순위</h3><span>득표 많은 순 · 같으면 참여 순</span></div>
+        <ol className={styles.resultList}>
+          {visibleCandidates.map((candidate, index) => {
+            const winner = highestVote > 0 && result.mvpGamePlayerIds.includes(candidate.gamePlayerId)
+            const isMe = candidate.gamePlayerId === ownPlayer?.id
+            return (
+              <li key={candidate.gamePlayerId} className={styles.resultItem}>
+                <span className={styles.resultRank}>{index + 1}</span>
+                <span className={`${styles.resultAvatar} ${isMe ? styles.ownAvatar : ''}`} aria-hidden="true">{candidate.name.slice(0, 1)}</span>
+                <div className={styles.resultInfo}>
+                  <div><strong>{candidate.name}</strong>{winner && <span className={styles.mvpBadge}>MVP</span>}{isMe && <span className={styles.meBadge}>나</span>}</div>
+                  <div className={styles.rankTrack}><span className={winner ? styles.winnerBar : ''} style={{ width: `${highestVote > 0 ? candidate.voteCount / highestVote * 100 : 0}%` }} /></div>
+                </div>
+                <strong className={styles.resultCount}>{candidate.voteCount}표</strong>
+              </li>
+            )
+          })}
+        </ol>
+        <div className={styles.rankFooter}>
+          <span>{zeroCount > 0 ? `나머지 ${zeroCount}명은 아직 표가 없어요.` : '모든 후보의 득표를 표시했어요.'}</span>
+          {result.candidates.length > visibleCandidates.length && <button className={styles.secondaryButton} type="button" onClick={() => setShowAll(true)}>전체 보기</button>}
+          {showAll && result.candidates.length > 6 && <button className={styles.secondaryButton} type="button" onClick={() => setShowAll(false)}>접기</button>}
+        </div>
       </div>
-      {myCandidate && <p className={styles.myVote}>내가 선택한 선수 <strong>{myCandidate.name}</strong></p>}
-      <ol className={styles.resultList}>
-        {result.candidates.map((candidate) => {
-          const winner = highestVote > 0 && candidate.voteCount === highestVote
-          return (
-            <li key={candidate.gamePlayerId} className={`${styles.resultItem} ${winner ? styles.winner : ''}`}>
-              <span className={styles.resultRank} aria-label={winner ? '최다 득표' : undefined}>
-                {winner ? 'MVP' : ''}
-              </span>
-              <span className={styles.resultName}>{candidate.name}</span>
-              <strong>{candidate.voteCount}<span>표</span></strong>
-            </li>
-          )
-        })}
-      </ol>
-      <p className={styles.resultNote}>동점이면 공동 MVP로 표시돼요.</p>
+      <p className={styles.resultNote}><span aria-hidden="true">ⓘ</span>{remainingVotes > 0 ? `아직 ${remainingVotes}명이 투표하지 않았어요. 모두 마치기 전에는 순위가 바뀔 수 있고, 동점이면 공동 MVP가 돼요.` : '투표가 모두 끝났어요. 동점이면 공동 MVP가 돼요.'}</p>
     </section>
   )
 }
