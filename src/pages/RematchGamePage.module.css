@@ -4,80 +4,6 @@
   color: #f5f5f5;
 }
 
-.desktopNav {
-  border-bottom: 1px solid #333;
-}
-
-.navInner {
-  display: flex;
-  align-items: center;
-  gap: 42px;
-  width: min(100% - 48px, 1120px);
-  height: 72px;
-  margin: auto;
-}
-
-.logo {
-  color: #a5f36d;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: .02em;
-  text-decoration: none;
-}
-
-.navLinks,
-.navActions {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.navLinks a,
-.profileLink {
-  color: #a3a3a3;
-  text-decoration: none;
-}
-
-.navLinks a:first-child {
-  color: #f5f5f5;
-  font-weight: 700;
-}
-
-.navActions {
-  gap: 14px;
-  margin-left: auto;
-}
-
-.createLink {
-  padding: 12px 22px;
-  border-radius: 999px;
-  background: #a5f36d;
-  color: #192314;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.profileLink {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 14px 5px 5px;
-  border-radius: 999px;
-  background: #2b2b2b;
-  color: #f5f5f5;
-}
-
-.profileLink span {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border-radius: 50%;
-  background: #a5f36d;
-  color: #192314;
-  font-weight: 800;
-}
-
 .mobileNav {
   display: none;
 }
@@ -96,9 +22,7 @@
   text-decoration: none;
 }
 
-.backLink:hover,
-.navLinks a:hover,
-.profileLink:hover {
+.backLink:hover {
   color: #a5f36d;
 }
 
@@ -376,8 +300,8 @@
   outline-offset: 3px;
 }
 
-@media (max-width: 700px) {
-  .desktopNav,
+/* PC 상단 헤더는 AppShell이 그린다. 767px 이하는 AppShell이 헤더를 숨기므로(minimal 경로) 이 바가 그 자리를 맡는다. */
+@media (max-width: 767px) {
   .backLink {
     display: none;
   }
@@ -396,7 +320,9 @@
     font-size: 23px;
     text-decoration: none;
   }
+}
 
+@media (max-width: 700px) {
   .main {
     width: 100%;
     padding: 20px 16px 110px;
