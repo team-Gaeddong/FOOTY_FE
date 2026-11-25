@@ -1,237 +1,332 @@
-.backLink {
+/* 시안 BalanceReview(.pc·.mobile) */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--content-form);
+  /* 내용이 짧아도 제출 줄이 화면 아래에 닿도록, 모바일 상단 바(56px)를 뺀 화면 높이를 최소로 둔다 */
+  min-height: calc(100dvh - 56px);
+  margin: 0 auto;
+  padding: 20px var(--page-gutter) var(--space-6);
+  color: var(--text-body);
+}
+
+/* 모바일은 상단 하위 바(뒤로 + "밸런스 평가")가 있어 PC에서만 보인다 */
+.back {
+  display: none;
+  align-items: center;
+  gap: 6px;
   align-self: flex-start;
-  color: var(--color-text-muted);
-  font-size: 14px;
-  font-weight: 600;
+  min-height: var(--tap-min);
+  color: var(--gray-300);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
   text-decoration: none;
 }
 
-.backLink:hover {
-  color: var(--color-primary);
+.back:hover {
+  color: var(--text-body);
 }
 
-.backLink:focus-visible,
-.secondaryLink:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 3px;
+.back:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 6px;
 }
 
 .eyebrow {
-  color: var(--color-primary);
-  font-size: 14px;
+  color: var(--brand-green);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.title {
+  color: var(--text-body);
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
   font-weight: 700;
 }
 
-.header h1 {
-  font-size: 30px;
-  line-height: 1.25;
+.lead {
+  color: var(--text-faint);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
 }
 
-.intro,
-.messageCard > p {
-  color: var(--color-text-muted);
-  font-size: 14px;
+.form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-.form,
-.messageCard {
+.card {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  padding: 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
 }
 
-.messageCard h1 {
-  font-size: 22px;
-}
-
-.fieldset {
+.group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
   min-width: 0;
   margin: 0;
   padding: 0;
   border: 0;
 }
 
-.fieldset legend,
-.field label {
-  font-weight: 700;
-}
-
-.fieldset legend {
-  margin-bottom: var(--space-3);
+.label {
+  float: left; /* legend를 flex 항목처럼 줄에 올린다 */
+  width: 100%;
+  margin-bottom: var(--space-2);
   padding: 0;
+  color: var(--gray-200);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 600;
 }
 
-.fieldset legend > span[aria-hidden='true'] {
-  color: var(--color-primary);
+.label + * {
+  clear: both;
 }
 
 .optional {
-  color: var(--color-text-muted);
-  font-size: 13px;
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
   font-weight: 500;
 }
 
+/* 점수 1~10: 44px 알약 */
 .scores {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.scoreOption,
-.reasonOption {
+.score,
+.reason {
   position: relative;
   cursor: pointer;
 }
 
-.scoreOption input,
-.reasonOption input {
+.score input,
+.reason input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-.scoreOption span {
-  display: grid;
-  min-height: 48px;
-  place-items: center;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  font-weight: 700;
-}
-
-.reasons {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2);
-}
-
-.reasonOption span {
-  display: flex;
+.score span {
+  display: inline-flex;
   align-items: center;
-  min-height: 48px;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  font-size: 14px;
+  justify-content: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-pill);
+  color: var(--gray-300);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
   font-weight: 600;
 }
 
-.reasonOption span::before {
-  content: '';
+.score:hover span {
+  border-color: var(--gray-500);
+}
+
+.score input:checked + span {
+  border-color: var(--brand-green);
+  background: var(--brand-green);
+  color: var(--gray-950);
+}
+
+.scale {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.scale span:last-child {
+  margin-left: auto;
+  text-align: right;
+}
+
+/* 이유: 체크 카드. 모바일 1열, PC 2열 */
+.reasons {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.reasonBox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: 10px var(--space-4);
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-12);
+  background: var(--surface-field);
+  color: var(--gray-200);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+  font-weight: 500;
+}
+
+.check {
+  display: inline-flex;
   flex: none;
-  width: 18px;
-  height: 18px;
-  margin-right: var(--space-3);
-  border: 1.5px solid var(--color-border);
-  border-radius: 4px;
-  background: var(--color-surface);
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--gray-500);
+  border-radius: 6px;
+  color: transparent;
 }
 
-.scoreOption:hover span,
-.reasonOption:hover span {
-  border-color: var(--color-primary);
+.reason:hover .reasonBox {
+  border-color: var(--gray-500);
 }
 
-.scoreOption input:checked + span,
-.reasonOption input:checked + span {
-  border-color: var(--color-primary);
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
+.reason input:checked + .reasonBox {
+  border-color: var(--brand-green);
+  background: var(--badge-green-bg);
+  color: var(--badge-green-fg);
 }
 
-.scoreOption input:checked + span {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+.reason input:checked + .reasonBox .check {
+  border-color: var(--brand-green);
+  background: var(--brand-green);
+  color: var(--gray-950);
 }
 
-.reasonOption input:checked + span::before {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-  box-shadow: inset 0 0 0 3px var(--color-surface);
-}
-
-.scoreOption input:focus-visible + span,
-.reasonOption input:focus-visible + span {
-  outline: 2px solid var(--color-primary);
+.score input:focus-visible + span,
+.reason input:focus-visible + .reasonBox {
+  outline: 2px solid var(--brand-green);
   outline-offset: 2px;
 }
 
-.scoreOption input:disabled + span,
-.reasonOption input:disabled + span {
+.score input:disabled + span,
+.reason input:disabled + .reasonBox {
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.field {
+.help {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+}
+
+.info {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-.field textarea {
-  width: 100%;
-  min-width: 0;
-  min-height: 112px;
+  align-items: flex-start;
+  gap: 10px;
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  color: var(--color-text);
-  resize: vertical;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+  color: var(--text-sub);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
 }
 
-.field textarea:focus-visible {
-  border-color: var(--color-primary);
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
+.info svg {
+  margin-top: 1px;
 }
 
-.field textarea::placeholder {
-  color: var(--color-text-muted);
-  opacity: 0.8;
-}
-
-.hint {
-  align-self: flex-end;
-  color: var(--color-text-muted);
-  font-size: 12px;
-}
-
-.secondaryLink {
-  display: inline-flex;
+/* 제출 줄. 모바일은 화면 아래에 붙인다 */
+.actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  color: var(--color-text);
-  font-weight: 600;
-  text-decoration: none;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin: auto calc(-1 * var(--page-gutter)) calc(-1 * var(--space-6));
+  padding: var(--space-3) var(--page-gutter) calc(var(--space-4) + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface-deep);
 }
 
-@media (max-width: 480px) {
-  .scores {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+.cancel {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .page {
+    min-height: 0;
+    gap: 20px;
+    padding: var(--space-6) var(--space-6) 72px;
+  }
+
+  .back {
+    display: inline-flex;
+  }
+
+  /* 뒤로 링크 바로 아래에 붙는 머리글(시안) */
+  .back + .header {
+    margin-top: -16px;
+  }
+
+  .lead {
+    font-size: var(--text-16);
+    line-height: var(--leading-16);
   }
 
   .reasons {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* PC는 입력칸과 버튼이 한 카드 안에 있다(시안) */
+  .form {
+    gap: var(--space-5);
+    padding: var(--space-6);
+    border-radius: var(--radius-12);
+    background: var(--surface-card);
+  }
+
+  .card {
+    padding: 0;
+    background: none;
+  }
+
+  .actions {
+    position: static;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+
+  .actions .cancel {
+    display: inline-flex;
+    border-color: transparent;
+    background: transparent;
+    color: var(--gray-300);
+  }
+
+  .actions .cancel:hover {
+    color: var(--text-body);
   }
 }

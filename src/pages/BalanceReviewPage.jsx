@@ -4,7 +4,9 @@ import { createBalanceReview } from '../api/balanceReviews.js'
 import { ApiError } from '../api/client.js'
 import { Button } from '../components/Button.jsx'
 import { ErrorMessage } from '../components/ErrorMessage.jsx'
-import { PageLayout } from '../components/PageLayout.jsx'
+import { Field } from '../components/Field.jsx'
+import { ArrowLeftIcon, CheckIcon, InfoIcon, LockIcon, PinIcon, ScaleIcon } from '../components/Icons.jsx'
+import { StateCard } from '../components/StateCard.jsx'
 import {
   BALANCE_REASONS,
   MAX_COMMENT_LENGTH,
@@ -15,6 +17,8 @@ import {
   toReviewRequest,
 } from './balanceReview.js'
 import { parseGameId } from './gameDetail.js'
+import { dateTimeLabel } from './homeCalendar.js'
+import { useGameInfo } from './useGameInfo.js'
 import styles from './BalanceReviewPage.module.css'
 
 const SCORES = Array.from({ length: MAX_SCORE - MIN_SCORE + 1 }, (_, index) => MIN_SCORE + index)
@@ -22,20 +26,24 @@ const SCORES = Array.from({ length: MAX_SCORE - MIN_SCORE + 1 }, (_, index) => M
 // 다시 제출해도 결과가 같은 거절이라 폼 대신 안내만 보여준다.
 const BLOCKED_MESSAGES = {
   BALANCE_409_2: {
+    icon: <CheckIcon size={22} />,
     title: '이미 밸런스를 평가했어요',
     text: '한 경기에서 한 번만 평가할 수 있어요.',
   },
   BALANCE_409_1: {
+    icon: <ScaleIcon size={22} />,
     title: '아직 평가할 수 없는 경기예요',
     text: '경기가 끝난 뒤에 밸런스를 평가할 수 있어요.',
   },
   BALANCE_403_1: {
+    icon: <LockIcon size={22} />,
     title: '참가한 경기만 평가할 수 있어요',
     text: '이 경기에 참가한 회원만 밸런스를 평가할 수 있어요.',
   },
   GAME_404_1: {
+    icon: <PinIcon size={22} />,
     title: '경기를 찾을 수 없어요',
-    text: '삭제되었거나 없는 경기예요.',
+    text: '삭제됐거나 없는 경기예요.',
   },
 }
 
@@ -48,13 +56,13 @@ function submitErrorMessage(error) {
   return '평가를 제출하지 못했습니다. 잠시 후 다시 시도해 주세요.'
 }
 
-// 경기 이후 밸런스 작성(POST /games/{gameId}/balance-reviews, BE D-28)
+// 경기 이후 밸런스 작성(POST /games/{gameId}/balance-reviews, BE D-28). 시안 BalanceReview.
 export function BalanceReviewPage() {
   const { gameId: gameIdParam } = useParams()
   const gameId = parseGameId(gameIdParam)
   const location = useLocation()
   const navigate = useNavigate()
-  const game = location.state?.game?.id === gameId ? location.state.game : null
+  const game = useGameInfo(gameId, location.state?.game)
   const [score, setScore] = useState(null)
   const [reasons, setReasons] = useState([])
   const [comment, setComment] = useState('')
@@ -62,6 +70,7 @@ export function BalanceReviewPage() {
   const [blocked, setBlocked] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const pending = useRef(false)
+  const backTo = gameId === null ? '/' : `/games/${gameId}/after`
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -82,7 +91,7 @@ export function BalanceReviewPage() {
     setError('')
     try {
       await createBalanceReview(gameId, body)
-      navigate(`/games/${gameId}`, { replace: true, state: { notice: 'balance-reviewed' } })
+      navigate(backTo, { replace: true, state: { notice: 'balance-reviewed' } })
     } catch (requestError) {
       if (requestError instanceof ApiError && requestError.code === 'MEMBER_404_1') {
         navigate('/login', { replace: true, state: { error: 'member_not_found' } })
@@ -99,113 +108,154 @@ export function BalanceReviewPage() {
     }
   }
 
+  let body
   if (gameId === null) {
-    return (
-      <PageLayout>
-        <Link className={styles.backLink} to="/games">← 경기 목록</Link>
-        <section className={styles.messageCard}>
-          <h1>경기 정보를 확인할 수 없어요</h1>
-          <p>경기 목록에서 다시 선택해 주세요.</p>
-          <Link className={styles.secondaryLink} to="/games">경기 목록으로</Link>
-        </section>
-      </PageLayout>
+    body = (
+      <StateCard
+        icon={<PinIcon size={22} />}
+        title="경기 주소가 올바르지 않아요"
+        actions={
+          <Button as={Link} to="/" variant="secondary" fit="auto">
+            경기 목록으로
+          </Button>
+        }
+      >
+        경기 목록에서 다시 선택해 주세요.
+      </StateCard>
     )
-  }
-
-  if (blocked) {
-    return (
-      <PageLayout>
-        <Link className={styles.backLink} to={`/games/${gameId}`}>← 경기 상세</Link>
-        <section className={styles.messageCard} role="status">
-          <h1>{blocked.title}</h1>
-          <p>{blocked.text}</p>
-          <Link className={styles.secondaryLink} to={`/games/${gameId}`}>경기 상세로 돌아가기</Link>
-        </section>
-      </PageLayout>
+  } else if (blocked) {
+    body = (
+      <StateCard
+        role="status"
+        icon={blocked.icon}
+        title={blocked.title}
+        actions={
+          <Button as={Link} to={backTo} variant="secondary" fit="auto">
+            경기 후 탭으로
+          </Button>
+        }
+      >
+        {blocked.text}
+      </StateCard>
     )
-  }
-
-  return (
-    <PageLayout>
-      <Link className={styles.backLink} to={`/games/${gameId}`}>← 경기 상세</Link>
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>{game?.title ? `경기 후기 · ${game.title}` : `경기 후기 · 경기 #${gameId}`}</p>
-        <h1>밸런스 평가</h1>
-        <p className={styles.intro}>오늘 경기의 팀 밸런스는 어땠나요? 한 번만 제출할 수 있어요.</p>
-      </header>
-
+  } else {
+    body = (
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
-        <fieldset className={styles.fieldset}>
-          <legend>밸런스 점수 <span aria-hidden="true">*</span></legend>
-          <div className={styles.scores}>
-            {SCORES.map((value) => (
-              <label key={value} className={styles.scoreOption}>
-                <input
-                  type="radio"
-                  name="score"
-                  value={value}
-                  checked={score === value}
-                  onChange={() => {
-                    setScore(value)
-                    setError('')
-                  }}
-                  disabled={submitting}
-                />
-                <span>{value}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <section className={styles.card}>
+          <fieldset className={styles.group}>
+            <legend className={styles.label}>팀 밸런스 점수</legend>
+            <div className={styles.scores}>
+              {SCORES.map((value) => (
+                <label key={value} className={styles.score}>
+                  <input
+                    type="radio"
+                    name="score"
+                    value={value}
+                    checked={score === value}
+                    aria-label={`${value}점`}
+                    onChange={() => {
+                      setScore(value)
+                      setError('')
+                    }}
+                    disabled={submitting}
+                  />
+                  <span aria-hidden="true">{value}</span>
+                </label>
+              ))}
+            </div>
+            <div className={styles.scale} aria-hidden="true">
+              <span>{MIN_SCORE}점 · 많이 기울었어요</span>
+              <span>{MAX_SCORE}점 · 아주 팽팽했어요</span>
+            </div>
+          </fieldset>
 
-        <fieldset className={styles.fieldset}>
-          <legend>
-            이유 <span className={styles.optional}>(선택, 여러 개 고를 수 있어요)</span>
-          </legend>
-          <div className={styles.reasons}>
-            {BALANCE_REASONS.map((reason) => (
-              <label key={reason.value} className={styles.reasonOption}>
-                <input
-                  type="checkbox"
-                  name="reasons"
-                  value={reason.value}
-                  checked={reasons.includes(reason.value)}
-                  onChange={() => setReasons((current) => toggleReason(current, reason.value))}
-                  disabled={submitting}
-                />
-                <span>{reason.label}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+          <fieldset className={styles.group}>
+            <legend className={styles.label}>
+              이유 <span className={styles.optional}>선택</span>
+            </legend>
+            <div className={styles.reasons}>
+              {BALANCE_REASONS.map((reason) => (
+                <label key={reason.value} className={styles.reason}>
+                  <input
+                    type="checkbox"
+                    name="reasons"
+                    value={reason.value}
+                    checked={reasons.includes(reason.value)}
+                    onChange={() => setReasons((current) => toggleReason(current, reason.value))}
+                    disabled={submitting}
+                  />
+                  <span className={styles.reasonBox}>
+                    <span className={styles.check} aria-hidden="true">
+                      <CheckIcon size={14} />
+                    </span>
+                    {reason.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <p className={styles.help}>해당하는 것을 모두 골라 주세요.</p>
+          </fieldset>
 
-        <div className={styles.field}>
-          <label htmlFor="balance-comment">
-            한 줄 의견 <span className={styles.optional}>(선택)</span>
-          </label>
-          <textarea
-            id="balance-comment"
+          <Field
+            as="textarea"
+            label={
+              <>
+                의견 <span className={styles.optional}>선택</span>
+              </>
+            }
+            aside={`${comment.length} / ${MAX_COMMENT_LENGTH}`}
             name="comment"
+            rows={4}
             value={comment}
+            maxLength={MAX_COMMENT_LENGTH}
+            placeholder="팀 구성에 대해 하고 싶은 말을 남겨 주세요"
+            disabled={submitting}
             onChange={(event) => {
               setComment(event.target.value)
               setError('')
             }}
-            rows={4}
-            maxLength={MAX_COMMENT_LENGTH}
-            placeholder="팀 구성에 대해 하고 싶은 말을 남겨 주세요"
-            aria-describedby="balance-comment-hint"
-            disabled={submitting}
           />
-          <p id="balance-comment-hint" className={styles.hint}>
-            {comment.length}/{MAX_COMMENT_LENGTH}자
-          </p>
-        </div>
 
-        <ErrorMessage>{error}</ErrorMessage>
-        <Button type="submit" disabled={submitting}>
-          {submitting ? '제출하는 중…' : '평가 제출'}
-        </Button>
+          <p className={styles.info}>
+            <InfoIcon size={18} />
+            <span>
+              한 번 제출하면 고칠 수 없어요. 참가자 전원이 작성하면 점수·이유·의견이 닉네임과 함께 파티장과
+              참가자에게 공개돼요.
+            </span>
+          </p>
+          <ErrorMessage>{error}</ErrorMessage>
+        </section>
+
+        <div className={styles.actions}>
+          <Button as={Link} to={backTo} variant="subtle" fit="auto" className={styles.cancel}>
+            취소
+          </Button>
+          <Button type="submit" size="lg" fit="responsive" disabled={submitting}>
+            {submitting ? '제출하는 중…' : '평가 제출'}
+          </Button>
+        </div>
       </form>
-    </PageLayout>
+    )
+  }
+
+  return (
+    <main className={styles.page}>
+      {gameId !== null && (
+        <Link className={styles.back} to={backTo}>
+          <ArrowLeftIcon size={18} />
+          {game?.title ?? '경기 후'}
+        </Link>
+      )}
+      <header className={styles.header}>
+        {game && (
+          <p className={styles.eyebrow}>
+            {game.title} · {dateTimeLabel(game.playDate)}
+          </p>
+        )}
+        <h1 className={styles.title}>밸런스 평가</h1>
+        <p className={styles.lead}>오늘 경기의 팀 밸런스는 어땠나요?</p>
+      </header>
+      {body}
+    </main>
   )
 }
