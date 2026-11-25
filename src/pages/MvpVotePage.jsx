@@ -28,20 +28,10 @@ function requestErrorMessage(error) {
   return '요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.'
 }
 
-function MvpFrame({ gameId, game, profile, title, intro, children }) {
+function MvpFrame({ gameId, game, title, intro, children }) {
   const backPath = gameId ? `/games/${gameId}` : '/games'
   return (
     <div className={styles.screen}>
-      <header className={styles.desktopNav}>
-        <div className={styles.navInner}>
-          <Link className={styles.logo} to="/games">FOOTY</Link>
-          <nav className={styles.navLinks} aria-label="주 메뉴"><Link to="/games">경기</Link><Link to="/games/mine">내 경기</Link></nav>
-          <div className={styles.navActions}>
-            <Link className={styles.createLink} to="/games/new">＋ 경기 만들기</Link>
-            <Link className={styles.profileLink} to="/profile"><span>{profile?.nickname?.slice(0, 1) ?? '나'}</span>{profile?.nickname ?? '내 프로필'}</Link>
-          </div>
-        </div>
-      </header>
       <header className={styles.mobileNav}><Link to={backPath} aria-label="뒤로 가기">←</Link><strong>{title}</strong></header>
       <main className={styles.main}>
         <Link className={styles.backLink} to={backPath}>← {game?.title ?? '경기 상세'}</Link>
@@ -153,7 +143,7 @@ export function MvpVotePage() {
   const myCandidate = players.find((player) => player.id === myVote.gamePlayerId)
 
   return (
-    <MvpFrame gameId={gameId} game={game} profile={profile} title={myVote.voted ? 'MVP 결과' : 'MVP 투표'} intro={myVote.voted ? '투표를 마친 사람에게만 보이는 현재 집계예요.' : '오늘 가장 빛난 선수 한 명을 골라 주세요.'}>
+    <MvpFrame gameId={gameId} game={game} title={myVote.voted ? 'MVP 결과' : 'MVP 투표'} intro={myVote.voted ? '투표를 마친 사람에게만 보이는 현재 집계예요.' : '오늘 가장 빛난 선수 한 명을 골라 주세요.'}>
 
       {blocked ? (
         <section className={styles.messageCard} role="status">

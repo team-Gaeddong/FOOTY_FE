@@ -25,16 +25,6 @@ function RematchFrame({ gameId, game, children }) {
   const backPath = gameId ? `/games/${gameId}` : '/games'
   return (
     <div className={styles.screen}>
-      <header className={styles.desktopNav}>
-        <div className={styles.navInner}>
-          <Link className={styles.logo} to="/games">FOOTY</Link>
-          <nav className={styles.navLinks} aria-label="주 메뉴"><Link to="/games">경기</Link><Link to="/games/mine">내 경기</Link></nav>
-          <div className={styles.navActions}>
-            <Link className={styles.createLink} to="/games/new">＋ 경기 만들기</Link>
-            <Link className={styles.profileLink} to="/profile"><span>나</span>내 프로필</Link>
-          </div>
-        </div>
-      </header>
       <header className={styles.mobileNav}><Link to={backPath} aria-label="뒤로 가기">←</Link><strong>재경기 만들기</strong></header>
       <main className={styles.main}>
         <Link className={styles.backLink} to={backPath}>← {game?.title ?? '경기 상세'}</Link>
