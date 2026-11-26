@@ -199,6 +199,10 @@
   background: var(--surface-deep);
 }
 
+.saveBarInline {
+  display: none;
+}
+
 .saveBar > button {
   flex: 1;
 }
@@ -217,7 +221,7 @@
 @media (min-width: 768px) {
   .page {
     min-height: 0;
-    gap: var(--space-5);
+    gap: 20px;
     padding: var(--space-6) var(--space-6) 72px;
   }
 
@@ -245,6 +249,14 @@
     padding: 0;
     border-top: 0;
     background: transparent;
+  }
+
+  .saveBarInline {
+    display: flex;
+  }
+
+  .saveBarMobile {
+    display: none;
   }
 
   .saveBar > button {

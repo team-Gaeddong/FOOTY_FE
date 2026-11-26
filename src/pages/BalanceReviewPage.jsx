@@ -186,9 +186,9 @@ export function BalanceReviewPage() {
                   />
                   <span className={styles.reasonBox}>
                     <span className={styles.check} aria-hidden="true">
-                      <CheckIcon size={14} />
+                      <CheckIcon size={14} strokeWidth={2.5} />
                     </span>
-                    {reason.label}
+                    <span>{reason.label}</span>
                   </span>
                 </label>
               ))}
@@ -198,6 +198,7 @@ export function BalanceReviewPage() {
 
           <Field
             as="textarea"
+            className={styles.comment}
             label={
               <>
                 의견 <span className={styles.optional}>선택</span>
@@ -248,9 +249,7 @@ export function BalanceReviewPage() {
       )}
       <header className={styles.header}>
         {game && (
-          <p className={styles.eyebrow}>
-            {game.title} · {dateTimeLabel(game.playDate)}
-          </p>
+          <p className={styles.eyebrow}>{`${game.title} · ${dateTimeLabel(game.playDate)}`}</p>
         )}
         <h1 className={styles.title}>밸런스 평가</h1>
         <p className={styles.lead}>오늘 경기의 팀 밸런스는 어땠나요?</p>

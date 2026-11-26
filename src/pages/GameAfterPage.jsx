@@ -7,6 +7,7 @@ import { Button } from '../components/Button.jsx'
 import { ClockIcon, FlagIcon, LockIcon, RepeatIcon, ScaleIcon, TrophyIcon } from '../components/Icons.jsx'
 import { StateCard } from '../components/StateCard.jsx'
 import { GameHeader } from './GameHeader.jsx'
+import { squadNoteFromCounts } from './lineupView.js'
 import {
   afterLoadMessage,
   canViewBalanceResult,
@@ -55,7 +56,7 @@ export function GameAfterPage() {
 
   return (
     <>
-      <GameHeader game={game} current="after" />
+      <GameHeader game={game} current="after" countNote={squadNoteFromCounts(game.playerCount, game.maxPlayers)} />
       {content}
     </>
   )
@@ -122,7 +123,7 @@ function AfterCards({ game }) {
               role="img"
               aria-label={`${progress.required} 중 ${progress.reviewed}`}
             >
-              <span style={{ width: `${progress.ratio * 100}%` }} />
+              <span style={{ width: `${Math.round(progress.ratio * 100)}%` }} />
             </div>
           )}
         </div>

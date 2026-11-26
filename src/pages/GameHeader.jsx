@@ -80,14 +80,14 @@ export function GameHeader({ game, current = 'overview', countNote }) {
           <p className={styles.countLabel}>참가 인원</p>
           <p className={styles.countValue}>
             <strong>{game.playerCount}</strong>
-            <span> / {game.maxPlayers}명</span>
+            <span>{` / ${game.maxPlayers}명`}</span>
           </p>
           <div
             className={styles.meter}
             role="img"
             aria-label={`${game.maxPlayers} 중 ${game.playerCount}`}
           >
-            <span style={{ width: `${ratio * 100}%` }} />
+            <span style={{ width: `${Math.round(ratio * 100)}%` }} />
           </div>
           <p className={styles.countNote}>
             {countNote ?? capacityNote(game.playerCount, game.maxPlayers)}

@@ -44,11 +44,13 @@ export function PlayerRow({
               ) : (
                 <span className={styles.noPositions}>희망 포지션 없음</span>
               )}
-              {canEditPositions && !editor && (
+              {/* 시안은 편집기를 연 뒤에도 연필 버튼을 그대로 둔다 */}
+              {canEditPositions && (
                 <button
                   type="button"
                   className={styles.pencil}
                   aria-label={`${player.name} 포지션 수정`}
+                  aria-expanded={Boolean(editor)}
                   onClick={onEditPositions}
                 >
                   <PencilIcon size={14} />
@@ -118,7 +120,7 @@ export function PlayerRow({
             <Button variant="secondary" fit="auto" className={styles.cancel} onClick={onPositionsCancel} disabled={editor.saving}>
               취소
             </Button>
-            <Button variant="secondary" fit="auto" onClick={onPositionsSave} disabled={editor.saving}>
+            <Button variant="secondary" fit="auto" className={styles.save} onClick={onPositionsSave} disabled={editor.saving}>
               {editor.saving ? '저장하는 중…' : '포지션 저장'}
             </Button>
           </div>

@@ -26,7 +26,8 @@
   display: flex;
   align-items: center;
   max-width: var(--content-max);
-  min-height: 56px;
+  /* 모바일 시안은 아래 선을 포함해 56px(PC 시안은 선 밖으로 72px) */
+  min-height: 55px;
   margin: 0 auto;
   padding: 0 var(--page-gutter);
 }

@@ -171,10 +171,13 @@
 }
 
 .row {
+  /* 시안은 높이 40px + 아래 선 1px(content-box) */
+  box-sizing: content-box;
   display: flex;
   align-items: center;
   gap: var(--space-2);
   min-height: 40px;
+  border-bottom: 1px solid var(--line);
 }
 
 .name {
@@ -186,8 +189,12 @@
   overflow-wrap: anywhere;
 }
 
-.skill {
+.skillWrap {
   margin-left: auto;
+  line-height: normal;
+}
+
+.skill {
   color: var(--text-body);
   font-size: var(--text-16);
   line-height: var(--leading-16);

@@ -31,7 +31,7 @@ export function GamePlayersCard({ game, loaded, memberId, onRetry, className = '
         </h2>
         {loaded?.players && (
           <div className={styles.cardMeta}>
-            <span className={styles.cardCount}>{players.length}명</span>
+            <span className={styles.cardCount}>{`${players.length}명`}</span>
             {game.isHost && players.length > 0 && (
               <Badge tone={unrated > 0 ? 'red' : 'green'}>
                 {unrated > 0 ? `실력 미입력 ${unrated}명` : '실력 모두 입력'}

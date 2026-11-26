@@ -78,7 +78,8 @@
   font-size: var(--text-12);
   line-height: var(--leading-12);
   font-weight: 500;
-  overflow-wrap: anywhere;
+  /* 시안처럼 "미드필더"를 한 줄로 둔다(좁은 칸에서는 안쪽 여백으로 살짝 넘친다) */
+  overflow-wrap: normal;
 }
 
 .position[aria-pressed='true'] .label {

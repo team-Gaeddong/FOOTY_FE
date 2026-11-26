@@ -211,12 +211,11 @@ function LineupMeta({ game, lineup, tactics }) {
       {method && <Badge tone="gray">{method}</Badge>}
       <Badge tone="gray">버전 {lineup.version}</Badge>
       <Badge tone={lineup.isConfirmed ? 'navy' : 'gray'}>{lineup.isConfirmed ? '확정' : '미확정'}</Badge>
-      {!game.isHost && (
-        <span className={styles.lockNote}>
-          <LockIcon size={14} />
-          실력과 합계는 파티장에게만 보여요
-        </span>
-      )}
+      {/* 시안은 파티장 화면에도 이 안내를 둔다(파티장이 보는 실력이 다른 사람에게는 안 보인다는 뜻) */}
+      <span className={styles.lockNote}>
+        <LockIcon size={14} />
+        <span>실력과 합계는 파티장에게만 보여요</span>
+      </span>
       <div className={styles.metaAction}>
         <Button variant="secondary" fit="auto" onClick={handleSaveImage} disabled={saving || !canSaveImage}>
           <DownloadIcon size={18} />
@@ -268,7 +267,11 @@ function TeamCard({ gameId, team, tactic, myGamePlayerId }) {
               <span className={styles.name}>{row.name}</span>
               {row.id === myGamePlayerId && <Badge tone="brand">나</Badge>}
               {row.isSubstitute && <Badge tone="gray">후보</Badge>}
-              {row.skillLevel !== null && <span className={styles.skill}>{row.skillLevel}</span>}
+              {row.skillLevel !== null && (
+                <div className={styles.skillWrap}>
+                  <span className={styles.skill}>{row.skillLevel}</span>
+                </div>
+              )}
             </li>
           ))}
         </ul>

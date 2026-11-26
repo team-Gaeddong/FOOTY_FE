@@ -6,6 +6,7 @@ import {
   isNoLineup,
   lineupErrorMessage,
   lineupNote,
+  squadNoteFromCounts,
   methodLabel,
   pitchMarkers,
   squadSummary,
@@ -77,4 +78,11 @@ test('팀이 없는 경우는 오류가 아니라 빈 상태이고 나머지 실
   assert.match(lineupErrorMessage({ status: 0 }), /서버에 연결할 수 없습니다/)
   assert.match(lineupErrorMessage({ code: 'MEMBER_403_1' }), /온보딩/)
   assert.match(lineupErrorMessage({ status: 500 }), /불러오지 못했습니다/)
+})
+
+test('선발·후보 안내는 후보가 없으면 "후보 없음", 인원 수로도 만든다', () => {
+  assert.equal(lineupNote({ teams: [{ members: [{ isSubstitute: false }, { isSubstitute: false }] }] }), '선발 2명 · 후보 없음')
+  assert.equal(squadNoteFromCounts(22, 22), '선발 22명 · 후보 없음')
+  assert.equal(squadNoteFromCounts(24, 22), '선발 22명 · 후보 2명')
+  assert.equal(squadNoteFromCounts(10, 22), '선발 10명 · 후보 없음')
 })

@@ -146,9 +146,7 @@ export function BalanceSummaryPage() {
       )}
       <header className={styles.header}>
         {game && (
-          <p className={styles.eyebrow}>
-            {game.title} · {dateTimeLabel(game.playDate)}
-          </p>
+          <p className={styles.eyebrow}>{`${game.title} · ${dateTimeLabel(game.playDate)}`}</p>
         )}
         <h1 className={styles.title}>밸런스 결과</h1>
         <p className={styles.lead}>
@@ -183,9 +181,7 @@ function PendingSummary({ summary, onRefresh }) {
       <div className={styles.progress}>
         <div className={styles.progressLabel}>
           <span>작성 현황</span>
-          <strong>
-            {reviewed} / {requiredCount}명
-          </strong>
+          <strong>{`${reviewed} / ${requiredCount}명`}</strong>
         </div>
         <div
           className={styles.track}
@@ -195,7 +191,7 @@ function PendingSummary({ summary, onRefresh }) {
           aria-valuemax={requiredCount}
           aria-valuenow={reviewed}
         >
-          <span style={{ width: `${progressRatio(reviewedCount, requiredCount) * 100}%` }} />
+          <span style={{ width: `${Math.round(progressRatio(reviewedCount, requiredCount) * 100)}%` }} />
         </div>
       </div>
       <Button variant="secondary" fit="auto" className={styles.refresh} onClick={onRefresh}>
@@ -248,6 +244,7 @@ function CompletedSummary({ summary, game }) {
             state={{ sourceGame: toSummary(game) }}
             variant="secondary"
             fit="auto"
+            className={styles.nextButton}
           >
             <RepeatIcon size={18} />
             재경기 만들기
@@ -296,7 +293,7 @@ function TeamSummaryCard({ team }) {
                 <li key={row.value} className={row.count === 0 ? styles.zero : ''}>
                   <span className={styles.reasonName}>{row.label}</span>
                   <span className={styles.bar} aria-hidden="true">
-                    <span style={{ width: `${row.ratio * 100}%` }} />
+                    <span style={{ width: `${Math.round(row.ratio * 100)}%` }} />
                   </span>
                   <span className={styles.reasonCount}>
                     {row.count}
@@ -334,6 +331,7 @@ function TeamSummaryCard({ team }) {
             {team.reviews.length > REVIEW_PREVIEW_COUNT && (
               <Button
                 variant="secondary"
+                className={styles.more}
                 aria-expanded={expanded}
                 onClick={() => setExpanded((value) => !value)}
               >

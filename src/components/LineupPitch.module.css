@@ -7,17 +7,18 @@
   overflow: hidden;
 }
 
+/* 각 줄의 규칙은 .lines span보다 구체적이어야 테두리 없앰(border: 0, border-top: 0)이 먹는다 */
 .lines span {
   position: absolute;
   box-sizing: border-box;
   border: 2px solid rgb(237 237 237 / 0.32);
 }
 
-.outline {
+.lines .outline {
   inset: 3% 4%;
 }
 
-.halfway {
+.lines .halfway {
   top: 50%;
   right: 4%;
   left: 4%;
@@ -27,7 +28,7 @@
   background: rgb(237 237 237 / 0.32);
 }
 
-.circle {
+.lines .circle {
   top: 50%;
   left: 50%;
   width: 24%;
@@ -36,26 +37,26 @@
   transform: translate(-50%, -50%);
 }
 
-.box {
+.lines .box {
   right: 22%;
   left: 22%;
   height: 15%;
 }
 
-.small {
+.lines .small {
   right: 36%;
   left: 36%;
   height: 6%;
 }
 
-.boxTop,
-.smallTop {
+.lines .boxTop,
+.lines .smallTop {
   top: 3%;
   border-top: 0;
 }
 
-.boxBottom,
-.smallBottom {
+.lines .boxBottom,
+.lines .smallBottom {
   bottom: 3%;
   border-bottom: 0;
 }

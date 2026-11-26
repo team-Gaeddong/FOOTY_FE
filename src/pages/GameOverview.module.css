@@ -16,6 +16,14 @@
   align-items: start;
 }
 
+/* 파티장은 모바일에서도 참가 선수가 경기 정보보다 먼저다(시안 DetailHost.mobile) */
+.columns[data-role='host'] {
+  grid-template-areas:
+    'side'
+    'players'
+    'info';
+}
+
 .side {
   grid-area: side;
   display: flex;
@@ -40,6 +48,11 @@
   padding: 20px;
   border-radius: var(--radius-12);
   background: var(--surface-card);
+}
+
+/* 진행 단계 카드는 제목과 단계 사이가 14px(시안) */
+.progressCard {
+  gap: 14px;
 }
 
 .cardHeader {
@@ -356,7 +369,7 @@
 }
 
 .task > a {
-  margin-top: var(--space-3);
+  margin-top: var(--space-2);
 }
 
 .lineupRow {
@@ -368,7 +381,7 @@
 .lineupRow button:disabled {
   border-color: var(--gray-700);
   background: var(--gray-700);
-  color: var(--gray-400);
+  color: var(--gray-500);
 }
 
 .lockHint {
@@ -487,7 +500,8 @@
 
 @media (min-width: 1024px) {
   .columns {
-    grid-template-columns: minmax(0, 1fr) 360px;
+    /* 시안은 flex 999 1 560px / 1 1 360px라 남는 폭의 1/1000이 오른쪽 열에 붙는다(1440px에서 360.2px) */
+    grid-template-columns: minmax(0, 1fr) calc(360px + (100% - 944px) / 1000);
     grid-template-rows: auto 1fr;
     grid-template-areas:
       'info side'

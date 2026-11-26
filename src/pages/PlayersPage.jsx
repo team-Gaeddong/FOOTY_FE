@@ -240,6 +240,27 @@ export function PlayersPage() {
         ? `${currentOutcome.positions} 선수의 포지션을 저장했어요.`
         : null
 
+    // 저장 줄: 시안은 PC에서 선수 카드 안 오른쪽 아래, 모바일에서 화면 아래 고정이라
+    // 같은 내용을 두 곳에 두고 화면 폭으로 하나만 보인다
+    const saveBarContent = (
+      <>
+        <span className={styles.saveCount}>
+          {changes.length > 0 ? `바꾼 선수 ${changes.length}명` : '바꾼 선수 없음'}
+        </span>
+        <Button
+          size="lg"
+          fit="responsive"
+          onClick={handleSaveScores}
+          disabled={savingScores || locked || changes.length === 0}
+        >
+          <span className={styles.labelWide}>{saveButtonLabel({ saving: savingScores, count: changes.length })}</span>
+          <span className={styles.labelCompact}>
+            {saveButtonLabel({ saving: savingScores, count: changes.length, compact: true })}
+          </span>
+        </Button>
+      </>
+    )
+
     content = (
       <>
         <section className={styles.progress} aria-label="실력 입력 현황">
@@ -247,11 +268,11 @@ export function PlayersPage() {
             <div className={styles.progressHead}>
               <span className={styles.progressLabel}>실력 입력</span>
               <span className={styles.progressCount}>
-                {rated} / {players.length}명
+                {`${rated} / ${players.length}명`}
               </span>
             </div>
             <div className={styles.meter} role="img" aria-label={`${players.length} 중 ${rated}`}>
-              <span style={{ width: `${ratedRatio(rated, players.length) * 100}%` }} />
+              <span style={{ width: `${Math.round(ratedRatio(rated, players.length) * 100)}%` }} />
             </div>
           </div>
           <span className={styles.progressNote}>
@@ -270,7 +291,7 @@ export function PlayersPage() {
               <h2 id="players-title" className={styles.cardTitle}>
                 참가 선수
               </h2>
-              <span className={styles.cardCount}>{players.length}명 · 참여 순</span>
+              <span className={styles.cardCount}>{`${players.length}명 · 참여 순`}</span>
             </div>
             <ul className={styles.list}>
               {players.map((player) => (
@@ -318,27 +339,11 @@ export function PlayersPage() {
                 팀 짜기로 가기
               </Button>
             )}
+            <div className={`${styles.saveBar} ${styles.saveBarInline}`}>{saveBarContent}</div>
           </section>
         )}
 
-        {players.length > 0 && (
-          <div className={styles.saveBar}>
-            <span className={styles.saveCount}>
-              {changes.length > 0 ? `바꾼 선수 ${changes.length}명` : '바꾼 선수 없음'}
-            </span>
-            <Button
-              size="lg"
-              fit="responsive"
-              onClick={handleSaveScores}
-              disabled={savingScores || locked || changes.length === 0}
-            >
-              <span className={styles.labelWide}>{saveButtonLabel({ saving: savingScores, count: changes.length })}</span>
-              <span className={styles.labelCompact}>
-                {saveButtonLabel({ saving: savingScores, count: changes.length, compact: true })}
-              </span>
-            </Button>
-          </div>
-        )}
+        {players.length > 0 && <div className={`${styles.saveBar} ${styles.saveBarMobile}`}>{saveBarContent}</div>}
       </>
     )
   }

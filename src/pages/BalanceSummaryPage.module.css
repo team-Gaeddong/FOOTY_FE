@@ -134,7 +134,6 @@
 .track,
 .bar {
   height: 8px;
-  overflow: hidden;
   border-radius: var(--radius-pill);
   background: var(--gray-700);
 }
@@ -156,7 +155,7 @@
 .stats {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .stat {
@@ -212,7 +211,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: var(--space-5);
+  gap: var(--space-4);
 }
 
 .team {
@@ -269,6 +268,7 @@
 }
 
 .block h3 {
+  margin: 0;
   color: var(--gray-200);
   font-size: var(--text-14);
   line-height: var(--leading-14);
@@ -403,6 +403,11 @@
   white-space: pre-line;
 }
 
+/* "모두 보기": 목록과 16px(시안) */
+.more {
+  margin-top: var(--space-1);
+}
+
 /* 재경기 안내(파티장) */
 .next {
   display: flex;
@@ -425,6 +430,10 @@
   line-height: var(--leading-14);
 }
 
+.nextButton {
+  background: var(--surface-card);
+}
+
 .nextText .nextTitle {
   color: var(--text-body);
   font-size: var(--text-16);
@@ -434,7 +443,7 @@
 
 @media (min-width: 768px) {
   .page {
-    gap: var(--space-5);
+    gap: 20px;
     padding: var(--space-6) var(--space-6) 72px;
   }
 
@@ -444,12 +453,20 @@
 
   /* 뒤로 링크 바로 아래에 붙는 머리글(시안) */
   .back + .header {
-    margin-top: -20px;
+    margin-top: -16px;
   }
 
   .lead {
     font-size: var(--text-16);
     line-height: var(--leading-16);
+  }
+
+  .stats {
+    gap: var(--space-4);
+  }
+
+  .teams {
+    gap: var(--space-5);
   }
 
   .team {

@@ -8,7 +8,7 @@ export function GameProgress({ game, unrated }) {
   const steps = progressSteps({ status: game.status, playerCount: game.playerCount, unrated })
 
   return (
-    <section className={styles.card} aria-labelledby="progress-title">
+    <section className={`${styles.card} ${styles.progressCard}`} aria-labelledby="progress-title">
       <h2 id="progress-title" className={styles.smallTitle}>
         진행 단계
       </h2>
@@ -23,7 +23,7 @@ export function GameProgress({ game, unrated }) {
             <span className={styles.stepBar} aria-hidden="true" />
             <span className={styles.stepBody}>
               <span className={styles.stepMark} aria-hidden="true">
-                {step.state === 'done' ? <CheckIcon size={14} /> : step.index}
+                {step.state === 'done' ? <CheckIcon size={14} strokeWidth={2.5} /> : step.index}
               </span>
               <span className={styles.stepText}>
                 <span className={styles.stepLabel}>

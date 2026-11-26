@@ -1,5 +1,5 @@
 // 시안의 선 아이콘. 색은 currentColor를 따른다.
-function Icon({ size = 20, children }) {
+function Icon({ size = 20, strokeWidth = 1.75, children }) {
   return (
     <svg
       aria-hidden="true"
@@ -8,7 +8,7 @@ function Icon({ size = 20, children }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.75"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       style={{ flexShrink: 0 }}
