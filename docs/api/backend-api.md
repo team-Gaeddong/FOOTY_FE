@@ -1,6 +1,6 @@
 # 백엔드 API 스냅샷
 
-출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를, 밸런스 취합 API는 `develop` `7265d7e`(2026-11-20 조회, BE PR #65 병합)를, 경기 MVP 투표 API는 BE PR #72 병합 커밋 `30bcc06`(2026-11-16)을 대조했다. 경기 삭제 API는 BE PR #76 병합 커밋 `develop` `1750741`(2026-11-20)을 대조했다.  의견 투표 API는 BE PR #79 병합 커밋 `976e9ef`(2026-11-20)를 대조했다. 이 코드는 BE PR #73 병합(`7265d7e`)에서 develop에서 빠졌고 BE PR #81로 복구 중이다(정책 번호는 D-34 → D-35). 팀 직접 편성 API(`PUT /games/{gameId}/lineups/latest/teams`)는 **BE 미병합**이라 `develop`이 아니라 BE 이슈 #82 브랜치 `feature/82_manual-team-edit`(BE PR #85, base `develop` `2457cd6`, 미병합)의 컨트롤러·DTO·서비스·테스트를 대조했다. 결정 근거는 BE `docs/harness/decisions.md`다(팀 직접 편성은 D-36, 제안 상태). 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
+출처: 공통·기존 API는 `team-Gaeddong/FOOTY_BE` `develop` 커밋 `ea0ce52`(2026-10-21)의 컨트롤러·DTO·서비스 예외·에러 코드·보안 설정. 경기 목록 API는 `db07e6b`(2026-10-23), 재경기 API와 생성 응답은 `5262aa9`(2026-10-28), 전술 배치도 API는 `051d972`(2026-10-29, BE PR #46 병합), 참가 선수 조회·실력 매기기 API는 `d7c85db`(2026-11-03), 라인업 조회·확정 API와 경기 상세 조회·경기 참가 API는 `develop` `8d2b767`(2026-11-04, BE PR #53·#55 병합), 악성 유저 신고 API는 `develop` `45a362b`(2026-11-16, BE PR #67 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다. 밸런스 작성 API는 `develop` `45a362b`(2026-11-13, BE PR #61 병합)를, 밸런스 취합 API는 `develop` `7265d7e`(2026-11-20 조회, BE PR #65 병합)를, 경기 MVP 투표 API는 BE PR #72 병합 커밋 `30bcc06`(2026-11-16)을 대조했다. 경기 삭제 API는 BE PR #76 병합 커밋 `develop` `1750741`(2026-11-20)을 대조했다.  의견 투표 API는 BE PR #79 병합 커밋 `976e9ef`(2026-11-20)를 대조했다. 이 코드는 BE PR #73 병합(`7265d7e`)에서 develop에서 빠졌고 BE PR #81로 복구 중이다(정책 번호는 D-34 → D-35). 팀 직접 편성 API(`PUT /games/{gameId}/lineups/latest/teams`)는 처음에 BE 이슈 #82 브랜치를 대조했고, BE PR #85 병합 커밋 `8703ba7`(2026-11-20)로 `develop`에 들어간 것을 2026-11-27에 확인했다. 팀 확정 취소·경기 후 선수 평점·선수 목록 평점 API와 프로필 `rating`의 `null`은 `develop` `723b378`(2026-11-27, BE PR #95·#96·#97 병합)의 컨트롤러·DTO·서비스·에러 코드를 대조했다(BE D-38·D-40·D-41·D-42). 결정 근거는 BE `docs/harness/decisions.md`다. 기준은 BE 코드이며, 이 문서와 다르면 BE 코드를 따르고 차이를 보고한다(AGENTS.md 1장). 연동 작업 전에는 아래 "다시 확인하는 방법"으로 최신 코드와 대조한다.
 
 ## 공통
 
@@ -58,12 +58,15 @@
 | `DELETE /games/{gameId}` | Bearer + 온보딩, 파티장·종료 전 경기 | — | 204 | `GAME_403_1`(파티장 아님), `GAME_404_1`(없음·이미 삭제), `GAME_409_5`(종료된 경기), 인증·온보딩 에러 | #74, PR #76 |
 | `GET /games/{gameId}/players` | Bearer + 온보딩 | — | 200 `ListGamePlayersResponse` | `GAME_404_1`, 인증·온보딩 에러 | |
 | `POST /games/{gameId}/players` | Bearer + 온보딩, 회원 본인 | `JoinGameRequest` | 201 `JoinGameResponse` | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `MEMBER_404_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `GAME_409_3`(이미 참가), 인증·온보딩 에러 | #32, #36 |
+| `GET /games/{gameId}/players/ratings` | Bearer + 온보딩, 파티장 | — | 200 `ListPlayerRatingsResponse` | `GAME_403_1`, `GAME_404_1`, 인증·온보딩 에러 | BE #93, D-41 |
+| `PATCH /games/{gameId}/players/ratings` | Bearer + 온보딩, 파티장·종료된 경기 | `UpdatePlayerRatingsRequest` | 204 | `GLOBAL_400_1`(빈 목록·형식), `GAME_400_1`(같은 선수 중복), `GAME_400_5`(1.0~10.0 밖·0.5 단위 아님), `GAME_400_6`(파티장 본인), `GAME_403_1`, `GAME_404_1`, `GAME_404_2`(이 경기 선수가 아님), `GAME_409_6`(종료 전 경기), 인증·온보딩 에러 | BE #93, D-41 |
 | `PATCH /games/{gameId}/players/skill-levels` | Bearer + 온보딩, 파티장 | `UpdateSkillLevelsRequest` | 204 | `GLOBAL_400_1`(빈 목록·1~10 밖), `GAME_400_1`(같은 선수 중복), `GAME_403_1`, `GAME_404_1`, `GAME_404_2`(이 경기 선수가 아님), 인증·온보딩 에러 | #19 |
 | `PUT /games/{gameId}/players/{gamePlayerId}/positions` | Bearer + 온보딩, 파티장 | `UpdatePlayerPositionsRequest` | 204 | `MEMBER_400_2`(1~4개·중복·빈 값), `GLOBAL_400_1`(없는 포지션 값), `GAME_403_1`, `GAME_404_1`, `GAME_404_2`(이 경기 선수가 아님), `GAME_409_1`(모집 중 아님), 인증·온보딩 에러 | #17 |
 | `POST /games/{gameId}/lineups` | Bearer + 온보딩, 파티장 | — | 201 `LineupResponse` | `GAME_403_1`, `GAME_404_1`, `LINEUP_409_1`(이미 있음), `LINEUP_409_2`(실력 미입력 선수), `LINEUP_409_3`(선수 2명 미만), 인증·온보딩 에러 | #40, #42 |
 | `GET /games/{gameId}/lineups/latest` | Bearer + 온보딩 | — | 200 `LineupResponse` | `GAME_404_1`, `LINEUP_404_2`, 인증·온보딩 에러 | #49 |
 | `PATCH /games/{gameId}/lineups/confirm` | Bearer + 온보딩, 파티장 | — | 200 `LineupResponse` (`isConfirmed: true`) | `GAME_403_1`, `GAME_404_1`, `GAME_409_1`(모집 중인 경기 아님), `LINEUP_404_2`, 인증·온보딩 에러 | #48 |
-| `PUT /games/{gameId}/lineups/latest/teams` | Bearer + 온보딩, 파티장 | `UpdateLineupTeamsRequest` | 200 `LineupResponse` | **BE 미병합(브랜치 `feature/82_manual-team-edit`, 제안 D-36)**. `GLOBAL_400_1`(형식), `LINEUP_400_1`(선수 중복), `LINEUP_400_2`(라인업에 없는 선수), `LINEUP_400_3`(팀 목록이 라인업과 다름, 새), `LINEUP_400_4`(선수 누락, 새), `LINEUP_400_5`(빈 팀, 새), `GAME_403_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `LINEUP_404_2`, `LINEUP_409_4`(확정된 팀), 인증·온보딩 에러 | BE #82 |
+| `PATCH /games/{gameId}/lineups/confirm/cancel` | Bearer + 온보딩, 파티장 | — | 200 `LineupResponse` (`isConfirmed: false`) | `GAME_403_1`, `GAME_404_1`, `LINEUP_409_5`(팀 확정 경기가 아님: 모집 중·종료), `LINEUP_404_2`, 인증·온보딩 에러 | BE #92, D-40 |
+| `PUT /games/{gameId}/lineups/latest/teams` | Bearer + 온보딩, 파티장 | `UpdateLineupTeamsRequest` | 200 `LineupResponse` | `GLOBAL_400_1`(형식), `LINEUP_400_1`(선수 중복), `LINEUP_400_2`(라인업에 없는 선수), `LINEUP_400_3`(팀 목록이 라인업과 다름), `LINEUP_400_4`(선수 누락), `LINEUP_400_5`(빈 팀), `GAME_403_1`, `GAME_404_1`, `GAME_409_1`(모집 중 아님), `LINEUP_404_2`, `LINEUP_409_4`(확정된 팀), 인증·온보딩 에러 | BE #82 |
 | `GET /games/{gameId}/teams/{teamId}/tactic` | Bearer + 온보딩 | — | 200 `TacticResponse` | `GAME_404_1`, `LINEUP_404_1`(경기에 속하지 않은 팀), 인증·온보딩 에러 | #45 |
 | `PUT /games/{gameId}/teams/{teamId}/tactic` | Bearer + 온보딩, 파티장 | `UpdateTacticRequest` | 200 `TacticResponse` | `GLOBAL_400_1`(좌표 범위·자릿수, 11명 초과, 포메이션 20자 초과), `LINEUP_400_1`(중복 배치), `LINEUP_400_2`(팀원 아님), `GAME_403_1`, `GAME_404_1`, `LINEUP_404_1`, `LINEUP_409_4`(확정된 팀), 인증·온보딩 에러 | #45 |
 | `POST /games/{gameId}/reports` | Bearer + 온보딩, 그 경기에 참가한 회원 | `CreateReportRequest` | 201 `CreateReportResponse` | `REPORT_400_1`(자기 신고), `GLOBAL_400_1`(필수값 누락·없는 사유 값·상세 500자 초과), `REPORT_403_1`(참가하지 않은 신고자), `GAME_404_1`, `MEMBER_404_1`(없거나 탈퇴한 피신고자), `GAME_404_2`(그 경기에 참가하지 않은 피신고자), `REPORT_409_1`(대기 중인 같은 신고), 인증·온보딩 에러 | #66 |
@@ -97,7 +100,7 @@
 | `memberId` | number | |
 | `email` | string | |
 | `nickname` | string | |
-| `rating` | number | BE `BigDecimal` |
+| `rating` | number \| null | 회원 평점(BE `BigDecimal`, 소수 둘째 자리). 종료된 경기에서 받은 **경기 후 평점의 평균**이고, 평점을 받은 경기가 2개 미만이면 `null`(BE D-38 2026-11-27 변경) |
 | `onboarded` | boolean | |
 | `positions` | `{ position, priority }[]` | `position`은 `GK`·`DF`·`MF`·`FW` 중 하나, `priority`는 1부터(오름차순 정렬). 선호 포지션이 없으면 빈 배열 |
 
@@ -209,11 +212,34 @@
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
-| `players` | `{ id, memberId, name, skillLevel, isSubstitute, positions, joinedAt }[]` | 참여 순(`joinedAt`, `id` 오름차순). 선수가 없으면 빈 배열 |
+| `players` | `{ id, memberId, name, skillLevel, rating, isSubstitute, positions, joinedAt }[]` | 참여 순(`joinedAt`, `id` 오름차순). 선수가 없으면 빈 배열 |
 | `players[].id` | number | 경기 참가자 ID(`gamePlayerId`) |
 | `players[].memberId` | number \| null | 비회원 선수면 `null` |
 | `players[].skillLevel` | number \| null | **파티장이 조회할 때만** 값이 있다. 파티장이 아니거나 아직 매기지 않았으면 `null` |
+| `players[].rating` | number \| null | 그 선수의 회원 평점(`GET /members/me`의 `rating`과 같은 값, BE D-42). **파티장과 그 경기 참가자가 조회할 때만** 값이 있다. 그 밖의 회원, 비회원 선수, 평점이 아직 없는 회원, 탈퇴한 회원은 `null`. 경기별 평점은 넣지 않는다 |
 | `players[].positions` | string[] | 희망 포지션, 우선순위 순. 없으면 빈 배열 |
+
+`UpdatePlayerRatingsRequest` (`PATCH /games/{gameId}/players/ratings`, BE `723b378`, BE D-41)
+
+| 필드 | 타입 | 규칙 |
+|---|---|---|
+| `players` | `{ gamePlayerId, rating }[]` | 필수, 1개 이상. 보낸 선수만 바뀌고 다시 보내면 덮어쓴다. 같은 선수 중복은 `GAME_400_1` |
+| `rating` | number | 1.0~10.0, 0.5 단위(`GAME_400_5`) |
+
+- 파티장만, **종료된(`FINISHED`) 경기**에서만 준다(`GAME_409_6`). 파티장 본인은 대상이 아니다(`GAME_400_6`). 비회원 선수에게도 줄 수 있다
+- 한 명이라도 잘못되면 아무것도 반영하지 않는다. 저장하면 그 회원들의 회원 평점(`member.rating`)을 바로 다시 계산한다
+- 경기 후 평점은 경기 전 **실력**(`skillLevel`, 팀 짜기용 1~10)과 다른 값이다
+
+`ListPlayerRatingsResponse` (`GET /games/{gameId}/players/ratings`, BE `723b378`, BE D-41)
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `gameId` | number | |
+| `players` | `{ gamePlayerId, memberId, name, rating }[]` | 파티장 본인을 뺀 참가 선수, 참여 순. 포지션은 없다 |
+| `players[].memberId` | number \| null | 비회원 선수면 `null` |
+| `players[].rating` | number \| null | 이 경기의 경기 후 평점. 아직 주지 않았으면 `null` |
+
+- 파티장만 조회한다. 선수 본인은 경기별 평점을 볼 수 없다. 경기 상태 제한은 없다
 
 `UpdateSkillLevelsRequest` (BE `d7c85db`, BE #19)
 
@@ -238,7 +264,9 @@
 
 최신 라인업 조회는 로그인 회원 누구나 가능하며, 파티장이 아니면 `totalSkill`·`skillLevel`이 `null`이다. 팀 확정은 파티장만 할 수 있고 `PATCH /games/{gameId}/lineups/confirm`으로 최신 라인업의 `isConfirmed`와 경기 상태를 `CONFIRMED`로 바꾼다. 이 API는 경기 점수·승패를 저장하지 않는다.
 
-`UpdateLineupTeamsRequest` (`PUT /games/{gameId}/lineups/latest/teams`, **BE 미병합**: BE #82 브랜치 `feature/82_manual-team-edit`, BE D-36 제안. 리뷰에서 계약이 바뀔 수 있다)
+팀 확정 취소(`PATCH /games/{gameId}/lineups/confirm/cancel`, BE `723b378`, BE D-40)는 파티장만, 경기가 `CONFIRMED`일 때만 한다(모집 중·종료는 `LINEUP_409_5`). 최신 라인업의 `isConfirmed`를 `false`로, 경기 상태를 `RECRUITING`으로 되돌리고 팀 구성·전술 배치는 그대로 둔다. 응답은 확정과 같은 `LineupResponse`(파티장이라 실력 포함)다. 취소 뒤에는 참가·직접 팀 편성·전술 수정이 다시 열리고 다시 확정할 수 있다. 취소 뒤 새로 참가한 선수는 팀 미배정으로 남는다(D-40 미결정: 배정 방법).
+
+`UpdateLineupTeamsRequest` (`PUT /games/{gameId}/lineups/latest/teams`, BE PR #85 병합 `8703ba7`, BE D-36)
 
 | 필드 | 타입 | 규칙 |
 |---|---|---|
@@ -336,6 +364,8 @@
 | `MEMBER_409_2` | 409 | 이미 사용 중인 닉네임입니다. (BE PR #69, `develop` 병합 전) |
 | `GAME_400_1` | 400 | 같은 선수를 중복해서 보낼 수 없습니다. |
 | `GAME_400_3` | 400 | 경기 일시는 현재 이후여야 합니다. |
+| `GAME_400_5` | 400 | 평점은 1.0~10.0 사이의 0.5 단위여야 합니다. |
+| `GAME_400_6` | 400 | 파티장 본인에게는 평점을 줄 수 없습니다. |
 | `GAME_403_1` | 403 | 파티장만 할 수 있습니다. |
 | `GAME_404_1` | 404 | 경기를 찾을 수 없습니다. |
 | `GAME_404_2` | 404 | 경기 참가자를 찾을 수 없습니다. |
@@ -343,17 +373,19 @@
 | `GAME_409_2` | 409 | 종료된 경기만 재경기를 만들 수 있습니다. |
 | `GAME_409_3` | 409 | 이미 참여한 경기입니다. |
 | `GAME_409_5` | 409 | 종료된 경기는 삭제할 수 없습니다. |
+| `GAME_409_6` | 409 | 종료된 경기에서만 평점을 줄 수 있습니다. |
 | `LINEUP_409_1` | 409 | 이미 팀을 짠 경기입니다. |
 | `LINEUP_409_2` | 409 | 실력 점수가 없는 선수가 있습니다. |
 | `LINEUP_400_1` | 400 | 같은 선수를 중복해서 배치할 수 없습니다. |
 | `LINEUP_400_2` | 400 | 팀에 속하지 않은 선수는 배치할 수 없습니다. |
-| `LINEUP_400_3` | 400 | 요청한 팀이 현재 라인업의 팀과 다릅니다. (BE 미병합, BE #82) |
-| `LINEUP_400_4` | 400 | 라인업의 모든 선수를 한 팀에 배정해야 합니다. (BE 미병합, BE #82) |
-| `LINEUP_400_5` | 400 | 팀에는 선수가 1명 이상 있어야 합니다. (BE 미병합, BE #82) |
+| `LINEUP_400_3` | 400 | 요청한 팀이 현재 라인업의 팀과 다릅니다. |
+| `LINEUP_400_4` | 400 | 라인업의 모든 선수를 한 팀에 배정해야 합니다. |
+| `LINEUP_400_5` | 400 | 팀에는 선수가 1명 이상 있어야 합니다. |
 | `LINEUP_404_1` | 404 | 팀을 찾을 수 없습니다. |
 | `LINEUP_404_2` | 404 | 아직 팀을 짜지 않은 경기입니다. |
 | `LINEUP_409_3` | 409 | 팀을 짜려면 선수가 2명 이상이어야 합니다. |
 | `LINEUP_409_4` | 409 | 확정된 팀은 수정할 수 없습니다. |
+| `LINEUP_409_5` | 409 | 팀이 확정된 경기만 확정을 취소할 수 있습니다. |
 | `REPORT_400_1` | 400 | 자기 자신은 신고할 수 없습니다. |
 | `REPORT_403_1` | 403 | 경기에 참가한 회원만 신고할 수 있습니다. |
 | `REPORT_409_1` | 409 | 이미 접수되어 처리 중인 신고입니다. |
@@ -384,7 +416,7 @@
 
 2026-10-28 BE PR #35(`0a6c46f`)로 BE 이슈 #11·#12·#22·#23의 코드가 `develop`에 복구되어, FC-08에서 보고한 차이는 없다. 쌓은 PR은 병합 커밋이 `develop`의 조상인지 아래 방법으로 확인한다.
 
-**BE에 병합되지 않은 API**: `PUT /games/{gameId}/lineups/latest/teams`(팀 직접 편성, BE 이슈 #82)와 에러 코드 `LINEUP_400_3`~`LINEUP_400_5`는 BE `develop`에 없다. BE 브랜치 `feature/82_manual-team-edit`의 제안이고 BE `decisions.md` D-36도 "제안" 상태다. BE PR이 병합되기 전에는 실제 BE와 연동하지 못하고(요청하면 404 `GLOBAL_404_1`일 수 있다), 병합된 뒤에는 `develop` 코드와 다시 대조해 이 문서의 "BE 미병합" 표시를 지운다. 계약이 리뷰에서 바뀌면 FE(`src/api/lineups.js`, `src/pages/lineup/lineupEdit.js`)도 맞춘다(FD-22).
+**BE에 병합되지 않은 API**: 없다(2026-11-27 `723b378` 기준). 팀 직접 편성 API(`PUT /games/{gameId}/lineups/latest/teams`, BE 이슈 #82)와 `LINEUP_400_3`~`LINEUP_400_5`는 BE PR #85(`8703ba7`)로 병합됐다(FD-22).
 
 ## 다시 확인하는 방법
 
