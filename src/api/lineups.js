@@ -20,3 +20,10 @@ export function updateLineupTeams(gameId, teams) {
 export function confirmLineup(gameId) {
   return request(`/games/${gameId}/lineups/confirm`, { method: 'PATCH' })
 }
+
+// BE D-40: 파티장만, 팀이 확정된(CONFIRMED) 경기에서만. 최신 라인업의 확정을 풀고 경기를 모집 중(RECRUITING)으로 되돌린다.
+// 팀 구성·전술 배치는 그대로다. 성공 200은 LineupResponse(isConfirmed: false). 실패 code는 GAME_403_1, GAME_404_1,
+// LINEUP_409_5(팀 확정 경기가 아님: 모집 중·종료), LINEUP_404_2다.
+export function cancelLineupConfirmation(gameId) {
+  return request(`/games/${gameId}/lineups/confirm/cancel`, { method: 'PATCH' })
+}

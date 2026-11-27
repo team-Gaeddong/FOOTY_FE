@@ -154,9 +154,9 @@ export function progressSteps({ status, playerCount, unrated }) {
   const captions = [
     `${playerCount}명 참가`,
     current > 2 ? '모두 입력' : rated === null ? '선수 실력 입력' : `${rated} / ${playerCount}명`,
-    // 아직 안 온 단계의 설명은 시안 그대로다. 시안 4단계의 "취소 가능"은 확정 취소 API가 없어(#119) 뺐다.
+    // 아직 안 온 단계의 설명은 시안 그대로다(확정 취소는 BE D-40).
     current > 3 ? '팀 짜기 완료' : '임시 팀 · 조정 가능',
-    current > 4 ? '확정 완료' : '참가 마감',
+    current > 4 ? '확정 완료' : '참가 마감 · 취소 가능',
     current > 5 ? '종료됨' : current === 5 ? '경기 후 종료' : '평가·MVP 열림',
   ]
 

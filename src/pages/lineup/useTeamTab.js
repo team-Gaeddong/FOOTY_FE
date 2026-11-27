@@ -1,7 +1,13 @@
 import { startTransition, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { listGamePlayers } from '../../api/games.js'
-import { confirmLineup, createLineup, getLatestLineup, updateLineupTeams } from '../../api/lineups.js'
+import {
+  cancelLineupConfirmation,
+  confirmLineup,
+  createLineup,
+  getLatestLineup,
+  updateLineupTeams,
+} from '../../api/lineups.js'
 import { getMyProfile } from '../../api/member.js'
 import { getTactic } from '../../api/tactics.js'
 import { useAuth } from '../../auth/useAuth.js'
@@ -47,6 +53,8 @@ export function useTeamTab({ game, onUpdated }) {
   const [confirming, setConfirming] = useState(false)
   const [createError, setCreateError] = useState('')
   const [confirmError, setConfirmError] = useState('')
+  const [cancelling, setCancelling] = useState(false)
+  const [cancelError, setCancelError] = useState('')
   const pending = useRef(false)
 
   const current = result?.key === requestKey ? result : null
@@ -205,6 +213,7 @@ export function useTeamTab({ game, onUpdated }) {
       const confirmed = await confirmLineup(gameId)
       setResult({ ...current, lineup: confirmed })
       setEdit({ lineupId: confirmed.lineupId, moves: NO_MOVES })
+      setCancelError('')
       onUpdated({ ...game, status: 'CONFIRMED' })
       void refreshTactics(confirmed)
     } catch (error) {
@@ -213,6 +222,29 @@ export function useTeamTab({ game, onUpdated }) {
     } finally {
       pending.current = false
       setConfirming(false)
+    }
+  }
+
+  // 확정 취소(BE D-40): 라인업 확정을 풀고 경기를 모집 중으로 되돌린다. 팀 구성·전술은 그대로라 배치는 다시 받지 않는다.
+  async function handleCancelConfirm() {
+    if (pending.current || !lineup || !lineup.isConfirmed || !isHost) return
+    pending.current = true
+    setCancelling(true)
+    setCancelError('')
+    try {
+      const reopened = await cancelLineupConfirmation(gameId)
+      setResult({ ...current, lineup: reopened })
+      setEdit({ lineupId: reopened.lineupId, moves: NO_MOVES })
+      setLocked(false)
+      setOutcome(null)
+      setConfirmError('')
+      onUpdated({ ...game, status: 'RECRUITING' })
+    } catch (error) {
+      if (error.code === 'MEMBER_404_1') return handleMemberGone()
+      setCancelError(actionErrorMessage(error, 'cancel'))
+    } finally {
+      pending.current = false
+      setCancelling(false)
     }
   }
 
@@ -247,5 +279,9 @@ export function useTeamTab({ game, onUpdated }) {
     confirming,
     confirmError,
     onConfirm: handleConfirm,
+    // 확정 취소
+    cancelling,
+    cancelError,
+    onCancelConfirm: handleCancelConfirm,
   }
 }

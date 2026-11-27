@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
+  canCancelConfirm,
   canFinish,
   finishErrorMessage,
   isNoLineup,
@@ -59,7 +60,7 @@ test('팀 탭 상태: 팀이 없으면 null, 확정 전은 임시 팀, 확정 �
   assert.equal(draft.title, '임시 팀 · 조정 중')
   assert.match(draft.description, /참가자에게도 임시 팀으로 보여요/)
 
-  const confirmed = teamStatusView({ lineup: { isConfirmed: true }, isHost: true })
+  const confirmed = teamStatusView({ lineup: { isConfirmed: true }, isHost: true, status: 'CONFIRMED' })
   assert.equal(confirmed.stage, 'confirmed')
   assert.equal(confirmed.badge, '확정')
   assert.equal(confirmed.tone, 'navy')
@@ -71,16 +72,24 @@ test('참가자에게도 임시 팀은 임시라고 보여 주고, 파티장 전
   const draft = teamStatusView({ lineup: { isConfirmed: false }, isHost: false })
   assert.equal(draft.title, '임시 팀 · 조정 중')
   assert.doesNotMatch(draft.description, /확정해 주세요/)
-  const confirmed = teamStatusView({ lineup: { isConfirmed: true }, isHost: false })
+  const confirmed = teamStatusView({ lineup: { isConfirmed: true }, isHost: false, status: 'CONFIRMED' })
   assert.doesNotMatch(confirmed.description, /종료해 주세요/)
 })
 
-test('확정 취소는 BE API가 없어 어떤 안내에도 넣지 않는다(#119)', () => {
-  for (const isConfirmed of [true, false]) {
-    for (const isHost of [true, false]) {
-      assert.doesNotMatch(teamStatusView({ lineup: { isConfirmed }, isHost }).description, /취소/)
-    }
-  }
+test('확정 취소 안내는 버튼이 보이는 파티장(팀 확정 경기)에게만 쓴다', () => {
+  const host = teamStatusView({ lineup: { isConfirmed: true }, isHost: true, status: 'CONFIRMED' })
+  assert.match(host.description, /확정을 취소하고, 경기를 마쳤으면 종료해 주세요/)
+  // 이미 종료된 경기의 파티장, 참가자, 임시 팀에는 취소 안내가 없다
+  assert.doesNotMatch(teamStatusView({ lineup: { isConfirmed: true }, isHost: true, status: 'FINISHED' }).description, /취소/)
+  assert.doesNotMatch(teamStatusView({ lineup: { isConfirmed: true }, isHost: false, status: 'CONFIRMED' }).description, /취소/)
+  assert.doesNotMatch(teamStatusView({ lineup: { isConfirmed: false }, isHost: true, status: 'RECRUITING' }).description, /취소/)
+})
+
+test('확정 취소 버튼은 팀이 확정된 경기의 파티장에게만 보인다', () => {
+  assert.equal(canCancelConfirm({ isHost: true, status: 'CONFIRMED' }), true)
+  assert.equal(canCancelConfirm({ isHost: true, status: 'RECRUITING' }), false)
+  assert.equal(canCancelConfirm({ isHost: true, status: 'FINISHED' }), false)
+  assert.equal(canCancelConfirm({ isHost: false, status: 'CONFIRMED' }), false)
 })
 
 test('경기 종료 버튼은 팀이 확정된 경기의 파티장에게만 보인다', () => {
