@@ -117,11 +117,13 @@ test('진행 단계의 설명은 참가 인원과 실력 입력 수를 보여 �
   const steps = progressSteps({ status: 'RECRUITING', playerCount: 24, unrated: 3 })
   assert.equal(steps[0].caption, '24명 참가')
   assert.equal(steps[1].caption, '21 / 24명')
-  assert.equal(steps[2].caption, '실력 입력 뒤')
-  assert.equal(steps[3].caption, '확정 뒤 수정 불가')
+  assert.equal(steps[2].caption, '임시 팀 · 조정 가능')
+  assert.equal(steps[3].caption, '참가 마감')
   assert.equal(steps[4].caption, '평가·MVP 열림')
   assert.equal(progressSteps({ status: 'RECRUITING', playerCount: 24, unrated: 0 })[1].caption, '모두 입력')
-  assert.deepEqual(steps.map((step) => step.label), ['선수 모집', '실력 입력', '팀 짜기', '팀 확정', '경기 종료'])
+  assert.deepEqual(steps.map((step) => step.label), ['선수 모집', '실력 입력', '팀 짜기', '확정', '경기 종료'])
+  // 확정 취소는 BE API가 없어(#119) 단계 설명에 "취소 가능"을 넣지 않는다
+  assert.equal(steps.some((step) => step.caption.includes('취소')), false)
 })
 
 test('다음 할 일은 단계에 맞는 안내와 버튼 키를 준다', () => {

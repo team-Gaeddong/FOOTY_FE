@@ -135,7 +135,7 @@ export function saveErrorOf(error) {
   return { message: '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' }
 }
 
-// ── 팀 짜기 화면(시안 Lineup)에서 쓰는 계산 ──
+// ── 팀 탭의 임시 팀 편집(시안 Lineup)에서 쓰는 계산 ──
 
 // 팀의 선발·후보 수("선발 11 · 후보 1")
 export function squadCounts(members) {

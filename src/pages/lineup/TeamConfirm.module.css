@@ -1,0 +1,79 @@
+/* 시안 Lineup의 확정 카드. 모바일은 20px 여백·버튼 폭 전체, PC는 24px 여백·버튼 내용 폭 */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 20px;
+  border-radius: var(--radius-12);
+  background: var(--surface-card);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-5);
+}
+
+.text {
+  display: flex;
+  flex: 1 1 320px;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.title {
+  color: var(--text-body);
+  font-size: var(--text-18);
+  line-height: var(--leading-18);
+  font-weight: 700;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.results li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--gray-300);
+  font-size: var(--text-14);
+  line-height: var(--leading-14);
+}
+
+.results svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.action {
+  display: flex;
+  flex: 1 1 200px;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hint {
+  color: var(--text-faint);
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 500;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: var(--space-5);
+  }
+
+  .action {
+    flex: 0 0 auto;
+  }
+}

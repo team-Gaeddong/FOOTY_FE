@@ -29,7 +29,7 @@ export function TeamBalance({ teams, balance }) {
         <span className={styles.barSecond} />
       </div>
       <p className={styles.note}>
-        선발 선수의 실력만 더해요. 후보는 합계에서 빠지고, 저장하면 서버 값으로 바뀌어요.
+        선발 선수의 실력만 더해요. 후보는 합계에서 빠지고, 저장하면 서버 값으로 바뀌어요. 파티장에게만 보여요.
       </p>
     </section>
   )
