@@ -14,7 +14,7 @@ import { formatRating, profileLoadMessage, savePositionsMessage, sortedPositions
 import styles from './ProfilePage.module.css'
 
 // 내 프로필(/profile, 시안 Profile): 회원 정보, 평점, 선호 포지션 수정, 로그아웃·회원 탈퇴.
-// 평점 계산 방식은 BE D-38이 미결정이라 rating 값만 그대로 보여 준다.
+// 평점은 경기 후 파티장에게 받은 평점의 평균이다(BE D-38·D-41). 평점을 받은 경기가 2개 미만이면 BE가 null을 준다.
 export function ProfilePage() {
   const [retryCount, setRetryCount] = useState(0)
   const [result, setResult] = useState(null) // { key, profile } | { key, error }
@@ -112,7 +112,7 @@ function ProfileContent({ profile }) {
               <dd>Google 계정</dd>
             </div>
           </dl>
-          <p className={styles.note}>닉네임은 아직 바꿀 수 없어요.</p>
+          <p className={styles.note}>평점은 경기 후 파티장에게 받은 평점의 평균이에요. 닉네임은 아직 바꿀 수 없어요.</p>
         </section>
 
         <section className={styles.accountCard} aria-labelledby="account-title">
