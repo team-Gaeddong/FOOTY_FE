@@ -53,6 +53,21 @@ export function listGamePlayers(gameId) {
   return request(`/games/${gameId}/players`)
 }
 
+// 경기 후 선수 평점(BE D-41). 파티장만 조회한다. 파티장 본인을 뺀 참가 선수를 참여 순으로,
+// { gameId, players: [{ gamePlayerId, memberId, name, rating }] }. 아직 주지 않은 평점은 null.
+export function listPlayerRatings(gameId) {
+  return request(`/games/${gameId}/players/ratings`)
+}
+
+// 파티장만, 종료된 경기에서만(GAME_409_6). players는 [{ gamePlayerId, rating }](1.0~10.0, 0.5 단위)이고
+// 보낸 선수만 바뀌며 다시 보내면 덮어쓴다. 성공은 204. 한 명이라도 잘못되면 아무것도 반영되지 않는다.
+export function updatePlayerRatings(gameId, players) {
+  return request(`/games/${gameId}/players/ratings`, {
+    method: 'PATCH',
+    body: { players },
+  })
+}
+
 // 파티장만. 보낸 선수만 바뀌고 성공은 204. 한 명이라도 이 경기 선수가 아니면 아무것도 반영되지 않는다(GAME_404_2).
 export function updateSkillLevels(gameId, players) {
   return request(`/games/${gameId}/players/skill-levels`, {
