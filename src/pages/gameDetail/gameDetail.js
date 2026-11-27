@@ -123,7 +123,8 @@ export function capacityNote(playerCount, maxPlayers) {
   return `정원 초과 ${playerCount - maxPlayers}명은 팀 짜기에서 후보가 돼요`
 }
 
-const STEP_LABELS = ['선수 모집', '실력 입력', '팀 짜기', '팀 확정', '경기 종료']
+// 시안 DetailHost(2026-11-27): 4단계 이름은 "확정"이다. 경기 상태 배지의 "팀 확정"(CONFIRMED)과는 따로다.
+const STEP_LABELS = ['선수 모집', '실력 입력', '팀 짜기', '확정', '경기 종료']
 
 // 파티장 개요의 진행 단계 5개. unrated는 실력을 아직 안 매긴 선수 수이고 목록을 못 받았으면 null이다.
 // 상태(status)로 알 수 있는 만큼만 구분한다: 모집 중은 1~3단계, 팀 확정은 4단계까지 끝난 5단계, 경기 종료는 전부 끝.
@@ -141,8 +142,9 @@ export function progressSteps({ status, playerCount, unrated }) {
   const captions = [
     `${playerCount}명 참가`,
     current > 2 ? '모두 입력' : rated === null ? '선수 실력 입력' : `${rated} / ${playerCount}명`,
-    current > 3 ? '팀 짜기 완료' : '실력 입력 뒤',
-    current > 4 ? '팀 확정 완료' : '확정 뒤 수정 불가',
+    // 아직 안 온 단계의 설명은 시안 그대로다. 시안 4단계의 "취소 가능"은 확정 취소 API가 없어(#119) 뺐다.
+    current > 3 ? '팀 짜기 완료' : '임시 팀 · 조정 가능',
+    current > 4 ? '확정 완료' : '참가 마감',
     current > 5 ? '종료됨' : current === 5 ? '경기 후 종료' : '평가·MVP 열림',
   ]
 
