@@ -16,6 +16,7 @@ import { TeamColumn } from './TeamColumn.jsx'
 import { TeamConfirm } from './TeamConfirm.jsx'
 import { TeamStatus } from './TeamStatus.jsx'
 import {
+  canCancelConfirm,
   canFinish,
   finishErrorMessage,
   lineupErrorMessage,
@@ -55,7 +56,7 @@ export function GameLineupPage() {
   } else if (!lineup) {
     content = <TeamStart game={game} team={team} />
   } else {
-    const view = teamStatusView({ lineup, isHost: team.isHost })
+    const view = teamStatusView({ lineup, isHost: team.isHost, status: game.status })
     content = (
       <div className={styles.content}>
         {finished && (
@@ -67,13 +68,21 @@ export function GameLineupPage() {
           {view.stage === 'confirmed' && canFinish({ isHost: team.isHost, status: game.status }) && (
             <FinishAction
               gameId={game.id}
+              disabled={team.cancelling}
               onFinished={(updated) => {
                 setFinished(true)
                 onUpdated(updated)
               }}
-            />
+            >
+              {canCancelConfirm({ isHost: team.isHost, status: game.status }) && (
+                <Button variant="secondary" fit="auto" onClick={team.onCancelConfirm} disabled={team.cancelling}>
+                  {team.cancelling ? '취소하는 중…' : '확정 취소'}
+                </Button>
+              )}
+            </FinishAction>
           )}
         </TeamStatus>
+        <ErrorMessage>{team.cancelError}</ErrorMessage>
         {view.stage === 'confirmed' ? <ConfirmedTeams game={game} team={team} /> : <DraftTeams game={game} team={team} />}
       </div>
     )
@@ -356,8 +365,8 @@ function TeamCard({ gameId, team, tactic, myGamePlayerId }) {
 }
 
 // 확정된 팀의 "경기 종료"(PATCH /games/{gameId}/finish, BE D-34). 되돌릴 수 없어 한 번 더 확인받는다.
-// 시안은 이 자리에 "확정 취소"도 두지만 BE에 API가 없어 만들지 않는다(#119).
-function FinishAction({ gameId, onFinished }) {
+// children은 경기 종료 앞에 둘 버튼(확정 취소)이고, 종료를 확인하는 동안에는 숨긴다.
+function FinishAction({ gameId, disabled = false, onFinished, children }) {
   const navigate = useNavigate()
   const { clearSession } = useAuth()
   const [confirming, setConfirming] = useState(false)
@@ -383,9 +392,12 @@ function FinishAction({ gameId, onFinished }) {
 
   if (!confirming) {
     return (
-      <Button fit="auto" onClick={() => setConfirming(true)}>
-        경기 종료
-      </Button>
+      <>
+        {children}
+        <Button fit="auto" onClick={() => setConfirming(true)} disabled={disabled}>
+          경기 종료
+        </Button>
+      </>
     )
   }
 

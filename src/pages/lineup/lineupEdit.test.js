@@ -258,3 +258,10 @@ test('선수가 2명 미만이거나 실력이 비었으면 팀 짜기를 막는
   assert.equal(createBlocker({ playerCount: 10, unrated: 0 }), null)
   assert.equal(createBlocker({ playerCount: 10, unrated: null }), null)
 })
+
+test('확정 취소 실패 안내는 code로 고른다', () => {
+  assert.match(actionErrorMessage({ status: 403, code: 'GAME_403_1' }, 'cancel'), /파티장만 확정을 취소할 수 있어요/)
+  assert.match(actionErrorMessage({ status: 409, code: 'LINEUP_409_5' }, 'cancel'), /팀이 확정된 경기만 확정을 취소할 수 있어요/)
+  assert.match(actionErrorMessage({ status: 0 }, 'cancel'), /서버에 연결할 수 없습니다/)
+  assert.match(actionErrorMessage({ status: 500 }, 'cancel'), /확정을 취소하지 못했습니다/)
+})

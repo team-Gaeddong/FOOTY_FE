@@ -157,16 +157,22 @@ const FALLBACK = {
   load: '팀 구성을 불러오지 못했습니다.',
   create: '팀을 짜지 못했습니다.',
   confirm: '팀을 확정하지 못했습니다.',
+  cancel: '확정을 취소하지 못했습니다.',
 }
 
-// 팀 짜기·확정·불러오기 실패 안내. action은 'load' | 'create' | 'confirm'이고 분기는 status·code로 한다(FD-04).
+// 팀 짜기·확정·확정 취소·불러오기 실패 안내. action은 'load' | 'create' | 'confirm' | 'cancel'이고 분기는 status·code로 한다(FD-04).
 export function actionErrorMessage(error, action) {
   const fallback = FALLBACK[action] ?? FALLBACK.create
   const status = typeof error?.status === 'number' ? error.status : null
   const code = typeof error?.code === 'string' ? error.code : null
   if (status === null) return `${fallback} 다시 시도해 주세요.`
   if (status === 0) return NETWORK_ERROR
-  if (code === 'GAME_403_1') return action === 'confirm' ? '파티장만 팀을 확정할 수 있어요.' : '파티장만 팀을 짤 수 있어요.'
+  if (code === 'GAME_403_1') {
+    if (action === 'confirm') return '파티장만 팀을 확정할 수 있어요.'
+    if (action === 'cancel') return '파티장만 확정을 취소할 수 있어요.'
+    return '파티장만 팀을 짤 수 있어요.'
+  }
+  if (code === 'LINEUP_409_5') return '팀이 확정된 경기만 확정을 취소할 수 있어요. 화면을 새로 열어 경기 상태를 확인해 주세요.'
   if (code === 'GAME_404_1') return '경기가 없거나 삭제됐어요. 목록에서 다시 확인해 주세요.'
   if (code === 'GAME_409_1') return '모집 중인 경기에서만 할 수 있어요.'
   if (code === 'LINEUP_409_1') return '이미 팀을 짠 경기예요. 화면을 새로 열어 주세요.'

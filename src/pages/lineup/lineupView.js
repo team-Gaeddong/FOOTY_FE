@@ -58,9 +58,10 @@ export function pitchMarkers(tactic) {
 }
 
 // 팀 탭 맨 위 상태 표시(시안 Lineup·DetailLineup). 팀이 없으면 null이고, 그때는 빈 상태 카드를 보여 준다(States "팀 없음").
-// 임시 팀(isConfirmed=false)은 참가자에게도 임시라고 알린다. 확정 취소는 BE에 API가 없어(#119) 문구에서 뺐다.
+// 임시 팀(isConfirmed=false)은 참가자에게도 임시라고 알린다. 확정된 팀에서 확정 취소·경기 종료를 안내하는 문장은
+// 그 버튼이 보이는 파티장(팀 확정 경기)에게만 쓴다. status는 경기 상태(BE status)다.
 // 반환: { stage: 'draft' | 'confirmed', tone, badge, title, description }
-export function teamStatusView({ lineup, isHost }) {
+export function teamStatusView({ lineup, isHost, status }) {
   if (!lineup) return null
   if (lineup.isConfirmed) {
     return {
@@ -68,8 +69,8 @@ export function teamStatusView({ lineup, isHost }) {
       tone: 'navy',
       badge: '확정',
       title: '확정된 팀',
-      description: isHost
-        ? '참가가 마감됐고 팀과 전술이 잠겼어요. 경기를 마쳤으면 종료해 주세요.'
+      description: canFinish({ isHost, status })
+        ? '참가가 마감됐고 팀과 전술이 잠겼어요. 바꿀 게 있으면 확정을 취소하고, 경기를 마쳤으면 종료해 주세요.'
         : '참가가 마감됐고 팀과 전술이 잠겼어요.',
     }
   }
@@ -87,6 +88,11 @@ export function teamStatusView({ lineup, isHost }) {
 // 확정된 팀의 "경기 종료" 버튼은 팀이 확정된(CONFIRMED) 경기의 파티장에게만 보인다. 권한은 BE 응답(GAME_403_1)을 따른다.
 export function canFinish({ isHost, status }) {
   return isHost === true && status === 'CONFIRMED'
+}
+
+// "확정 취소"(PATCH .../lineups/confirm/cancel, BE D-40)도 같은 조건이다. 모집 중·종료된 경기는 BE가 LINEUP_409_5로 거절한다.
+export function canCancelConfirm({ isHost, status }) {
+  return canFinish({ isHost, status })
 }
 
 // 경기 종료 실패 안내. 분기는 상태 코드와 code로 한다.

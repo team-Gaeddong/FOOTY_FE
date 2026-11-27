@@ -3,9 +3,12 @@ import { ErrorMessage } from '../../components/ErrorMessage.jsx'
 import { CheckIcon } from '../../components/Icons.jsx'
 import styles from './TeamConfirm.module.css'
 
-// 확정하면 생기는 일(시안 Lineup). 시안의 세 번째 줄 "경기를 종료하기 전까지는 확정을 취소할 수 있어요"는
-// BE에 확정 취소 API가 없어(#119) 뺐다.
-const RESULTS = ['더 참가할 수 없어요 (모집 마감).', '팀과 전술을 수정할 수 없어요.']
+// 확정하면 생기는 일(시안 Lineup). 확정 취소는 BE D-40(PATCH .../lineups/confirm/cancel)이다.
+const RESULTS = [
+  '더 참가할 수 없어요 (모집 마감).',
+  '팀과 전술을 수정할 수 없어요.',
+  '경기를 종료하기 전까지는 확정을 취소할 수 있어요.',
+]
 
 // 임시 팀을 확정하는 카드(파티장). 저장하지 않은 변경이 있으면 확정을 막는다.
 export function TeamConfirm({ unsaved, confirming, disabled, error, onConfirm }) {
