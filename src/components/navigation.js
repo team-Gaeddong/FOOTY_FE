@@ -27,7 +27,6 @@ export const ROUTE_TABLE = [
   { path: '/games/:gameId/polls/:pollId', kind: 'sub', title: '경기 상세', back: '/', bar: true, current: 'games' },
   { path: '/games/:gameId/lineup', kind: 'sub', title: '경기 상세', back: '/', bar: true, current: 'games' },
   { path: '/games/:gameId/after', kind: 'sub', title: '경기 상세', back: '/', bar: true, current: 'games' },
-  { path: '/games/:gameId/lineup/edit', kind: 'sub', title: '팀 짜기', back: '/games/:gameId', bar: true, current: 'games' },
   { path: '/games/:gameId/players', kind: 'sub', title: '선수 관리', back: '/games/:gameId', bar: true, current: 'games' },
   { path: '/games/:gameId/teams/:teamId/tactic', kind: 'sub', title: '전술 배치도', back: '/games/:gameId/lineup', bar: true, current: 'games' },
   { path: '/games/:gameId/balance-review', kind: 'sub', title: '밸런스 평가', back: '/games/:gameId/after', bar: true, current: 'games' },

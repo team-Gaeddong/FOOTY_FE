@@ -330,7 +330,7 @@ export function PlayersPage() {
             {mode === 'edit' && unrated === 0 && !unsaved && !locked && players.length > 0 && (
               <Button
                 as={Link}
-                to={`/games/${gameId}/lineup/edit`}
+                to={`/games/${gameId}/lineup`}
                 state={{ game: toSummary(game) }}
                 variant="secondary"
                 fit="auto"

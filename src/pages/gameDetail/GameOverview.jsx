@@ -136,7 +136,7 @@ function ParticipantCard() {
         </li>
         <li>
           <CheckIcon size={16} />
-          <span>팀이 정해지면 라인업 탭에서 볼 수 있어요.</span>
+          <span>팀이 정해지면 팀 탭에서 볼 수 있어요.</span>
         </li>
         <li>
           <CheckIcon size={16} />

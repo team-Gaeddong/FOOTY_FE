@@ -43,7 +43,7 @@ function sameDraft(a, b) {
 
 // 팀 하나의 포메이션과 선수 배치를 보고 고친다(BE D-23, 시안 Tactic). 저장은 파티장만 된다.
 // 파티장이 아니면 처음부터 읽기 전용으로 보여주고, 최종 권한은 BE 응답(403·409)으로 판단한다.
-// 팀 짜기 화면에서 들어오면 팀 목록을 이동 state로 받고, 새로고침 등으로 없으면 최근 라인업에서 가져온다(BE D-24).
+// 팀 탭에서 들어오면 팀 목록을 이동 state로 받고, 새로고침 등으로 없으면 최근 라인업에서 가져온다(BE D-24).
 export function TacticPage() {
   const params = useParams()
   const location = useLocation()

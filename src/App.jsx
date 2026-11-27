@@ -25,7 +25,6 @@ import { ProfilePage } from './pages/profile/ProfilePage.jsx'
 import { RematchGamePage } from './pages/games/RematchGamePage.jsx'
 import { ReportPage } from './pages/after/ReportPage.jsx'
 import { TacticPage } from './pages/lineup/TacticPage.jsx'
-import { TeamMatchPage } from './pages/lineup/TeamMatchPage.jsx'
 import { WithdrawPage } from './pages/profile/WithdrawPage.jsx'
 
 // 홈(/)이 경기 목록을 겸하므로 옛 /games는 홈으로 보낸다. 삭제 완료 안내 같은 state는 그대로 넘긴다.
@@ -39,6 +38,12 @@ function PlayersRedirect() {
   const { gameId } = useParams()
   const { state } = useLocation()
   return <Navigate to={`/games/${gameId}/players`} replace state={state} />
+}
+
+// 파티장용 "팀 짜기" 화면(/lineup/edit)을 팀 탭에 합쳤다(2026-11-27 시안 변경). 옛 경로는 팀 탭으로 보낸다.
+function TeamTabRedirect() {
+  const { gameId } = useParams()
+  return <Navigate to={`/games/${gameId}/lineup`} replace />
 }
 
 // FD-03: react-router. /login/callback은 BE OAUTH_REDIRECT_URI와 맞춘다.
@@ -75,7 +80,7 @@ function App() {
               <Route path="/games/:gameId/players" element={<PlayersPage />} />
               <Route path="/games/:gameId/skill-levels" element={<PlayersRedirect />} />
               <Route path="/games/:gameId/positions" element={<PlayersRedirect />} />
-              <Route path="/games/:gameId/lineup/edit" element={<TeamMatchPage />} />
+              <Route path="/games/:gameId/lineup/edit" element={<TeamTabRedirect />} />
               <Route path="/games/:gameId/teams/:teamId/tactic" element={<TacticPage />} />
               <Route path="/games/:gameId/report" element={<ReportPage />} />
               <Route path="/withdraw" element={<WithdrawPage />} />

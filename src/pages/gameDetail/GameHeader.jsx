@@ -16,13 +16,14 @@ import { dateTimeLabel } from '../home/homeCalendar.js'
 import styles from './GameHeader.module.css'
 
 // 경기 상세 화면들이 함께 쓰는 위쪽 틀: 경기 정보(히어로)와 탭 바. current는 지금 탭('overview' | 'lineup' | 'notices' | 'polls' | 'after').
-// countNote: 참가 인원 아래 안내를 바꾸고 싶을 때(라인업 탭의 "선발 22명 · 후보 2명"). 없으면 정원 안내다.
+// countNote: 참가 인원 아래 안내를 바꾸고 싶을 때(팀 탭의 "선발 22명 · 후보 2명"). 없으면 정원 안내다.
+// onLeave: 탭을 옮기기 전에 물어볼 때(팀 탭에서 저장하지 않은 변경). 이동을 막으려면 event.preventDefault()를 부른다.
 // 공지·투표 탭은 파티장과 참가자만 열 수 있어(BE 403) 그 밖에는 자물쇠를 보여 준다.
-export function GameHeader({ game, current = 'overview', countNote }) {
+export function GameHeader({ game, current = 'overview', countNote, onLeave }) {
   const memberTabsOpen = canOpenMemberTabs(game)
   const tabs = [
     { key: 'overview', label: '개요', to: `/games/${game.id}` },
-    { key: 'lineup', label: '라인업', to: `/games/${game.id}/lineup`, state: { game: toSummary(game) } },
+    { key: 'lineup', label: '팀', to: `/games/${game.id}/lineup`, state: { game: toSummary(game) } },
     {
       key: 'notices',
       label: '공지',
@@ -104,6 +105,7 @@ export function GameHeader({ game, current = 'overview', countNote }) {
             className={styles.tab}
             to={tab.to}
             state={tab.state}
+            onClick={onLeave}
             aria-current={tab.key === current ? 'page' : undefined}
             aria-label={tab.locked ? `${tab.label} (참가자 전용)` : undefined}
           >

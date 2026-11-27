@@ -1,27 +1,20 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
-  bannerKind,
+  canFinish,
   finishErrorMessage,
   isNoLineup,
   lineupErrorMessage,
   lineupNote,
   squadNoteFromCounts,
-  methodLabel,
   pitchMarkers,
   squadSummary,
   teamRows,
+  teamStatusView,
 } from './lineupView.js'
 
 const member = (id, name, position, isSubstitute = false, skillLevel = null) => ({
   gamePlayerId: id, name, position, isSubstitute, skillLevel,
-})
-
-test('편성 방식 칩은 자동·직접으로 나뉜다', () => {
-  assert.equal(methodLabel('ALGORITHM'), '자동 편성')
-  assert.equal(methodLabel('AI'), '자동 편성')
-  assert.equal(methodLabel('MANUAL'), '직접 편성')
-  assert.equal(methodLabel('NEW'), '')
 })
 
 test('선발·후보 수는 모든 팀을 합쳐 센다', () => {
@@ -56,11 +49,50 @@ test('배치도에는 좌표가 있는 팀원만 퍼센트 그대로 그린다',
   assert.deepEqual(pitchMarkers(null), [])
 })
 
-test('위쪽 안내 줄은 파티장에게만, 팀 확정이면 종료, 모집 중이면 팀 짜기 화면 안내다', () => {
-  assert.equal(bannerKind({ isHost: true, status: 'CONFIRMED' }), 'finish')
-  assert.equal(bannerKind({ isHost: true, status: 'RECRUITING' }), 'edit')
-  assert.equal(bannerKind({ isHost: true, status: 'FINISHED' }), null)
-  assert.equal(bannerKind({ isHost: false, status: 'CONFIRMED' }), null)
+test('팀 탭 상태: 팀이 없으면 null, 확정 전은 임시 팀, 확정 뒤는 확정된 팀이다', () => {
+  assert.equal(teamStatusView({ lineup: null, isHost: true }), null)
+
+  const draft = teamStatusView({ lineup: { isConfirmed: false }, isHost: true })
+  assert.equal(draft.stage, 'draft')
+  assert.equal(draft.badge, '임시')
+  assert.equal(draft.tone, 'red')
+  assert.equal(draft.title, '임시 팀 · 조정 중')
+  assert.match(draft.description, /참가자에게도 임시 팀으로 보여요/)
+
+  const confirmed = teamStatusView({ lineup: { isConfirmed: true }, isHost: true })
+  assert.equal(confirmed.stage, 'confirmed')
+  assert.equal(confirmed.badge, '확정')
+  assert.equal(confirmed.tone, 'navy')
+  assert.equal(confirmed.title, '확정된 팀')
+  assert.match(confirmed.description, /경기를 마쳤으면 종료해 주세요/)
+})
+
+test('참가자에게도 임시 팀은 임시라고 보여 주고, 파티장 전용 안내는 뺀다', () => {
+  const draft = teamStatusView({ lineup: { isConfirmed: false }, isHost: false })
+  assert.equal(draft.title, '임시 팀 · 조정 중')
+  assert.doesNotMatch(draft.description, /확정해 주세요/)
+  const confirmed = teamStatusView({ lineup: { isConfirmed: true }, isHost: false })
+  assert.doesNotMatch(confirmed.description, /종료해 주세요/)
+})
+
+test('확정 취소는 BE API가 없어 어떤 안내에도 넣지 않는다(#119)', () => {
+  for (const isConfirmed of [true, false]) {
+    for (const isHost of [true, false]) {
+      assert.doesNotMatch(teamStatusView({ lineup: { isConfirmed }, isHost }).description, /취소/)
+    }
+  }
+})
+
+test('경기 종료 버튼은 팀이 확정된 경기의 파티장에게만 보인다', () => {
+  assert.equal(canFinish({ isHost: true, status: 'CONFIRMED' }), true)
+  assert.equal(canFinish({ isHost: true, status: 'RECRUITING' }), false)
+  assert.equal(canFinish({ isHost: true, status: 'FINISHED' }), false)
+  assert.equal(canFinish({ isHost: false, status: 'CONFIRMED' }), false)
+})
+
+test('불러오기 실패 안내에는 "라인업"이라는 말을 쓰지 않는다', () => {
+  assert.doesNotMatch(lineupErrorMessage({ status: 500 }), /라인업/)
+  assert.match(lineupErrorMessage({ status: 500 }), /팀 구성을 불러오지 못했습니다/)
 })
 
 test('경기 종료 실패 안내는 code로 고르고 BE message를 쓰지 않는다', () => {
