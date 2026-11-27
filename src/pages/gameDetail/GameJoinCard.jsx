@@ -105,7 +105,7 @@ export function GameJoinCard({ gameId, preferred, onUpdated, className = '' }) {
         </li>
         <li>
           <LockIcon size={16} />
-          <span>공지와 투표는 참가한 뒤에 볼 수 있어요.</span>
+          <span>공지·투표와 선수 평점은 참가한 뒤에 볼 수 있어요.</span>
         </li>
       </ul>
     </form>

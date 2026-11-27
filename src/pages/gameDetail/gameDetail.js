@@ -82,6 +82,18 @@ export function playerBadges(player, hostId) {
   return badges
 }
 
+// 참가 선수 목록의 회원 평점(BE D-42). BE는 파티장과 그 경기 참가자에게만 값을 주고, 그 밖에는 모두 null이라
+// FE도 canSee(파티장·참가자)일 때만 보여 준다. 비회원 선수는 회원 평점이 없어 표시하지 않는다.
+// 반환: null(표시 안 함) | { value: '7.25' } | { value: null }("평점 없음")
+export function playerRatingView(player, canSee) {
+  if (!canSee || player.memberId === null || player.memberId === undefined) return null
+  const value = Number(player.rating)
+  if (player.rating === null || player.rating === undefined || player.rating === '' || !Number.isFinite(value)) {
+    return { value: null }
+  }
+  return { value: value.toFixed(2) }
+}
+
 // 희망 포지션(우선순위 순) → "공격수 · 미드필더"
 export function positionsText(positions) {
   if (!positions?.length) return '희망 포지션 없음'

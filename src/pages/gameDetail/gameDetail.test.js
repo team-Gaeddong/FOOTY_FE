@@ -16,6 +16,7 @@ import {
   nextTask,
   parseGameId,
   playerBadges,
+  playerRatingView,
   positionsText,
   progressSteps,
   toSummary,
@@ -216,4 +217,16 @@ test('목록 상태 배지는 지난 경기를 "일정 지남"으로, 나머지�
     tone: 'gray',
     label: '경기 종료',
   })
+})
+
+test('참가 선수 평점은 파티장·참가자에게만, 소수 둘째 자리로 보여 준다', () => {
+  assert.deepEqual(playerRatingView({ memberId: 3, rating: 7.25 }, true), { value: '7.25' })
+  assert.deepEqual(playerRatingView({ memberId: 3, rating: 7 }, true), { value: '7.00' })
+  assert.equal(playerRatingView({ memberId: 3, rating: 7.25 }, false), null)
+})
+
+test('평점이 없는 회원은 "평점 없음", 비회원 선수는 표시하지 않는다', () => {
+  assert.deepEqual(playerRatingView({ memberId: 3, rating: null }, true), { value: null })
+  assert.deepEqual(playerRatingView({ memberId: 3 }, true), { value: null })
+  assert.equal(playerRatingView({ memberId: null, rating: null }, true), null)
 })
