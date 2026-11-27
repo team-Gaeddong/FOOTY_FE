@@ -384,7 +384,7 @@
 
 2026-10-28 BE PR #35(`0a6c46f`)로 BE 이슈 #11·#12·#22·#23의 코드가 `develop`에 복구되어, FC-08에서 보고한 차이는 없다. 쌓은 PR은 병합 커밋이 `develop`의 조상인지 아래 방법으로 확인한다.
 
-**BE에 병합되지 않은 API**: `PUT /games/{gameId}/lineups/latest/teams`(팀 직접 편성, BE 이슈 #82)와 에러 코드 `LINEUP_400_3`~`LINEUP_400_5`는 BE `develop`에 없다. BE 브랜치 `feature/82_manual-team-edit`의 제안이고 BE `decisions.md` D-36도 "제안" 상태다. BE PR이 병합되기 전에는 실제 BE와 연동하지 못하고(요청하면 404 `GLOBAL_404_1`일 수 있다), 병합된 뒤에는 `develop` 코드와 다시 대조해 이 문서의 "BE 미병합" 표시를 지운다. 계약이 리뷰에서 바뀌면 FE(`src/api/lineups.js`, `src/pages/lineupEdit.js`)도 맞춘다(FD-22).
+**BE에 병합되지 않은 API**: `PUT /games/{gameId}/lineups/latest/teams`(팀 직접 편성, BE 이슈 #82)와 에러 코드 `LINEUP_400_3`~`LINEUP_400_5`는 BE `develop`에 없다. BE 브랜치 `feature/82_manual-team-edit`의 제안이고 BE `decisions.md` D-36도 "제안" 상태다. BE PR이 병합되기 전에는 실제 BE와 연동하지 못하고(요청하면 404 `GLOBAL_404_1`일 수 있다), 병합된 뒤에는 `develop` 코드와 다시 대조해 이 문서의 "BE 미병합" 표시를 지운다. 계약이 리뷰에서 바뀌면 FE(`src/api/lineups.js`, `src/pages/lineup/lineupEdit.js`)도 맞춘다(FD-22).
 
 ## 다시 확인하는 방법
 
