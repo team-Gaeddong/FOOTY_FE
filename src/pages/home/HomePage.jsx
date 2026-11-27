@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { listGamesInRange } from '../../api/games.js'
-import { Badge } from '../../components/Badge.jsx'
 import { Button } from '../../components/Button.jsx'
 import { ErrorMessage } from '../../components/ErrorMessage.jsx'
 import {
@@ -12,7 +11,7 @@ import {
   PlusIcon,
 } from '../../components/Icons.jsx'
 import { StateCard } from '../../components/StateCard.jsx'
-import { GAME_STATUS_LABELS } from '../gameDetail/gameDetail.js'
+import { GameStatusBadge } from '../gameDetail/GameStatusBadge.jsx'
 import {
   DAYS_PER_VIEW,
   addDays,
@@ -29,8 +28,6 @@ import {
   windowEnd,
 } from './homeCalendar.js'
 import styles from './HomePage.module.css'
-
-const STATUS_TONES = { RECRUITING: 'green', CONFIRMED: 'navy', FINISHED: 'gray' }
 
 // 다른 화면이 넘겨준 완료 안내(location.state.notice). /games는 이 화면으로 보내면서 state를 그대로 넘긴다.
 const NOTICE_MESSAGES = {
@@ -193,9 +190,7 @@ export function HomePage() {
                     <span className={styles.gameTitle}>{game.title}</span>
                     <span className={styles.sub}>{gameSubtitle(game)}</span>
                   </span>
-                  <Badge tone={STATUS_TONES[game.status] ?? 'gray'} className={styles.status}>
-                    {GAME_STATUS_LABELS[game.status] ?? game.status}
-                  </Badge>
+                  <GameStatusBadge game={game} className={styles.status} />
                   <span className={styles.chevron}>
                     <ChevronRightIcon size={18} />
                   </span>
