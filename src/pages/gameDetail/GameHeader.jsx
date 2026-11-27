@@ -2,17 +2,18 @@ import { Link } from 'react-router'
 import { Badge } from '../../components/Badge.jsx'
 import { CalendarIcon, LockIcon, PinIcon, UserIcon } from '../../components/Icons.jsx'
 import {
+  GAME_PASSED_LABEL,
   GAME_STATUS_LABELS,
+  GAME_STATUS_TONES,
   canOpenMemberTabs,
   capacityNote,
   fillRatio,
+  isGamePassed,
   toSummary,
 } from './gameDetail.js'
 import { isAfterOpen } from '../after/afterTab.js'
 import { dateTimeLabel } from '../home/homeCalendar.js'
 import styles from './GameHeader.module.css'
-
-const STATUS_TONES = { RECRUITING: 'green', CONFIRMED: 'navy', FINISHED: 'gray' }
 
 // 경기 상세 화면들이 함께 쓰는 위쪽 틀: 경기 정보(히어로)와 탭 바. current는 지금 탭('overview' | 'lineup' | 'notices' | 'polls' | 'after').
 // countNote: 참가 인원 아래 안내를 바꾸고 싶을 때(라인업 탭의 "선발 22명 · 후보 2명"). 없으면 정원 안내다.
@@ -48,9 +49,10 @@ export function GameHeader({ game, current = 'overview', countNote }) {
       <section className={styles.hero} aria-labelledby="game-title">
         <div className={styles.main}>
           <div className={styles.badges}>
-            <Badge tone={STATUS_TONES[game.status] ?? 'gray'}>
+            <Badge tone={GAME_STATUS_TONES[game.status] ?? 'gray'}>
               {GAME_STATUS_LABELS[game.status] ?? game.status}
             </Badge>
+            {isGamePassed(game) && <Badge tone="gray">{GAME_PASSED_LABEL}</Badge>}
             {game.isHost ? (
               <Badge tone="deep">내가 만든 경기</Badge>
             ) : game.isJoined ? (

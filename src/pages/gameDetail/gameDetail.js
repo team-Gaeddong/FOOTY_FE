@@ -19,6 +19,35 @@ export const GAME_STATUS_LABELS = {
   FINISHED: '경기 종료',
 }
 
+// 경기 상태 배지 색(BE `status`)
+export const GAME_STATUS_TONES = { RECRUITING: 'green', CONFIRMED: 'navy', FINISHED: 'gray' }
+
+export const GAME_PASSED_LABEL = '일정 지남'
+
+const pad = (value) => String(value).padStart(2, '0')
+
+// 지금 시각을 BE `LocalDateTime`과 같은 'yyyy-MM-ddTHH:mm:ss'로 만든다. 같은 형식이면 글자 순서가 시간 순서다.
+// 시간대(FD-12)는 미결정이라 homeCalendar의 todayString처럼 브라우저 시계를 한국시간으로 본다.
+function localDateTimeString(now) {
+  const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+  return `${date}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
+}
+
+// 경기 일시가 지났는데 아직 종료되지 않은(모집 중·팀 확정) 경기인가. 종료된 경기는 "경기 종료"로 이미 알린다.
+export function isGamePassed(game, now = new Date()) {
+  if (game.status === 'FINISHED' || !parse(game.playDate)) return false
+  return game.playDate.slice(0, 19) < localDateTimeString(now)
+}
+
+// 목록에 붙이는 상태 배지 하나. 일정이 지났으면 상태 대신 "일정 지남"을 보여 준다.
+export function gameStatusBadge(game, now = new Date()) {
+  if (isGamePassed(game, now)) return { tone: 'gray', label: GAME_PASSED_LABEL }
+  return {
+    tone: GAME_STATUS_TONES[game.status] ?? 'gray',
+    label: GAME_STATUS_LABELS[game.status] ?? game.status,
+  }
+}
+
 // "2026-11-08T08:00:00" → "11월 8일 (토) 오전 8:00"
 export function formatPlayDate(value) {
   const date = parse(value)

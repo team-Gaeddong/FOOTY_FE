@@ -1,7 +1,6 @@
 import { startTransition, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../../auth/useAuth.js'
-import { Badge } from '../../components/Badge.jsx'
 import { Button } from '../../components/Button.jsx'
 import { ErrorMessage } from '../../components/ErrorMessage.jsx'
 import {
@@ -13,13 +12,11 @@ import {
   UsersIcon,
 } from '../../components/Icons.jsx'
 import { StateCard } from '../../components/StateCard.jsx'
-import { GAME_STATUS_LABELS } from '../gameDetail/gameDetail.js'
+import { GameStatusBadge } from '../gameDetail/GameStatusBadge.jsx'
 import { capacityText, dateTimeLabel } from '../home/homeCalendar.js'
 import { loadMyGames } from './loadMyGames.js'
 import { loadErrorMessage, statusGuide } from './myGames.js'
 import styles from './MyGamesPage.module.css'
-
-const STATUS_TONES = { RECRUITING: 'green', CONFIRMED: 'navy', FINISHED: 'gray' }
 
 // 내가 파티장인 경기를 예정된 경기와 종료된 경기로 나눠 보여준다(제안서 ⑭·③).
 // BE `GET /games?role=host`(BE D-37)로 받는다. 참여만 한 경기는 시안에 없어 보여주지 않는다.
@@ -152,9 +149,7 @@ function GameCard({ game }) {
   return (
     <article className={styles.card} aria-labelledby={titleId}>
       <div className={styles.badgeRow}>
-        <Badge tone={STATUS_TONES[game.status] ?? 'gray'}>
-          {GAME_STATUS_LABELS[game.status] ?? game.status}
-        </Badge>
+        <GameStatusBadge game={game} />
       </div>
       <h3 id={titleId} className={styles.cardTitle}>
         {game.title}

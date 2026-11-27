@@ -10,6 +10,8 @@ import {
   formatCreatedDate,
   formatCreatedDateFull,
   formatPlayDate,
+  gameStatusBadge,
+  isGamePassed,
   lineupLocked,
   nextTask,
   parseGameId,
@@ -169,4 +171,47 @@ test('만든 날짜는 연·월·일을 점으로 이어 쓴다', () => {
   assert.equal(formatCreatedDateFull('2026-11-20T09:00:00'), '2026. 11. 20.')
   assert.equal(formatCreatedDateFull('2026-03-04T09:00:00'), '2026. 03. 04.')
   assert.equal(formatCreatedDateFull('이상한 값'), '이상한 값')
+})
+
+// 2026-11-27 21:00(금)을 "지금"으로 둔다. Date의 월은 0부터라 10이 11월이다.
+const NOW = new Date(2026, 10, 27, 21, 0, 0)
+
+test('일정이 지난 모집 중·팀 확정 경기는 지난 경기다', () => {
+  assert.equal(isGamePassed({ status: 'RECRUITING', playDate: '2026-11-27T20:59:59' }, NOW), true)
+  assert.equal(isGamePassed({ status: 'CONFIRMED', playDate: '2026-11-22T17:30:00' }, NOW), true)
+})
+
+test('지금 시작하는 경기와 앞으로의 경기는 지난 경기가 아니다', () => {
+  assert.equal(isGamePassed({ status: 'RECRUITING', playDate: '2026-11-27T21:00:00' }, NOW), false)
+  assert.equal(isGamePassed({ status: 'CONFIRMED', playDate: '2026-12-02T20:00:00' }, NOW), false)
+})
+
+test('종료된 경기와 일시를 읽을 수 없는 경기는 지난 경기로 보지 않는다', () => {
+  assert.equal(isGamePassed({ status: 'FINISHED', playDate: '2026-11-15T17:30:00' }, NOW), false)
+  assert.equal(isGamePassed({ status: 'RECRUITING', playDate: null }, NOW), false)
+  assert.equal(isGamePassed({ status: 'RECRUITING', playDate: '내일' }, NOW), false)
+})
+
+test('소수 초가 붙은 일시도 같은 초까지만 비교한다', () => {
+  assert.equal(isGamePassed({ status: 'RECRUITING', playDate: '2026-11-27T21:00:00.500000' }, NOW), false)
+  assert.equal(isGamePassed({ status: 'RECRUITING', playDate: '2026-11-27T20:59:59.999999' }, NOW), true)
+})
+
+test('목록 상태 배지는 지난 경기를 "일정 지남"으로, 나머지는 상태대로 보여 준다', () => {
+  assert.deepEqual(gameStatusBadge({ status: 'RECRUITING', playDate: '2026-11-21T10:10:00' }, NOW), {
+    tone: 'gray',
+    label: '일정 지남',
+  })
+  assert.deepEqual(gameStatusBadge({ status: 'RECRUITING', playDate: '2026-12-02T20:00:00' }, NOW), {
+    tone: 'green',
+    label: '모집 중',
+  })
+  assert.deepEqual(gameStatusBadge({ status: 'CONFIRMED', playDate: '2026-12-06T18:00:00' }, NOW), {
+    tone: 'navy',
+    label: '팀 확정',
+  })
+  assert.deepEqual(gameStatusBadge({ status: 'FINISHED', playDate: '2026-11-22T17:30:00' }, NOW), {
+    tone: 'gray',
+    label: '경기 종료',
+  })
 })
