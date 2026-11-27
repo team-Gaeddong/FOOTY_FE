@@ -111,3 +111,10 @@ test('전술 배치도는 모바일 하위 바(뒤로 + 제목)를 켠다', () =
   assert.equal(route.title, '전술 배치도')
   assert.equal(route.bar, true)
 })
+
+test('선수 평점은 모바일 하위 바를 켜고 뒤로 가면 경기 후 탭이다', () => {
+  const route = matchRoute('/games/12/ratings')
+  assert.equal(route.title, '선수 평점')
+  assert.equal(route.bar, true)
+  assert.equal(route.back, '/games/12/after')
+})

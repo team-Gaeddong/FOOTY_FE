@@ -18,6 +18,7 @@ import { NoticesPage } from './pages/notices/NoticesPage.jsx'
 import { MvpVotePage } from './pages/after/MvpVotePage.jsx'
 import { MyGamesPage } from './pages/games/MyGamesPage.jsx'
 import { OnboardingPage } from './pages/login/OnboardingPage.jsx'
+import { PlayerRatingsPage } from './pages/after/PlayerRatingsPage.jsx'
 import { PlayersPage } from './pages/players/PlayersPage.jsx'
 import { PollCreatePage } from './pages/polls/PollCreatePage.jsx'
 import { PollsPage } from './pages/polls/PollsPage.jsx'
@@ -76,6 +77,7 @@ function App() {
               <Route path="/games/:gameId/balance-review" element={<BalanceReviewPage />} />
               <Route path="/games/:gameId/balance-summary" element={<BalanceSummaryPage />} />
               <Route path="/games/:gameId/mvp-vote" element={<MvpVotePage />} />
+              <Route path="/games/:gameId/ratings" element={<PlayerRatingsPage />} />
               <Route path="/games/:gameId/rematch" element={<RematchGamePage />} />
               <Route path="/games/:gameId/players" element={<PlayersPage />} />
               <Route path="/games/:gameId/skill-levels" element={<PlayersRedirect />} />

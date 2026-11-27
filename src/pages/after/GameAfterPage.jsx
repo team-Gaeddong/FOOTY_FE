@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useOutletContext } from 'react-router'
 import { getBalanceSummary, getMyBalanceReview } from '../../api/balanceReviews.js'
+import { listPlayerRatings } from '../../api/games.js'
 import { getMyMvpVote } from '../../api/mvpVotes.js'
 import { Badge } from '../../components/Badge.jsx'
 import { Button } from '../../components/Button.jsx'
-import { ClockIcon, FlagIcon, LockIcon, RepeatIcon, ScaleIcon, TrophyIcon } from '../../components/Icons.jsx'
+import { ClockIcon, FlagIcon, LockIcon, PencilIcon, RepeatIcon, ScaleIcon, TrophyIcon } from '../../components/Icons.jsx'
 import { StateCard } from '../../components/StateCard.jsx'
 import { GameHeader } from '../gameDetail/GameHeader.jsx'
 import { squadNoteFromCounts } from '../lineup/lineupView.js'
@@ -182,6 +183,8 @@ function AfterCards({ game }) {
         </div>
       </Card>
 
+      {game.isHost && <RatingCard gameId={game.id} retryCount={retryCount} onRetry={retry} />}
+
       <Card
         icon={<FlagIcon size={20} />}
         title="선수 신고"
@@ -215,6 +218,50 @@ function AfterCards({ game }) {
         </Card>
       )}
     </div>
+  )
+}
+
+// 선수 평점 카드(파티장, 시안 DetailAfter). 입력 현황은 GET /games/{id}/players/ratings(BE D-41, 파티장만)로 센다.
+function RatingCard({ gameId, retryCount, onRetry }) {
+  const ratings = useLoaded(listPlayerRatings, gameId, retryCount)
+  const players = ratings.status === 'ok' ? ratings.data.players : null
+  const rated = players ? players.filter((player) => player.rating !== null && player.rating !== undefined).length : 0
+  const total = players ? players.length : 0
+
+  return (
+    <Card
+      icon={<PencilIcon size={20} />}
+      title="선수 평점"
+      badge={{ tone: 'deep', label: '파티장' }}
+      description="선수별 경기 평점을 1.0~10.0으로 매겨요. 평점은 파티장에게만 보이고, 평균이 각자의 프로필에 반영돼요."
+    >
+      <div className={styles.progress}>
+        <div className={styles.progressHead}>
+          <span className={styles.progressLabel}>입력 현황</span>
+          <span className={styles.progressValue}>
+            {ratings.status === 'loading' ? '불러오는 중…' : players ? `${rated} / ${total}명` : '-'}
+          </span>
+        </div>
+        {players && (
+          <div className={styles.bar} role="img" aria-label={`${total} 중 ${rated}`}>
+            <span style={{ width: `${total > 0 ? Math.round((rated / total) * 100) : 0}%` }} />
+          </div>
+        )}
+      </div>
+      {ratings.status === 'error' && (
+        <p className={styles.error} role="alert">
+          {afterLoadMessage(ratings.error)}{' '}
+          <button type="button" className={styles.retry} onClick={onRetry}>
+            다시 시도
+          </button>
+        </p>
+      )}
+      <div className={styles.actions}>
+        <Button as={Link} to={`/games/${gameId}/ratings`} fit="auto">
+          평점 주기
+        </Button>
+      </div>
+    </Card>
   )
 }
 

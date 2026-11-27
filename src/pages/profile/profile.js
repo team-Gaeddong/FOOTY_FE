@@ -3,7 +3,8 @@
 const NETWORK_ERROR = '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
 const isApiError = (error) => typeof error?.status === 'number'
 
-// BE rating은 BigDecimal(소수 둘째 자리)이라 JSON 숫자로 온다. 평점 계산 방식은 BE D-38이 미결정이라 값만 그대로 보여 준다.
+// BE rating은 BigDecimal(소수 둘째 자리)이라 JSON 숫자로 온다. 경기 후 평점의 평균이고(BE D-38), 평점을 받은 경기가
+// 2개 미만이면 null이라 '-'로 보여 준다.
 export function formatRating(rating) {
   const value = Number(rating)
   if (rating === null || rating === undefined || rating === '' || !Number.isFinite(value)) return '-'
