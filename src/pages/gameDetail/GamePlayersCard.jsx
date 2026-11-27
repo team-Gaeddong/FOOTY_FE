@@ -3,7 +3,7 @@ import { Badge } from '../../components/Badge.jsx'
 import { Button } from '../../components/Button.jsx'
 import { ErrorMessage } from '../../components/ErrorMessage.jsx'
 import { PositionChips } from '../../components/PositionChips.jsx'
-import { countUnratedPlayers, playerBadges } from './gameDetail.js'
+import { canOpenMemberTabs, countUnratedPlayers, playerBadges, playerRatingView } from './gameDetail.js'
 import styles from './GameOverview.module.css'
 
 function playersErrorMessage(error) {
@@ -14,10 +14,12 @@ function playersErrorMessage(error) {
 }
 
 // 참가 선수 목록(GET /games/{gameId}/players, BE D-20). 로그인한 회원 누구나 보고, 실력은 파티장에게만 내려온다.
+// 이름 옆의 회원 평점(BE D-42)은 파티장과 이 경기 참가자에게만 보인다(시안 DetailHost).
 // loaded는 { players } | { error } | null(불러오는 중)이다. memberId는 "나" 표시에 쓰고 모르면 null이다.
 export function GamePlayersCard({ game, loaded, memberId, onRetry, className = '' }) {
   const players = loaded?.players ?? []
   const unrated = game.isHost ? countUnratedPlayers(players) : 0
+  const canSeeRatings = canOpenMemberTabs(game)
 
   return (
     <section
@@ -58,6 +60,7 @@ export function GamePlayersCard({ game, loaded, memberId, onRetry, className = '
         <ul className={styles.players}>
           {players.map((player) => {
             const isMe = memberId !== null && player.memberId === memberId
+            const rating = playerRatingView(player, canSeeRatings)
             return (
               <li key={player.id} className={styles.player}>
                 <Avatar name={player.name} tone={isMe ? 'brand' : 'neutral'} />
@@ -70,6 +73,14 @@ export function GamePlayersCard({ game, loaded, memberId, onRetry, className = '
                         {badge}
                       </Badge>
                     ))}
+                    {rating &&
+                      (rating.value === null ? (
+                        <span className={styles.ratingEmpty}>평점 없음</span>
+                      ) : (
+                        <span className={styles.rating}>
+                          평점 <strong>{rating.value}</strong>
+                        </span>
+                      ))}
                   </div>
                   {player.positions?.length ? (
                     <PositionChips positions={player.positions} />

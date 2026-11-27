@@ -301,6 +301,27 @@
   overflow-wrap: anywhere;
 }
 
+/* 이름 옆 회원 평점(시안 DetailHost): 윤곽선·배경 없이 글자만. 값은 brand-green(숫자 굵게), 없으면 gray-400 */
+.rating,
+.ratingEmpty {
+  white-space: nowrap;
+  font-size: var(--text-12);
+  line-height: var(--leading-12);
+  font-weight: 600;
+}
+
+.rating {
+  color: var(--brand-green);
+}
+
+.rating strong {
+  font-weight: 700;
+}
+
+.ratingEmpty {
+  color: var(--gray-400);
+}
+
 .noPositions {
   color: var(--text-faint);
   font-size: var(--text-12);
